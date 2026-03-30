@@ -12,9 +12,7 @@ class AuthGate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // StreamBuilder constantly listens to the Firebase Auth state
-      body: StreamBuilder<User?>(
+    return StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
 
@@ -37,7 +35,6 @@ class AuthGate extends StatelessWidget {
           // 3. If they are NOT logged in, show the Login/Signup Screen
           return const LoginSignup();
         },
-      ),
     );
   }
 }
