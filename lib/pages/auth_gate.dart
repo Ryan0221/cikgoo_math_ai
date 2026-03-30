@@ -27,7 +27,7 @@ class AuthGate extends StatelessWidget {
           if (snapshot.hasData) {
             final user = snapshot.data!;
 
-            if (user?.email == 'tjk02020113@gmail.com') {
+            if (user.email == 'tjk02020113@gmail.com') {
               return const AdminDashboard();
             } else {
               return const Home();
