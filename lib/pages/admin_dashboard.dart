@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:cikgoo_math_ai/services/firebase_service.dart';
+import 'package:cikgoo_math_ai/services/firestore_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class AdminDashboard extends StatelessWidget {
   const AdminDashboard({super.key});
+
+  Future<void> _signOut(BuildContext context) async {
+    await GoogleSignIn().signOut(); // Sign out from Google
+    await FirebaseAuth.instance.signOut(); // Sign out from Firebase
+  }
+
   void _showAddNoteDialog(BuildContext context) {
     final TextEditingController idController = TextEditingController();
     double selectedAlignX = 0.0;
@@ -68,9 +76,22 @@ class AdminDashboard extends StatelessWidget {
       },
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Add an AppBar with a logout button
+      appBar: AppBar(
+        title: const Text("Admin Panel"),
+        backgroundColor: Colors.red[900],
+        actions: [
+          IconButton(
+            onPressed: () => _signOut(context),
+            icon: const Icon(Icons.logout),
+            tooltip: 'Logout',
+          ),
+        ],
+      ),
       body: const Center(
         child: Text("Notes list will go here!"),
       ),
