@@ -76,14 +76,23 @@ class _LoginSignupState extends State<LoginSignup> {
 
     // Only create the document if it doesn't exist yet (so we don't overwrite names on login)
     if (!docSnap.exists) {
-      // Generate 9 random numbers
-      String randomNums = List.generate(9, (_) => Random().nextInt(10)).join();
-      String generatedName = 'user$randomNums';
+      String finalName;
 
+      // 1. Check if Firebase pulled a real name from Google
+      if (user.displayName != null && user.displayName!.isNotEmpty) {
+        finalName = user.displayName!; // Use the real Google name
+      }
+      // 2. If no name exists (Email/Password signup), generate the random one
+      else {
+        String randomNums = List.generate(9, (_) => Random().nextInt(10)).join();
+        finalName = 'user$randomNums';
+      }
+
+      // Save it to Firestore
       await docRef.set({
         'uid': user.uid,
         'email': user.email,
-        'name': generatedName, // Saves: user123456789
+        'name': finalName,
         'createdAt': FieldValue.serverTimestamp(),
       });
     }
