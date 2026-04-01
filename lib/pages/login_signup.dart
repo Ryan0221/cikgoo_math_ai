@@ -4,6 +4,7 @@ import 'dart:math';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cikgoo_math_ai/pages/verification_code.dart';
 
@@ -68,6 +69,26 @@ class _LoginSignupState extends State<LoginSignup> {
     });
   }
 
+  // NEW: Helper function to create the Firestore User Document
+  Future<void> _checkAndCreateUserDoc(User user) async {
+    final docRef = FirebaseFirestore.instance.collection('users').doc(user.uid);
+    final docSnap = await docRef.get();
+
+    // Only create the document if it doesn't exist yet (so we don't overwrite names on login)
+    if (!docSnap.exists) {
+      // Generate 9 random numbers
+      String randomNums = List.generate(9, (_) => Random().nextInt(10)).join();
+      String generatedName = 'user$randomNums';
+
+      await docRef.set({
+        'uid': user.uid,
+        'email': user.email,
+        'name': generatedName, // Saves: user123456789
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    }
+  }
+
   Future<void> _signInWithGoogle() async {
     if (_isLoading) return;
 
@@ -95,13 +116,21 @@ class _LoginSignupState extends State<LoginSignup> {
       );
 
       // Sign into Firebase
-      await FirebaseAuth.instance.signInWithCredential(credential);
+      final UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+
+      // NEW: Check if this is their first time logging in. If so, create database profile!
+      if (userCredential.user != null) {
+        await _checkAndCreateUserDoc(userCredential.user!);
+      }
+
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/first_page');
+      }
 
     } catch (e) {
       // CRITICAL: This catches any crashes or Exception 10s so the app doesn't freeze!
       print("Google Sign-In Error: $e");
 
-      // Optional: You could add a ScaffoldMessenger here to show a red error popup to the user
 
     } finally {
       // FINALLY always runs at the very end, whether the try succeeds OR fails.
@@ -312,8 +341,8 @@ class _LoginSignupState extends State<LoginSignup> {
                                 if (_isLoading) return;
 
                                 if (isLogin) {
-                                  // Navigate to Home After Login
-                                  Navigator.pushReplacementNamed(context, '/home');
+                                  // Navigate to FirstPage After Login
+                                  Navigator.pushReplacementNamed(context, '/first_page');
                                 } else {
                                   // Check validation
                                   if (!_hasLength ||
@@ -380,19 +409,53 @@ class _LoginSignupState extends State<LoginSignup> {
                                     );
 
                                     if (isVerified == true) {
-                                      setState(() {
-                                        isLogin = true;
-                                        _passwordController.clear();
-                                        _confirmPasswordController.clear();
-                                      });
-
-                                      if (context.mounted) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(
-                                            content: const Text("Account created! Please login"),
-                                            backgroundColor: Colors.green.withValues(alpha: 0.8),
-                                          ),
+                                      setState(() => _isLoading = true);
+                                      try {
+                                        // NEW: 1. Create the Firebase Auth Account
+                                        UserCredential userCred = await FirebaseAuth.instance
+                                            .createUserWithEmailAndPassword(
+                                          email: _emailController.text.trim(),
+                                          password: _passwordController.text,
                                         );
+
+                                        // NEW: 2. Create the Firestore database record
+                                        if (userCred.user != null) {
+                                          await _checkAndCreateUserDoc(userCred.user!);
+                                        }
+                                        await FirebaseAuth.instance.signOut();
+
+                                        setState(() {
+                                          isLogin = true;
+                                          _passwordController.clear();
+                                          _confirmPasswordController.clear();
+                                        });
+
+                                        if (context.mounted) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                              content: const Text(
+                                                  "Account created! Please login"),
+                                              backgroundColor: Colors.green
+                                                  .withValues(alpha: 0.8),
+                                            ),
+                                          );
+                                        }
+                                      } catch (e) {
+                                        if (context.mounted) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                  "Error creating account: $e"),
+                                              backgroundColor: Colors.redAccent,
+                                            ),
+                                          );
+                                        }
+                                      } finally {
+                                        if (mounted) {
+                                          setState(() => _isLoading = false);
+                                        }
                                       }
                                     }
                                   }
@@ -433,12 +496,12 @@ class _LoginSignupState extends State<LoginSignup> {
                                   ),
                                 ),
                               ),
-                            ), // End of GestureDetector
-                          ], // End of Column children inside the glass card
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                  ), // End of the main glass card (ClipRRect)
+                  ),
 
                   const SizedBox(height: 30),
                   const Text(

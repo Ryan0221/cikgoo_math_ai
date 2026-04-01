@@ -1,3 +1,4 @@
+import 'package:cikgoo_math_ai/pages/first_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -28,7 +29,7 @@ class AuthGate extends StatelessWidget {
             if (user.email == 'tjk02020113@gmail.com') {
               return const AdminDashboard();
             } else {
-              return const Home();
+              return const FirstPage();
             }
           }
 

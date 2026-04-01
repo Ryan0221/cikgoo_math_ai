@@ -68,7 +68,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
         selectedItemColor: Colors.white,
         unselectedItemColor: Colors.white70,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Test'),
           BottomNavigationBarItem(icon: Icon(Icons.bookmark_border), label: 'Bookmark'),
           BottomNavigationBarItem(icon: Icon(Icons.menu_book), label: 'Notes'),
           BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profile'),
