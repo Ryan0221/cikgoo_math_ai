@@ -17,6 +17,18 @@ class _HomeState extends State<Home> {
   final List<CourseNode> nodes = CourseData.levelOnePath;
   final double nodeHeight = 120.0;
 
+  late List<double> randomOffsets;
+
+  @override
+  void initState() {
+    super.initState();
+    // Generate a random X offset (-0.6 to 0.6) for each node once
+    final random = Random();
+    randomOffsets = List.generate(nodes.length,
+            (index) => (random.nextDouble() * 1.2) - 0.6
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,14 +50,17 @@ class _HomeState extends State<Home> {
                     children: [
                       Positioned.fill(
                         child: CustomPaint(
-                          painter: PathPainter(nodes: nodes, nodeHeight: nodeHeight),
+                          painter: PathPainter(nodes: nodes, nodeHeight: nodeHeight, offsets: randomOffsets),
                         ),
                       ),
                       ...List.generate(nodes.length, (index) {
                         final node = nodes[index];
+                        // Calculate X position using our randomOffsets list instead of node.alignX
+                        double xPos = (randomOffsets[index] + 1) / 2 * MediaQuery.of(context).size.width - 35;
+
                         return Positioned(
                           top: index * nodeHeight + (nodeHeight / 2) - 35,
-                          left: (node.alignX + 1) / 2 * MediaQuery.of(context).size.width - 35,
+                          left: xPos,
                           child: _buildPathNode(node),
                         );
                       }),
@@ -144,32 +159,48 @@ class _HomeState extends State<Home> {
 
   Widget _buildPathNode(CourseNode node) {
     return GestureDetector(
-        onTap: () {
-          if (node.isRevision) {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const QuizScreen()));
-          } else {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const PdfViewerScreen(
-                  // Change this to the exact name of a PDF in your folder!
-                  pdfPath: 'assets/notes/note1.1.pdf',
-                  title: 'Course Notes', // You can change this to node.name later
-                ),
+      onTap: () {
+        if (node.isRevision) {
+          Navigator.push(
+              context, MaterialPageRoute(builder: (_) => const QuizScreen()));
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const PdfViewerScreen(
+                pdfPath: 'assets/notes/note1.1.pdf',
+                title: 'Course Notes',
               ),
-            );
-          }
-        },
+            ),
+          );
+        }
+      },
+      child: Container(
+        width: 70,
+        height: 70,
+        decoration: BoxDecoration(
+          color: Colors.grey[600],
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.black87, width: 1.5),
+        ),
+        child: Icon(
+          node.isRevision ? Icons.menu_book_outlined : Icons.assignment,
+          color: Colors.white,
+          size: 35,
+        ),
+      ),
     );
   }
-}
+  }
+
 
 // Copy the PathPainter and dummy screens as well to ensure it compiles
 class PathPainter extends CustomPainter {
   final List<CourseNode> nodes;
   final double nodeHeight;
+  final List<double> offsets;
 
-  PathPainter({required this.nodes, required this.nodeHeight});
+  PathPainter({required this.nodes, required this.nodeHeight, required this.offsets});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -179,14 +210,14 @@ class PathPainter extends CustomPainter {
       ..style = PaintingStyle.stroke;
 
     for (int i = 0; i < nodes.length - 1; i++) {
-      double x1 = (nodes[i].alignX + 1) / 2 * size.width;
-      double y1 = i * nodeHeight + (nodeHeight / 2);
+    double x1 = (offsets[i] + 1) / 2 * size.width;
+    double y1 = i * nodeHeight + (nodeHeight / 2);
 
-      double x2 = (nodes[i + 1].alignX + 1) / 2 * size.width;
-      double y2 = (i + 1) * nodeHeight + (nodeHeight / 2);
+    double x2 = (offsets[i + 1] + 1) / 2 * size.width;
+    double y2 = (i + 1) * nodeHeight + (nodeHeight / 2);
 
-      _drawDashedLine(canvas, Offset(x1, y1), Offset(x2, y2), paint);
-    }
+    _drawDashedLine(canvas, Offset(x1, y1), Offset(x2, y2), paint);
+  }
   }
 
   void _drawDashedLine(Canvas canvas, Offset p1, Offset p2, Paint paint) {
