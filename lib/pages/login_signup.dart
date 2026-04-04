@@ -94,6 +94,9 @@ class _LoginSignupState extends State<LoginSignup> {
         'email': user.email,
         'name': finalName,
         'createdAt': FieldValue.serverTimestamp(),
+        "current_form": 4,
+        "math_spm_f4_completed": 0,
+        "math_spm_f5_completed": 0
       });
     }
   }
