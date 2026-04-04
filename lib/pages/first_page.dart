@@ -49,36 +49,6 @@ class _FirstPageState extends State<FirstPage> {
         ),
         child: _pages[_selectedIndex],
       ),
-        // bottom navigation bar
-        /*bottomNavigationBar: BottomNavigationBar(
-          currentIndex: _selectedIndex,
-          backgroundColor: Colors.black,
-          selectedItemColor: Colors.black,
-          unselectedItemColor: Colors.grey.shade600,
-          onTap: _navigateBottomBar,
-          items: [
-            // home
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
-            ),
-            // bookmark
-            BottomNavigationBarItem(
-              icon: Icon(Icons.bookmark),
-              label: 'Bookmark',
-            ),
-            // notes
-            BottomNavigationBarItem(
-              icon: Icon(Icons.notes),
-              label: 'Notes',
-            ),
-            // profile
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: 'Profile',
-            )
-          ],
-        )*/
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 30),
         child: ClipRRect(

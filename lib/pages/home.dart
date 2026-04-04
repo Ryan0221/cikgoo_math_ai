@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:cikgoo_math_ai/models/course_node.dart';
 import 'package:cikgoo_math_ai/data/course_data.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'quiz_screen.dart';
 
@@ -30,6 +29,47 @@ class _HomeState extends State<Home> {
     );
   }
 
+  void _showMenuPopup() {
+    showDialog(
+      context: context,
+      barrierDismissible: true, // This allows tapping anywhere blank to close
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min, // Shrinks pop-up to fit content
+              children: [
+                const Text(
+                  "Menu",
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 15),
+                // Dummy Menu Items
+                ListTile(
+                  leading: const Icon(Icons.person_outline),
+                  title: const Text("Profile"),
+                  onTap: () => Navigator.pop(context), // Closes pop-up on tap
+                ),
+                ListTile(
+                  leading: const Icon(Icons.settings_outlined),
+                  title: const Text("Settings"),
+                  onTap: () => Navigator.pop(context),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.help_outline),
+                  title: const Text("Help & Support"),
+                  onTap: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,7 +77,6 @@ class _HomeState extends State<Home> {
       // Required so the scrollable content shows behind the floating bar
       extendBody: true,
       body: SafeArea(
-        // We remove bottom padding from SafeArea so content goes behind the bar
         bottom: false,
         child: Column(
           children: [
@@ -78,12 +117,14 @@ class _HomeState extends State<Home> {
 
   Widget _buildStickyHeader() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 10, 10, 20), // Adjusted for button alignment
+      padding: const EdgeInsets.fromLTRB(10, 10, 10, 10), // Adjusted for button alignment
       decoration: BoxDecoration(
         color: const Color(0xFFDCDCDC),
         borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(20),
-          bottomRight: Radius.circular(20),
+          bottomLeft: Radius.circular(30),
+          bottomRight: Radius.circular(30),
+          topLeft: Radius.circular(30),
+          topRight: Radius.circular(30),
         ),
         boxShadow: [
           BoxShadow(
@@ -93,65 +134,44 @@ class _HomeState extends State<Home> {
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          // Row to align title and Sign Out button
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                "Current Progress: From 4",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              IconButton(
-                icon: const Icon(Icons.logout, color: Colors.black87),
-                tooltip: 'Sign Out',
-                onPressed: () async {
-                  // Show confirmation dialog
-                  bool? confirm = await showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text("Sign Out"),
-                      content: const Text("Are you sure you want to log out?"),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, false),
-                          child: const Text("Cancel"),
-                        ),
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, true),
-                          child: const Text("Logout", style: TextStyle(color: Colors.red)),
-                        ),
-                      ],
-                    ),
-                  );
-
-                  if (confirm == true) {
-                    await FirebaseAuth.instance.signOut();
-                    // The AuthGate in your project will automatically redirect to Login
-                  }
-                },
-              ),
-            ],
+          const SizedBox(width: 0),
+          // LEFT COLUMN: Menu Icon
+          IconButton(
+            icon: const Icon(Icons.menu, color: Colors.black87, size: 50),
+            onPressed: _showMenuPopup,
           ),
-          const SizedBox(height: 5),
-          Row(
-            children: [
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: LinearProgressIndicator(
-                    value: 1.0,
-                    minHeight: 10,
-                    backgroundColor: Colors.grey[400],
-                    valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
-                  ),
+          const SizedBox(width: 0),
+          // RIGHT COLUMN: Original Items
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Mathematics SPM Form 4",
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
-              ),
-              const SizedBox(width: 10),
-              const Text("100%", style: TextStyle(fontWeight: FontWeight.bold)),
-            ],
+                const SizedBox(height: 0),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: LinearProgressIndicator(
+                          value: 1.0,
+                          minHeight: 10,
+                          backgroundColor: Colors.grey[400],
+                          valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    const Text("100%", style: TextStyle(fontWeight: FontWeight.bold)),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
       ),
