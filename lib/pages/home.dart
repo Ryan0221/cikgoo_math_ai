@@ -5,6 +5,7 @@ import 'package:cikgoo_math_ai/models/course_node.dart';
 import 'package:cikgoo_math_ai/data/course_data.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+import 'quiz_screen.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -262,11 +263,4 @@ class PdfViewerScreen extends StatelessWidget {
       body: SfPdfViewer.asset(pdfPath),
     );
   }
-}
-
-class QuizScreen extends StatelessWidget {
-  const QuizScreen({super.key});
-  @override
-  Widget build(BuildContext context) =>
-      Scaffold(appBar: AppBar(title: const Text("Quiz Time")));
 }
