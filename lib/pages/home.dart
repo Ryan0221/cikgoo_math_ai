@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:cikgoo_math_ai/models/course_node.dart';
 import 'package:cikgoo_math_ai/data/course_data.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -143,27 +144,22 @@ class _HomeState extends State<Home> {
 
   Widget _buildPathNode(CourseNode node) {
     return GestureDetector(
-      onTap: () {
-        if (node.isRevision) {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const QuizScreen()));
-        } else {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const PdfViewerScreen()));
-        }
-      },
-      child: Container(
-        width: 70,
-        height: 70,
-        decoration: BoxDecoration(
-          color: Colors.grey[600],
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.black87, width: 1.5),
-        ),
-        child: Icon(
-          node.isRevision ? Icons.menu_book_outlined : Icons.assignment,
-          color: Colors.white,
-          size: 35,
-        ),
-      ),
+        onTap: () {
+          if (node.isRevision) {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const QuizScreen()));
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const PdfViewerScreen(
+                  // Change this to the exact name of a PDF in your folder!
+                  pdfPath: 'assets/notes/note1.1.pdf',
+                  title: 'Course Notes', // You can change this to node.name later
+                ),
+              ),
+            );
+          }
+        },
     );
   }
 }
@@ -217,12 +213,24 @@ class PathPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-// Dummy screens remain for navigation
 class PdfViewerScreen extends StatelessWidget {
-  const PdfViewerScreen({super.key});
+  final String pdfPath;
+  final String title;
+
+  const PdfViewerScreen({
+    super.key,
+    required this.pdfPath,
+    required this.title,
+  });
+
   @override
-  Widget build(BuildContext context) =>
-      Scaffold(appBar: AppBar(title: const Text("PDF Note Viewer")));
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(title)),
+      // This is the magic widget that renders the file!
+      body: SfPdfViewer.asset(pdfPath),
+    );
+  }
 }
 
 class QuizScreen extends StatelessWidget {
