@@ -1,10 +1,7 @@
 import 'package:cikgoo_math_ai/pages/first_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
-// Update these to match your actual file paths and project name!
 import 'package:cikgoo_math_ai/pages/login_signup.dart';
-import 'package:cikgoo_math_ai/pages/home.dart';
 
 import 'admin_dashboard.dart';
 
@@ -26,7 +23,7 @@ class AuthGate extends StatelessWidget {
           if (snapshot.hasData) {
             final user = snapshot.data!;
 
-            if (user.email == 'tjk02020113@gmail.com') {
+            if (user.email?.toLowerCase() == 'tjk02020113@gmail.com') {
               return const AdminDashboard();
             } else {
               return const FirstPage();

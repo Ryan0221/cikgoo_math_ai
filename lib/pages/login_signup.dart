@@ -84,7 +84,10 @@ class _LoginSignupState extends State<LoginSignup> {
       }
       // 2. If no name exists (Email/Password signup), generate the random one
       else {
-        String randomNums = List.generate(9, (_) => Random().nextInt(10)).join();
+        String randomNums = List.generate(
+          9,
+          (_) => Random().nextInt(10),
+        ).join();
         finalName = 'user$randomNums';
       }
 
@@ -96,7 +99,7 @@ class _LoginSignupState extends State<LoginSignup> {
         'createdAt': FieldValue.serverTimestamp(),
         "current_form": 4,
         "math_spm_f4_completed": 0,
-        "math_spm_f5_completed": 0
+        "math_spm_f5_completed": 0,
       });
     }
   }
@@ -120,7 +123,8 @@ class _LoginSignupState extends State<LoginSignup> {
         return;
       }
 
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
 
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
@@ -128,7 +132,8 @@ class _LoginSignupState extends State<LoginSignup> {
       );
 
       // Sign into Firebase
-      final UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+      final UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithCredential(credential);
 
       // NEW: Check if this is their first time logging in. If so, create database profile!
       if (userCredential.user != null) {
@@ -138,12 +143,9 @@ class _LoginSignupState extends State<LoginSignup> {
       if (mounted) {
         Navigator.pushReplacementNamed(context, '/first_page');
       }
-
     } catch (e) {
       // CRITICAL: This catches any crashes or Exception 10s so the app doesn't freeze!
       print("Google Sign-In Error: $e");
-
-
     } finally {
       // FINALLY always runs at the very end, whether the try succeeds OR fails.
       // We check 'mounted' just in case the AuthGate already navigated them away.
@@ -353,8 +355,35 @@ class _LoginSignupState extends State<LoginSignup> {
                                 if (_isLoading) return;
 
                                 if (isLogin) {
-                                  // Navigate to FirstPage After Login
-                                  Navigator.pushReplacementNamed(context, '/first_page');
+                                  setState(() => _isLoading = true);
+                                  try {
+                                    await FirebaseAuth.instance
+                                        .signInWithEmailAndPassword(
+                                          email: _emailController.text.trim(),
+                                          password: _passwordController.text,
+                                        );
+
+                                    // Do NOT put any Navigator.push here!
+                                    // AuthGate will automatically detect the login and change the screen.
+                                  } catch (e) {
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: const Text(
+                                            "Login failed. Check email and password.",
+                                          ),
+                                          backgroundColor: Colors.redAccent,
+                                        ),
+                                      );
+                                    }
+                                  } finally {
+                                    // We only turn off the loading spinner if the widget is still on screen
+                                    if (mounted) {
+                                      setState(() => _isLoading = false);
+                                    }
+                                  }
                                 } else {
                                   // Check validation
                                   if (!_hasLength ||
@@ -371,7 +400,8 @@ class _LoginSignupState extends State<LoginSignup> {
                                               ? "Please meet all password requirements"
                                               : "Please enter a valid email",
                                         ),
-                                        backgroundColor: Colors.redAccent.withValues(alpha: 0.8),
+                                        backgroundColor: Colors.redAccent
+                                            .withValues(alpha: 0.8),
                                       ),
                                     );
                                     return;
@@ -382,7 +412,9 @@ class _LoginSignupState extends State<LoginSignup> {
                                   });
 
                                   //Generate a 6-digit random code
-                                  String verificationCode = (Random().nextInt(900000) + 100000).toString();
+                                  String verificationCode =
+                                      (Random().nextInt(900000) + 100000)
+                                          .toString();
 
                                   bool emailSent = await sendVerificationEmail(
                                     _emailController.text.trim(),
@@ -394,10 +426,15 @@ class _LoginSignupState extends State<LoginSignup> {
                                       _isLoading = false;
                                     });
                                     if (context.mounted) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
                                         SnackBar(
-                                          content: const Text("Failed to send email. Please check your connection."),
-                                          backgroundColor: Colors.redAccent.withValues(alpha: 0.8),
+                                          content: const Text(
+                                            "Failed to send email. Please check your connection.",
+                                          ),
+                                          backgroundColor: Colors.redAccent
+                                              .withValues(alpha: 0.8),
                                         ),
                                       );
                                     }
@@ -424,15 +461,20 @@ class _LoginSignupState extends State<LoginSignup> {
                                       setState(() => _isLoading = true);
                                       try {
                                         // NEW: 1. Create the Firebase Auth Account
-                                        UserCredential userCred = await FirebaseAuth.instance
-                                            .createUserWithEmailAndPassword(
-                                          email: _emailController.text.trim(),
-                                          password: _passwordController.text,
-                                        );
+                                        UserCredential userCred =
+                                            await FirebaseAuth.instance
+                                                .createUserWithEmailAndPassword(
+                                                  email: _emailController.text
+                                                      .trim(),
+                                                  password:
+                                                      _passwordController.text,
+                                                );
 
                                         // NEW: 2. Create the Firestore database record
                                         if (userCred.user != null) {
-                                          await _checkAndCreateUserDoc(userCred.user!);
+                                          await _checkAndCreateUserDoc(
+                                            userCred.user!,
+                                          );
                                         }
                                         await FirebaseAuth.instance.signOut();
 
@@ -443,11 +485,13 @@ class _LoginSignupState extends State<LoginSignup> {
                                         });
 
                                         if (context.mounted) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
                                             SnackBar(
                                               content: const Text(
-                                                  "Account created! Please login"),
+                                                "Account created! Please login",
+                                              ),
                                               backgroundColor: Colors.green
                                                   .withValues(alpha: 0.8),
                                             ),
@@ -455,11 +499,13 @@ class _LoginSignupState extends State<LoginSignup> {
                                         }
                                       } catch (e) {
                                         if (context.mounted) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
                                             SnackBar(
                                               content: Text(
-                                                  "Error creating account: $e"),
+                                                "Error creating account: $e",
+                                              ),
                                               backgroundColor: Colors.redAccent,
                                             ),
                                           );
@@ -482,7 +528,9 @@ class _LoginSignupState extends State<LoginSignup> {
                                   border: Border.all(color: Colors.white24),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.5),
+                                      color: Colors.black.withValues(
+                                        alpha: 0.5,
+                                      ),
                                       blurRadius: 10,
                                       offset: const Offset(0, 5),
                                     ),
@@ -491,21 +539,21 @@ class _LoginSignupState extends State<LoginSignup> {
                                 child: Center(
                                   child: _isLoading
                                       ? const SizedBox(
-                                    height: 24,
-                                    width: 24,
-                                    child: CircularProgressIndicator(
-                                      color: Colors.white,
-                                      strokeWidth: 2.5,
-                                    ),
-                                  )
+                                          height: 24,
+                                          width: 24,
+                                          child: CircularProgressIndicator(
+                                            color: Colors.white,
+                                            strokeWidth: 2.5,
+                                          ),
+                                        )
                                       : Text(
-                                    isLogin ? 'Login' : 'Sign Up',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
-                                  ),
+                                          isLogin ? 'Login' : 'Sign Up',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        ),
                                 ),
                               ),
                             ),
@@ -544,7 +592,8 @@ class _LoginSignupState extends State<LoginSignup> {
                               width: 1.5,
                             ),
                           ),
-                          child: Image.asset('assets/google.png',
+                          child: Image.asset(
+                            'assets/google.png',
                             height: 30,
                             width: 30,
                           ),
