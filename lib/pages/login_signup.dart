@@ -140,9 +140,9 @@ class _LoginSignupState extends State<LoginSignup> {
         await _checkAndCreateUserDoc(userCredential.user!);
       }
 
-      if (mounted) {
+      /*if (mounted) {
         Navigator.pushReplacementNamed(context, '/first_page');
-      }
+      }*/
     } catch (e) {
       // CRITICAL: This catches any crashes or Exception 10s so the app doesn't freeze!
       print("Google Sign-In Error: $e");
@@ -155,6 +155,85 @@ class _LoginSignupState extends State<LoginSignup> {
         });
       }
     }
+  }
+
+  // --- Forgot Password Dialog ---
+  // --- UPDATED: Secure Forgot Password Dialog ---
+  void _showForgotPasswordDialog(BuildContext context) {
+    final TextEditingController resetEmailController = TextEditingController();
+
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            backgroundColor: const Color(0xFF1A2A49),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+              side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+            ),
+            title: const Text("Reset Password", style: TextStyle(color: Colors.white)),
+            content: TextField(
+              controller: resetEmailController,
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                hintText: "Enter your email address",
+                hintStyle: const TextStyle(color: Colors.white54),
+                filled: true,
+                fillColor: Colors.white.withValues(alpha: 0.05),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: Colors.blueAccent),
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("Cancel", style: TextStyle(color: Colors.white54)),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueAccent,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+                onPressed: () async {
+                  String email = resetEmailController.text.trim();
+                  if (email.isEmpty) return;
+
+                  try {
+                    // NEW SECURE METHOD: Just send the email.
+                    // If they used Google, this will safely allow them to link a password!
+                    await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+
+                    if (context.mounted) {
+                      Navigator.pop(context); // Close dialog
+
+                      // Notice the generic message: This prevents hackers from knowing if the email exists!
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text("A reset link has been send to your inbox."),
+                            backgroundColor: Colors.green
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Error: ${e.toString()}"), backgroundColor: Colors.redAccent),
+                      );
+                    }
+                  }
+                },
+                child: const Text("Send Reset Link", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              ),
+            ],
+          );
+        }
+    );
   }
 
   @override
@@ -287,6 +366,27 @@ class _LoginSignupState extends State<LoginSignup> {
                               controller: _passwordController,
                               onChanged: _validatePassword,
                             ),
+
+                            if (isLogin) ...[
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(top: 10, right: 5),
+                                  child: GestureDetector(
+                                    onTap: () => _showForgotPasswordDialog(context),
+                                    child: const Text(
+                                      "Forgot password?",
+                                      style: TextStyle(
+                                        color: Colors.white70,
+                                        fontSize: 13,
+                                        decoration: TextDecoration.underline,
+                                        decorationColor: Colors.white70,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
 
                             AnimatedSize(
                               duration: const Duration(milliseconds: 300),

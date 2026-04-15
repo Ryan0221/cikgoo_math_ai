@@ -1,4 +1,4 @@
-import 'dart:ui'; // Required for BackdropFilter
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:cikgoo_math_ai/models/course_node.dart';
@@ -22,7 +22,6 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    // Generate a random X offset (-0.6 to 0.6) for each node once
     final random = Random();
     randomOffsets = List.generate(nodes.length,
             (index) => (random.nextDouble() * 1.2) - 0.6
@@ -32,34 +31,28 @@ class _HomeState extends State<Home> {
   void _showMenuPopup() {
     showDialog(
       context: context,
-      barrierDismissible: true, // This allows tapping anywhere blank to close
+      barrierDismissible: true,
       builder: (BuildContext context) {
         return Dialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(
-              mainAxisSize: MainAxisSize.min, // Shrinks pop-up to fit content
+              mainAxisSize: MainAxisSize.min,
               children: [
                 const Text(
                   "Menu",
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 15),
-                // Dummy Menu Items
                 ListTile(
                   leading: const Icon(Icons.person_outline),
-                  title: const Text("Profile"),
-                  onTap: () => Navigator.pop(context), // Closes pop-up on tap
-                ),
-                ListTile(
-                  leading: const Icon(Icons.settings_outlined),
-                  title: const Text("Settings"),
+                  title: const Text("Mathematics SPM Form 4"),
                   onTap: () => Navigator.pop(context),
                 ),
                 ListTile(
-                  leading: const Icon(Icons.help_outline),
-                  title: const Text("Help & Support"),
+                  leading: const Icon(Icons.settings_outlined),
+                  title: const Text("Mathematics SPM Form 5"),
                   onTap: () => Navigator.pop(context),
                 ),
               ],
@@ -72,9 +65,80 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+
+    List<Widget> positionedWidgets = [];
+    List<Offset> nodePositions = [];
+
+    double currentY = 20.0; // Starting padding from top
+    String? currentChapter;
+
+    // Dynamically calculate positions so we can inject Chapter Dividers
+    for (int i = 0; i < nodes.length; i++) {
+      final node = nodes[i];
+
+      // TODO: Replace this simulated logic with your actual Chapter property!
+      // (e.g., chapterName = node.chapterName;)
+      // Simulating a new chapter every 3 nodes for demonstration:
+      String chapterName = "Chapter ${(i ~/ 3) + 1}: Core Concepts";
+
+      // 1. ADD CHAPTER DIVIDER (If it's a new chapter)
+      if (chapterName != currentChapter) {
+        currentY += 40; // Add breathing room before the line
+        positionedWidgets.add(
+            Positioned(
+              top: currentY,
+              left: 0,
+              right: 0,
+              child: _buildChapterDivider(chapterName),
+            )
+        );
+        currentY += 60; // Add space between the line and the first node
+        currentChapter = chapterName;
+      } else {
+        currentY += nodeHeight; // Normal spacing between nodes
+      }
+
+      // 2. CALCULATE EXACT NODE POSITION
+      double xPos = (randomOffsets[i] + 1) / 2 * screenWidth;
+      // Clamp to prevent the node from touching the absolute screen edges
+      xPos = xPos.clamp(70.0, screenWidth - 70.0);
+
+      // Store the exact center point for the PathPainter
+      nodePositions.add(Offset(xPos, currentY));
+
+      // 3. BUILD NODE WITH TEXT LABEL
+      // If node is on the right side of the screen, place text on the left (and vice versa) to prevent overflow
+      bool isRightSide = xPos > screenWidth / 2;
+
+      positionedWidgets.add(
+        Positioned(
+          top: currentY - 35, // -35 to perfectly center the 70px height node
+          left: isRightSide ? null : xPos - 35,
+          right: isRightSide ? (screenWidth - xPos - 35) : null,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (isRightSide) ...[
+                // Replace `node.id` with `node.name` if that's what your model uses
+                Text(node.id, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const SizedBox(width: 12),
+              ],
+
+              _buildPathNodeIcon(node),
+
+              if (!isRightSide) ...[
+                const SizedBox(width: 12),
+                Text(node.id, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              ],
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.transparent,
-      // Required so the scrollable content shows behind the floating bar
       extendBody: true,
       body: SafeArea(
         bottom: false,
@@ -85,25 +149,18 @@ class _HomeState extends State<Home> {
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
                 child: SizedBox(
-                  height: nodes.length * nodeHeight + 120, // Added padding for the floating bar
+                  // Dynamic height based on how far down the last element reached
+                  height: currentY + 150,
                   child: Stack(
                     children: [
                       Positioned.fill(
+                        // PathPainter now accepts explicit X/Y coordinate pairs
                         child: CustomPaint(
-                          painter: PathPainter(nodes: nodes, nodeHeight: nodeHeight, offsets: randomOffsets),
+                          painter: PathPainter(points: nodePositions),
                         ),
                       ),
-                      ...List.generate(nodes.length, (index) {
-                        final node = nodes[index];
-                        // Calculate X position using our randomOffsets list instead of node.alignX
-                        double xPos = (randomOffsets[index] + 1) / 2 * MediaQuery.of(context).size.width - 35;
-
-                        return Positioned(
-                          top: index * nodeHeight + (nodeHeight / 2) - 35,
-                          left: xPos,
-                          child: _buildPathNode(node),
-                        );
-                      }),
+                      // Drop in all our calculated nodes and dividers
+                      ...positionedWidgets,
                     ],
                   ),
                 ),
@@ -117,7 +174,7 @@ class _HomeState extends State<Home> {
 
   Widget _buildStickyHeader() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(10, 10, 10, 10), // Adjusted for button alignment
+      padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
       decoration: BoxDecoration(
         color: const Color(0xFFDCDCDC),
         borderRadius: const BorderRadius.only(
@@ -128,7 +185,7 @@ class _HomeState extends State<Home> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -136,14 +193,10 @@ class _HomeState extends State<Home> {
       ),
       child: Row(
         children: [
-          const SizedBox(width: 0),
-          // LEFT COLUMN: Menu Icon
           IconButton(
             icon: const Icon(Icons.menu, color: Colors.black87, size: 50),
             onPressed: _showMenuPopup,
           ),
-          const SizedBox(width: 0),
-          // RIGHT COLUMN: Original Items
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -152,7 +205,6 @@ class _HomeState extends State<Home> {
                   "Mathematics SPM Form 4",
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 0),
                 Row(
                   children: [
                     Expanded(
@@ -178,7 +230,32 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget _buildPathNode(CourseNode node) {
+  // Extracted the Chapter Divider UI
+  Widget _buildChapterDivider(String chapterName) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Row(
+        children: [
+          const Expanded(child: DashedDivider()),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: Text(
+              chapterName,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+          ),
+          const Expanded(child: DashedDivider()),
+        ],
+      ),
+    );
+  }
+
+  // Refactored from `_buildPathNode`
+  Widget _buildPathNodeIcon(CourseNode node) {
     return GestureDetector(
       onTap: () {
         if (node.isRevision) {
@@ -212,16 +289,13 @@ class _HomeState extends State<Home> {
       ),
     );
   }
-  }
+}
 
-
-// Copy the PathPainter and dummy screens as well to ensure it compiles
+// --- UPDATED PATH PAINTER ---
 class PathPainter extends CustomPainter {
-  final List<CourseNode> nodes;
-  final double nodeHeight;
-  final List<double> offsets;
+  final List<Offset> points; // Now strictly accepts coordinate points
 
-  PathPainter({required this.nodes, required this.nodeHeight, required this.offsets});
+  PathPainter({required this.points});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -230,15 +304,9 @@ class PathPainter extends CustomPainter {
       ..strokeWidth = 2.5
       ..style = PaintingStyle.stroke;
 
-    for (int i = 0; i < nodes.length - 1; i++) {
-    double x1 = (offsets[i] + 1) / 2 * size.width;
-    double y1 = i * nodeHeight + (nodeHeight / 2);
-
-    double x2 = (offsets[i + 1] + 1) / 2 * size.width;
-    double y2 = (i + 1) * nodeHeight + (nodeHeight / 2);
-
-    _drawDashedLine(canvas, Offset(x1, y1), Offset(x2, y2), paint);
-  }
+    for (int i = 0; i < points.length - 1; i++) {
+      _drawDashedLine(canvas, points[i], points[i + 1], paint);
+    }
   }
 
   void _drawDashedLine(Canvas canvas, Offset p1, Offset p2, Paint paint) {
@@ -262,7 +330,38 @@ class PathPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+}
+
+// --- NEW DASHED HORIZONTAL DIVIDER ---
+class DashedDivider extends StatelessWidget {
+  const DashedDivider({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        final boxWidth = constraints.constrainWidth();
+        const dashWidth = 6.0;
+        const dashHeight = 1.5;
+        final dashCount = (boxWidth / (2 * dashWidth)).floor();
+
+        return Flex(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          direction: Axis.horizontal,
+          children: List.generate(dashCount, (_) {
+            return const SizedBox(
+              width: dashWidth,
+              height: dashHeight,
+              child: DecoratedBox(
+                decoration: BoxDecoration(color: Colors.grey),
+              ),
+            );
+          }),
+        );
+      },
+    );
+  }
 }
 
 class PdfViewerScreen extends StatelessWidget {
@@ -279,7 +378,6 @@ class PdfViewerScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(title)),
-      // This is the magic widget that renders the file!
       body: SfPdfViewer.asset(pdfPath),
     );
   }

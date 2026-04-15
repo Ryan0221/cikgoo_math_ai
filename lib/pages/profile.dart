@@ -15,6 +15,103 @@ class Profile extends StatelessWidget {
     }
   }
 
+  // --- NEW: Password Dialog Function ---
+  void _showPasswordDialog(BuildContext context, User user, bool hasPassword) {
+    final TextEditingController passwordController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF1A2A49), // Matches your dark theme
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+          ),
+          title: Text(
+            // Smart title based on whether they already have a password
+            hasPassword ? "Change Password" : "Set Account Password",
+            style: const TextStyle(color: Colors.white),
+          ),
+          content: TextField(
+            controller: passwordController,
+            obscureText: true,
+            style: const TextStyle(color: Colors.white),
+            decoration: InputDecoration(
+              hintText: "Enter new password (12 ~ 64 length containing uppercase, lowercase, number, and special character)",
+              hintStyle: const TextStyle(color: Colors.white54),
+              filled: true,
+              fillColor: Colors.white.withValues(alpha: 0.05),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: Colors.greenAccent),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel", style: TextStyle(color: Colors.white54)),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.greenAccent,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              onPressed: () async {
+                if (passwordController.text.length < 6) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Password must be at least 6 characters."), backgroundColor: Colors.redAccent),
+                  );
+                  return;
+                }
+
+                try {
+                  // This one Firebase method handles BOTH updating and adding passwords!
+                  await user.updatePassword(passwordController.text);
+
+                  if (context.mounted) {
+                    Navigator.pop(context); // Close dialog
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(hasPassword ? "Password changed successfully!" : "Password linked! You can now login with Email/Password."),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  }
+                } on FirebaseAuthException catch (e) {
+                  if (context.mounted) {
+                    Navigator.pop(context); // Close dialog
+
+                    // The classic Firebase "Recent Login Required" security trap
+                    if (e.code == 'requires-recent-login') {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Security alert: Please log out and log back in to verify your identity before changing your password."),
+                          backgroundColor: Colors.redAccent,
+                          duration: Duration(seconds: 4),
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Error: ${e.message}"), backgroundColor: Colors.redAccent),
+                      );
+                    }
+                  }
+                }
+              },
+              child: const Text("Save", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final User? user = FirebaseAuth.instance.currentUser;
@@ -61,21 +158,17 @@ class Profile extends StatelessWidget {
                         if (choice == 'Switch Language') {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: const Text(
-                                  "Language settings coming soon!"),
-                              backgroundColor: Colors.blueAccent.withValues(
-                                  alpha: 0.8),
+                              content: const Text("Language settings coming soon!"),
+                              backgroundColor: Colors.blueAccent.withValues(alpha: 0.8),
                             ),
                           );
                         } else if (choice == 'Change Password') {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text(
-                                  "To come"),
-                              backgroundColor: Colors.blueAccent.withValues(
-                                  alpha: 0.8),
-                            ),
-                          );
+                          // --- NEW: TRIGGER PASSWORD LOGIC ---
+                          if (user != null) {
+                            // Check if the user already has a 'password' provider linked to their account
+                            bool hasPassword = user.providerData.any((userInfo) => userInfo.providerId == 'password');
+                            _showPasswordDialog(context, user, hasPassword);
+                          }
                         } else if (choice == 'Logout') {
                           _signOut(context);
                         }
@@ -86,12 +179,9 @@ class Profile extends StatelessWidget {
                             value: 'Switch Language',
                             child: Row(
                               children: [
-                                Icon(Icons.language, color: Colors.white70,
-                                    size: 22),
+                                Icon(Icons.language, color: Colors.white70, size: 22),
                                 SizedBox(width: 22),
-                                Text('Switch Language', style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w500)),
+                                Text('Switch Language', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
                               ],
                             ),
                           ),
@@ -100,12 +190,10 @@ class Profile extends StatelessWidget {
                             value: 'Change Password',
                             child: Row(
                               children: [
-                                Icon(Icons.password, color: Colors.white70,
-                                    size: 22),
+                                Icon(Icons.password, color: Colors.white70, size: 22),
                                 SizedBox(width: 22),
-                                Text('Change Password', style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w500)),
+                                // Text updates dynamically later, but static here is fine
+                                Text('Change Password', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
                               ],
                             ),
                           ),
@@ -114,12 +202,9 @@ class Profile extends StatelessWidget {
                             value: 'Logout',
                             child: Row(
                               children: [
-                                Icon(Icons.logout, color: Colors.redAccent,
-                                    size: 22),
+                                Icon(Icons.logout, color: Colors.redAccent, size: 22),
                                 SizedBox(width: 22),
-                                Text('Log Out', style: TextStyle(
-                                    color: Colors.redAccent,
-                                    fontWeight: FontWeight.w500)),
+                                Text('Log Out', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.w500)),
                               ],
                             ),
                           ),
@@ -135,10 +220,7 @@ class Profile extends StatelessWidget {
                     child: BackdropFilter(
                       filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                       child: Container(
-                        width: MediaQuery
-                            .of(context)
-                            .size
-                            .width * 0.9,
+                        width: MediaQuery.of(context).size.width * 0.9,
                         padding: const EdgeInsets.symmetric(
                           vertical: 20,
                           horizontal: 20,
@@ -163,8 +245,7 @@ class Profile extends StatelessWidget {
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.greenAccent.withValues(
-                                        alpha: 0.3),
+                                    color: Colors.greenAccent.withValues(alpha: 0.3),
                                     blurRadius: 10,
                                     spreadRadius: 1,
                                   ),
@@ -172,14 +253,12 @@ class Profile extends StatelessWidget {
                               ),
                               child: CircleAvatar(
                                 radius: 32,
-                                backgroundColor: Colors.white.withValues(
-                                    alpha: 0.1),
+                                backgroundColor: Colors.white.withValues(alpha: 0.1),
                                 backgroundImage: user?.photoURL != null
                                     ? NetworkImage(user!.photoURL!)
                                     : null,
                                 child: user?.photoURL == null
-                                    ? const Icon(Icons.person, size: 32,
-                                    color: Colors.white54)
+                                    ? const Icon(Icons.person, size: 32, color: Colors.white54)
                                     : null,
                               ),
                             ),
@@ -208,8 +287,7 @@ class Profile extends StatelessWidget {
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
-                                      color: Colors.white.withValues(
-                                          alpha: 0.6),
+                                      color: Colors.white.withValues(alpha: 0.6),
                                       fontSize: 14,
                                     ),
                                   ),
@@ -231,14 +309,13 @@ class Profile extends StatelessWidget {
                                     color: Colors.white.withValues(alpha: 0.05),
                                     shape: BoxShape.circle,
                                     border: Border.all(
-                                      color: Colors.white.withValues(
-                                          alpha: 0.2),
+                                      color: Colors.white.withValues(alpha: 0.2),
                                     ),
                                   ),
                                   child: const Icon(
                                     Icons.edit,
                                     color: Colors.white70,
-                                    size: 20, // Reduced size for better fit
+                                    size: 20,
                                   ),
                                 ),
                               ),

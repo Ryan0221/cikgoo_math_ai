@@ -1,0 +1,590 @@
+{
+  "ch_id": "f4_c1",
+  "ch_name": "Fungsi dan Persamaan Kuadratik dalam Satu Pemboleh Ubah",
+  "chapter_num": 1,
+  "form": 4,
+  "subtopics": [
+    {
+      "sub_id": "1.1",
+      "sub_name": "Fungsi dan Persamaan Kuadratik",
+      "type": "quiz",
+      "order": 1,
+      "notes_location": "assets/notes/f4c1s1.pdf",
+      "author_id": "uid_12345",
+      "is_published": true,
+      "created_at": "Timestamp",
+      "updated_at": "Timestamp",
+      "q": [
+        {
+          "type": "mcq",
+          "text": "Antara ungkapan berikut, yang manakah merupakan ungkapan kuadratik dalam satu pemboleh ubah?",
+          "question_difficulty": 1,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$x^3 + 2x - 1$", "option_pic": null},
+            {"id": "B", "text": "$2x^2 + 3x - 1$", "option_pic": null},
+            {"id": "C", "text": "$x^{-2} + x$", "option_pic": null},
+            {"id": "D", "text": "$2x + y$", "option_pic": null}
+          ],
+          "ans": "B",
+          "hint": "Cari ungkapan yang hanya mempunyai satu huruf pemboleh ubah dan kuasa terbesarnya mestilah tepat 2.",
+          "explanation": "Ungkapan ini mempunyai satu pemboleh ubah (x) dan kuasa tertingginya ialah 2. Pilihan lain sama ada mempunyai kuasa negatif, dua pemboleh ubah, atau kuasa lebih dari 2."
+        },
+        {
+          "type": "mcq",
+          "text": "Apakah bentuk am bagi suatu fungsi kuadratik?",
+          "question_difficulty": 1,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$f(x) = ax + b$", "option_pic": null},
+            {"id": "B", "text": "$f(x) = ax^2 + bx + c$", "option_pic": null},
+            {"id": "C", "text": "$f(x) = ax^3 + bx^2 + c$", "option_pic": null},
+            {"id": "D", "text": "$f(x) = \\frac{a}{x} + b$", "option_pic": null}
+          ],
+          "ans": "B",
+          "hint": "Bentuk am ini menggambarkan persamaan polinomial darjah kedua.",
+          "explanation": "Bentuk am fungsi kuadratik mesti mempunyai terma kuasa dua sebagai kuasa tertinggi, iaitu $f(x) = ax^2 + bx + c$."
+        },
+        {
+          "type": "mcq",
+          "text": "Nilai pekali 'a' dalam ungkapan kuadratik $ax^2+bx+c$ boleh menjadi sifar ($0$).",
+          "question_difficulty": 1,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "Benar", "option_pic": null},
+            {"id": "B", "text": "Palsu", "option_pic": null}
+          ],
+          "ans": "B",
+          "hint": "Fikirkan apa yang terjadi kepada bentuk persamaan jika kita meletakkan $0$ pada nilai a.",
+          "explanation": "Syarat utama ungkapan kuadratik ialah $a \\ne 0$ supaya kuasa dua sentiasa wujud. Jika $a=0$, terma $x^2$ akan hilang dan ungkapan itu menjadi linear."
+        },
+        {
+          "type": "mcq",
+          "text": "Jika nilai $a > 0$ dalam fungsi kuadratik $f(x)=ax^2+bx+c$, graf akan berbentuk 'U' dan mempunyai titik minimum.",
+          "question_difficulty": 2,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "Benar", "option_pic": null},
+            {"id": "B", "text": "Palsu", "option_pic": null}
+          ],
+          "ans": "A",
+          "hint": "Ingat konsep bentuk 'senyum' berbanding bentuk 'masam'.",
+          "explanation": "Apabila nilai pekali kuasa dua adalah positif ($a > 0$), graf parabola terbuka ke atas memberikan bentuk 'U' dan titik minimum."
+        },
+        {
+          "type": "mcq",
+          "text": "Apakah yang menentukan kedudukan pintasan-y bagi suatu graf fungsi kuadratik $f(x)=ax^2+bx+c$?",
+          "question_difficulty": 2,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "Nilai a", "option_pic": null},
+            {"id": "B", "text": "Nilai b", "option_pic": null},
+            {"id": "C", "text": "Nilai c", "option_pic": null},
+            {"id": "D", "text": "Nilai punca", "option_pic": null}
+          ],
+          "ans": "C",
+          "hint": "Fikirkan apakah hasil fungsi jika anda gantikan nilai $x$ dengan $0$ pada paksi-y.",
+          "explanation": "Apabila $x = 0$, fungsi menjadi $f(0) = c$, yang merupakan titik di mana graf memotong paksi-y."
+        },
+        {
+          "type": "mcq",
+          "text": "Bagi graf fungsi kuadratik, paksi simetri sentiasa melalui...",
+          "question_difficulty": 2,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "Pintasan-x", "option_pic": null},
+            {"id": "B", "text": "Titik asalan", "option_pic": null},
+            {"id": "C", "text": "Titik maksimum atau titik minimum", "option_pic": null},
+            {"id": "D", "text": "Pintasan-y", "option_pic": null}
+          ],
+          "ans": "C",
+          "hint": "Garis simetri adalah garis yang membelah graf menjadi dua bentuk yang sama. Di manakah garis ini berada?",
+          "explanation": "Paksi simetri membahagikan parabola secara seimbang tepat pada titik puncak iaitu titik maksimum atau minimum."
+        },
+        {
+          "type": "mcq",
+          "text": "Punca bagi suatu persamaan kuadratik merujuk kepada titik persilangan graf tersebut dengan...",
+          "question_difficulty": 3,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "Paksi-y", "option_pic": null},
+            {"id": "B", "text": "Paksi-x", "option_pic": null},
+            {"id": "C", "text": "Paksi simetri", "option_pic": null},
+            {"id": "D", "text": "Titik asalan", "option_pic": null}
+          ],
+          "ans": "B",
+          "hint": "Persamaan kuadratik diwakili sebagai $f(x) = 0$. Apabila y sifar, graf berada di paksi mana?",
+          "explanation": "Punca adalah nilai-nilai pemboleh ubah x apabila $f(x) = 0$, iaitu persilangan graf dengan paksi-x."
+        },
+        {
+          "type": "mcq",
+          "text": "Tentukan punca-punca bagi persamaan kuadratik $x^2 - 5x + 6 = 0$.",
+          "question_difficulty": 3,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$x = 2$, $x = 3$", "option_pic": null},
+            {"id": "B", "text": "$x = -2$, $x = -3$", "option_pic": null},
+            {"id": "C", "text": "$x = 1$, $x = 6$", "option_pic": null},
+            {"id": "D", "text": "$x = -1$, $x = -6$", "option_pic": null}
+          ],
+          "ans": "A",
+          "hint": "Fikirkan dua nombor yang hasil darabnya ialah 6, dan hasil tambahnya ialah -5.",
+          "explanation": "Melalui pemfaktoran, persamaan ini menjadi $(x - 2)(x - 3) = 0$, maka $x = 2$ atau $x = 3$."
+        },
+        {
+          "type": "mcq",
+          "text": "Nyatakan persamaan paksi simetri bagi fungsi kuadratik jika ia memotong paksi-x pada $x = -1$ dan $x = 5$.",
+          "question_difficulty": 3,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$x = 1$", "option_pic": null},
+            {"id": "B", "text": "$x = 2$", "option_pic": null},
+            {"id": "C", "text": "$x = 3$", "option_pic": null},
+            {"id": "D", "text": "$x = 4$", "option_pic": null}
+          ],
+          "ans": "B",
+          "hint": "Paksi simetri berada di titik tengah antara dua punca pada paksi-x.",
+          "explanation": "Paksi simetri terletak tepat di tengah-tengah punca: $\\frac{(-1 + 5)}{2} = \\frac{4}{2} = 2$."
+        },
+        {
+          "type": "mcq",
+          "text": "Sebuah padang segi empat tepat mempunyai panjang $(x+5)$ m dan lebar $x$ m. Jika luas padang ialah $50\\text{ m}^2$, persamaan kuadratik yang manakah mewakili situasi ini?",
+          "question_difficulty": 4,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$x^2 + 5x - 50 = 0$", "option_pic": null},
+            {"id": "B", "text": "$x^2 - 5x + 50 = 0$", "option_pic": null},
+            {"id": "C", "text": "$2x + 5 = 50$", "option_pic": null},
+            {"id": "D", "text": "$x^2 + 5x + 50 = 0$", "option_pic": null}
+          ],
+          "ans": "A",
+          "hint": "Rumus luas ialah panjang didarabkan dengan lebar.",
+          "explanation": "Luas = Panjang \\times Lebar, iaitu $x(x+5) = 50$, menghasilkan $x^2 + 5x - 50 = 0$."
+        },
+        {
+          "type": "mcq",
+          "text": "Antara nilai berikut, yang manakah merupakan punca bagi persamaan $2x^2 - 7x + 3 = 0$?",
+          "question_difficulty": 4,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$x = 1$", "option_pic": null},
+            {"id": "B", "text": "$x = 2$", "option_pic": null},
+            {"id": "C", "text": "$x = 3$", "option_pic": null},
+            {"id": "D", "text": "$x = -3$", "option_pic": null}
+          ],
+          "ans": "C",
+          "hint": "Gantikan nilai-nilai pilihan ke dalam x dan lihat pilihan manakah yang akan menghasilkan jawapan sifar.",
+          "explanation": "Melalui penggantian nilai: $2(3)^2 - 7(3) + 3 = 18 - 21 + 3 = 0$. Maka $3$ ialah punca."
+        },
+        {
+          "type": "mcq",
+          "text": "Diberi fungsi kuadratik $f(x) = -2x^2 + 4x + 16$. Apakah koordinat pusingan graf ini dan jenis titiknya?",
+          "question_difficulty": 4,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$(1, 18)$ Titik Maksimum", "option_pic": null},
+            {"id": "B", "text": "$(1, 18)$ Titik Minimum", "option_pic": null},
+            {"id": "C", "text": "$(-1, 10)$ Titik Maksimum", "option_pic": null},
+            {"id": "D", "text": "$(-1, 10)$ Titik Minimum", "option_pic": null}
+          ],
+          "ans": "A",
+          "hint": "Gunakan rumus $x = -\\frac{b}{2a}$ untuk mencari paksi simetri, kemudian tentukan bentuk kelengkungan menggunakan nilai pekali $a$.",
+          "explanation": "Paksi simetri $x = -\\frac{b}{2a} = -\\frac{4}{2(-2)} = 1$. Gantikan $x=1$ ke dalam fungsi dapat $f(1)=18$. Nilai $a=-2$ ($<0$) bermaksud graf berbentuk 'n' (titik maksimum)."
+        },
+        {
+          "type": "mcq",
+          "text": "Selesaikan persamaan kuadratik $\\frac{x}{2} = \\frac{5x-24}{x-4}$.",
+          "question_difficulty": 5,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$x = -6$, $x = -8$", "option_pic": null},
+            {"id": "B", "text": "$x = 6$, $x = 8$", "option_pic": null},
+            {"id": "C", "text": "$x = 4$, $x = 12$", "option_pic": null},
+            {"id": "D", "text": "$x = -4$, $x = -12$", "option_pic": null}
+          ],
+          "ans": "B",
+          "hint": "Lakukan pendaraban silang, kemudian ubah susunan menjadi bentuk am $ax^2 + bx + c = 0$ sebelum pemfaktoran.",
+          "explanation": "Darab silang: $x(x-4) = 2(5x-24) \\Rightarrow x^2-4x=10x-48 \\Rightarrow x^2-14x+48=0$. Pemfaktoran $(x-6)(x-8)=0$ menunjukkan punca ialah $6$ dan $8$."
+        },
+        {
+          "type": "mcq",
+          "text": "Rajah menunjukkan graf bagi fungsi $f(x) = px^2 - 4x + c$. Jika paksi simetri graf ini ialah $x = 1$ dan ia memotong paksi-y pada nilai $5$, apakah nilai $p$ dan $c$?",
+          "question_difficulty": 5,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$p = -2$, $c = 5$", "option_pic": null},
+            {"id": "B", "text": "$p = 4$, $c = 5$", "option_pic": null},
+            {"id": "C", "text": "$p = 2$, $c = 5$", "option_pic": null},
+            {"id": "D", "text": "$p = -4$, $c = 5$", "option_pic": null}
+          ],
+          "ans": "C",
+          "hint": "Gunakan formula paksi simetri $x = -\\frac{b}{2a}$. Pintasan-y graf terus merujuk kepada nilai $c$ di dalam persamaan bentuk am.",
+          "explanation": "Pintasan-y ialah $c=5$. Paksi simetri dihitung menggunakan rumus $x = -\\frac{b}{2a} \\Rightarrow 1 = -\\frac{-4}{2p} \\Rightarrow 1 = \\frac{4}{2p} \\Rightarrow 2p = 4 \\Rightarrow p = 2$."
+        },
+        {
+          "type": "mcq",
+          "text": "Sebuah bingkai lukisan berbentuk segi empat tepat mempunyai luas $24\\text{ cm}^2$. Jika panjangnya ialah $(x + 1)\\text{ cm}$ dan lebarnya adalah $5\\text{ cm}$ kurang dari panjangnya. Tentukan ukuran sebenar bingkai tersebut.",
+          "question_difficulty": 5,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "Panjang = $6\\text{ cm}$, Lebar = $4\\text{ cm}$", "option_pic": null},
+            {"id": "B", "text": "Panjang = $8\\text{ cm}$, Lebar = $3\\text{ cm}$", "option_pic": null},
+            {"id": "C", "text": "Panjang = $12\\text{ cm}$, Lebar = $2\\text{ cm}$", "option_pic": null},
+            {"id": "D", "text": "Panjang = $7\\text{ cm}$, Lebar = $2\\text{ cm}$", "option_pic": null}
+          ],
+          "ans": "B",
+          "hint": "Bentukkan persamaan kuadratik $(x+1)(x+1-5) = 24$. Cari nilai $x$ dan tentukan dimensi sebenar.",
+          "explanation": "Luas ialah $(x+1)(x-4)=24 \\Rightarrow x^2-3x-28=0$. Difaktorkan menjadi $(x-7)(x+4)=0 \\Rightarrow x=7$ (kerana panjang tidak boleh negatif). Maka Panjang = $7+1=8\\text{ cm}$, Lebar = $8-5=3\\text{ cm}$."
+        },
+        {
+          "type": "mcq",
+          "text": "Diberi punca-punca bagi suatu persamaan kuadratik ialah $x = 3$ dan $x = -2$. Bentuk persamaan kuadratik tersebut dalam bentuk am.",
+          "question_difficulty": 3,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$x^2 - x - 6 = 0$", "option_pic": null},
+            {"id": "B", "text": "$x^2 + x - 6 = 0$", "option_pic": null},
+            {"id": "C", "text": "$x^2 - x + 6 = 0$", "option_pic": null},
+            {"id": "D", "text": "$x^2 + 5x - 6 = 0$", "option_pic": null}
+          ],
+          "ans": "A",
+          "hint": "Gunakan $(x - \\alpha)(x - \\beta) = 0$.",
+          "explanation": "$(x - 3)(x - (-2)) = 0 \\Rightarrow (x - 3)(x + 2) = 0 \\Rightarrow x^2 + 2x - 3x - 6 = 0 \\Rightarrow x^2 - x - 6 = 0$."
+        },
+        {
+          "type": "mcq",
+          "text": "Selesaikan persamaan kuadratik $3x^2 - 5x - 2 = 0$.",
+          "question_difficulty": 3,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$x = -\\frac{1}{3}, x = 2$", "option_pic": null},
+            {"id": "B", "text": "$x = \\frac{1}{3}, x = -2$", "option_pic": null},
+            {"id": "C", "text": "$x = -\\frac{2}{3}, x = 1$", "option_pic": null},
+            {"id": "D", "text": "$x = \\frac{2}{3}, x = -1$", "option_pic": null}
+          ],
+          "ans": "A",
+          "hint": "Faktorkan kepada dua kurungan. Cari faktor bagi $3x^2$ dan $-2$ yang menghasilkan hasil tambah $-5x$.",
+          "explanation": "$(3x + 1)(x - 2) = 0$. Maka $3x + 1 = 0 \\Rightarrow x = -\\frac{1}{3}$ dan $x - 2 = 0 \\Rightarrow x = 2$."
+        },
+        {
+          "type": "mcq",
+          "text": "Diberi $x = -2$ ialah satu punca bagi persamaan kuadratik $x^2 + kx - 14 = 0$. Cari nilai $k$.",
+          "question_difficulty": 3,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$-5$", "option_pic": null},
+            {"id": "B", "text": "$5$", "option_pic": null},
+            {"id": "C", "text": "$-9$", "option_pic": null},
+            {"id": "D", "text": "$9$", "option_pic": null}
+          ],
+          "ans": "A",
+          "hint": "Gantikan nilai $x = -2$ ke dalam persamaan.",
+          "explanation": "$(-2)^2 + k(-2) - 14 = 0 \\Rightarrow 4 - 2k - 14 = 0 \\Rightarrow -2k - 10 = 0 \\Rightarrow -2k = 10 \\Rightarrow k = -5$."
+        },
+        {
+          "type": "mcq",
+          "text": "Panjang sebuah bilik ialah $2\\text{ m}$ lebih daripada lebarnya. Jika luas bilik itu ialah $35\\text{ m}^2$, berapakah panjang bilik tersebut?",
+          "question_difficulty": 4,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$5\\text{ m}$", "option_pic": null},
+            {"id": "B", "text": "$7\\text{ m}$", "option_pic": null},
+            {"id": "C", "text": "$9\\text{ m}$", "option_pic": null},
+            {"id": "D", "text": "$12\\text{ m}$", "option_pic": null}
+          ],
+          "ans": "B",
+          "hint": "Katakan lebar = $x$, maka panjang = $x + 2$.",
+          "explanation": "$x(x + 2) = 35 \\Rightarrow x^2 + 2x - 35 = 0 \\Rightarrow (x + 7)(x - 5) = 0$. Lebar mesti positif, maka $x = 5$. Panjang = $x + 2 = 7\\text{ m}$."
+        },
+        {
+          "type": "mcq",
+          "text": "Graf bagi fungsi kuadratik $f(x) = 2x^2 - 8x + c$ mempunyai titik minimum pada koordinat $(p, -3)$. Apakah nilai $p$ dan $c$?",
+          "question_difficulty": 4,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$p = 2, c = -5$", "option_pic": null},
+            {"id": "B", "text": "$p = 2, c = 5$", "option_pic": null},
+            {"id": "C", "text": "$p = -2, c = -3$", "option_pic": null},
+            {"id": "D", "text": "$p = 4, c = 5$", "option_pic": null}
+          ],
+          "ans": "B",
+          "hint": "Cari nilai paksi simetri $p$ terlebih dahulu menggunakan formula $x = -\\frac{b}{2a}$, kemudian ganti titik tersebut untuk mencari $c$.",
+          "explanation": "Paksi simetri $p = -\\frac{-8}{2(2)} = \\frac{8}{4} = 2$. Ganti $x = 2, f(2) = -3$: $2(2)^2 - 8(2) + c = -3 \\Rightarrow 8 - 16 + c = -3 \\Rightarrow -8 + c = -3 \\Rightarrow c = 5$."
+        },
+        {
+          "type": "mcq",
+          "text": "Selesaikan persamaan kuadratik $(2x - 1)^2 = 3x - 2$",
+          "question_difficulty": 4,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$x = 1, x = \\frac{3}{4}$", "option_pic": null},
+            {"id": "B", "text": "$x = -1, x = -\\frac{3}{4}$", "option_pic": null},
+            {"id": "C", "text": "$x = \\frac{1}{2}, x = \\frac{3}{2}$", "option_pic": null},
+            {"id": "D", "text": "$x = 1, x = 3$", "option_pic": null}
+          ],
+          "ans": "A",
+          "hint": "Kembangkan kuasa dua sempurna dan susun menjadi bentuk am.",
+          "explanation": "$(2x - 1)^2 = 4x^2 - 4x + 1$. Maka $4x^2 - 4x + 1 = 3x - 2 \\Rightarrow 4x^2 - 7x + 3 = 0$. Faktorkan: $(4x - 3)(x - 1) = 0 \\Rightarrow x = \\frac{3}{4}$ atau $x = 1$."
+        },
+        {
+          "type": "mcq",
+          "text": "Hasil tambah kuasa dua bagi dua nombor ganjil yang berturutan ialah $130$. Apakah nombor ganjil yang lebih besar jika kedua-dua nombor itu bernilai positif?",
+          "question_difficulty": 5,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$7$", "option_pic": null},
+            {"id": "B", "text": "$9$", "option_pic": null},
+            {"id": "C", "text": "$11$", "option_pic": null},
+            {"id": "D", "text": "$13$", "option_pic": null}
+          ],
+          "ans": "B",
+          "hint": "Katakan nombor ganjil pertama ialah $x$ dan nombor ganjil kedua ialah $x + 2$.",
+          "explanation": "$x^2 + (x + 2)^2 = 130 \\Rightarrow x^2 + x^2 + 4x + 4 = 130 \\Rightarrow 2x^2 + 4x - 126 = 0 \\Rightarrow x^2 + 2x - 63 = 0$. Faktorkan: $(x + 9)(x - 7) = 0$. Nombor ganjil positif ialah $x = 7$. Maka nombor yang lebih besar ialah $7 + 2 = 9$."
+        },
+        {
+          "type": "mcq",
+          "text": "Hitung nilai $x$ yang memuaskan persamaan $\\frac{x - 1}{3} = \\frac{1}{x + 1}$.",
+          "question_difficulty": 5,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$x = 2, x = -2$", "option_pic": null},
+            {"id": "B", "text": "$x = 4, x = -4$", "option_pic": null},
+            {"id": "C", "text": "$x = 3, x = -3$", "option_pic": null},
+            {"id": "D", "text": "$x = 2, x = -1$", "option_pic": null}
+          ],
+          "ans": "A",
+          "hint": "Darab silang pecahan tersebut.",
+          "explanation": "$(x - 1)(x + 1) = 3(1) \\Rightarrow x^2 - 1 = 3 \\Rightarrow x^2 - 4 = 0$. Maka $x^2 = 4$, yang membawa kepada $x = 2$ atau $x = -2$."
+        },
+        {
+          "type": "mcq",
+          "text": "Sebiji bola dibaling ke atas dan ketinggiannya, $h$ meter, selepas $t$ saat diberi oleh fungsi $h(t) = -5t^2 + 20t + 1$. Berapakah ketinggian maksimum yang dicapai oleh bola tersebut?",
+          "question_difficulty": 5,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$20\\text{ m}$", "option_pic": null},
+            {"id": "B", "text": "$21\\text{ m}$", "option_pic": null},
+            {"id": "C", "text": "$25\\text{ m}$", "option_pic": null},
+            {"id": "D", "text": "$41\\text{ m}$", "option_pic": null}
+          ],
+          "ans": "B",
+          "hint": "Ketinggian maksimum berlaku pada paksi simetri fungsi kuadratik (titik maksimum). Cari masa $t$ terlebih dahulu.",
+          "explanation": "Paksi simetri $t = -\\frac{b}{2a} = -\\frac{20}{2(-5)} = 2$. Gantikan $t = 2$ ke dalam persamaan: $h(2) = -5(2)^2 + 20(2) + 1 = -20 + 40 + 1 = 21\\text{ m}$."
+        },
+        {
+          "type": "mcq",
+          "text": "Sekeping gambar yang berukuran $10\\text{ cm}$ panjang dan $8\\text{ cm}$ lebar diletakkan di dalam bingkai yang mempunyai margin lebar yang sama, $x\\text{ cm}$, di sekeliling gambar tersebut. Jika luas keseluruhan bingkai ialah $168\\text{ cm}^2$, hitung nilai $x$.",
+          "question_difficulty": 5,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$x = 1$", "option_pic": null},
+            {"id": "B", "text": "$x = 2$", "option_pic": null},
+            {"id": "C", "text": "$x = 3$", "option_pic": null},
+            {"id": "D", "text": "$x = 4$", "option_pic": null}
+          ],
+          "ans": "B",
+          "hint": "Panjang bingkai ialah $(10 + 2x)$ dan lebarnya ialah $(8 + 2x)$.",
+          "explanation": "$(10 + 2x)(8 + 2x) = 168 \\Rightarrow 80 + 20x + 16x + 4x^2 = 168 \\Rightarrow 4x^2 + 36x - 88 = 0 \\Rightarrow x^2 + 9x - 22 = 0$. Pemfaktoran: $(x + 11)(x - 2) = 0$. $x$ mesti positif, maka $x = 2$."
+        }
+      ]
+    },
+    {
+      "sub_id": "1.2",
+      "sub_name": "Chapter 1 Revision",
+      "type": "revision",
+      "order": 1,
+      "notes_location": null,
+      "author_id": "uid_12345",
+      "is_published": true,
+      "created_at": "Timestamp",
+      "updated_at": "Timestamp",
+      "q": [
+        {
+          "type": "mcq",
+          "text": "Graf suatu fungsi kuadratik memotong paksi-x pada $x = -2$ dan $x = 4$. Antara berikut, yang manakah mungkin fungsi kuadratik tersebut?",
+          "question_difficulty": 3,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$f(x) = x^2 + 2x - 8$", "option_pic": null},
+            {"id": "B", "text": "$f(x) = x^2 - 2x - 8$", "option_pic": null},
+            {"id": "C", "text": "$f(x) = 2x^2 + 12x + 16$", "option_pic": null},
+            {"id": "D", "text": "$f(x) = -2x^2 + 12x - 16$", "option_pic": null}
+          ],
+          "ans": "B",
+          "hint": "Jika graf memotong paksi-x pada nilai p dan q, maka fungsinya boleh ditulis dalam bentuk pemfaktoran $f(x) = a(x - p)(x - q)$.",
+          "explanation": "Punca-punca ialah $x = -2$ dan $x = 4$. Bentuk pemfaktorannya ialah $(x + 2)(x - 4) = 0$. Apabila dikembangkan: $x^2 - 4x + 2x - 8 = x^2 - 2x - 8$."
+        },
+        {
+          "type": "mcq",
+          "text": "Apakah persamaan paksi simetri bagi graf fungsi kuadratik $f(x) = -3x^2 + 12x - 5$?",
+          "question_difficulty": 3,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$x = -2$", "option_pic": null},
+            {"id": "B", "text": "$x = 2$", "option_pic": null},
+            {"id": "C", "text": "$x = 4$", "option_pic": null},
+            {"id": "D", "text": "$x = -4$", "option_pic": null}
+          ],
+          "ans": "B",
+          "hint": "Gunakan formula paksi simetri $x = -\\frac{b}{2a}$.",
+          "explanation": "Berdasarkan fungsi $f(x) = -3x^2 + 12x - 5$, nilai $a = -3$ dan $b = 12$. Gantikan dalam formula: $x = -\\frac{12}{2(-3)} = -\\frac{12}{-6} = 2$."
+        },
+        {
+          "type": "mcq",
+          "text": "Panjang sebuah segi empat tepat ialah $(2x - 1)\\text{ cm}$ dan lebarnya ialah $(x + 3)\\text{ cm}$. Diberi luasnya ialah $35\\text{ cm}^2$, bentuk satu persamaan kuadratik dalam bentuk am.",
+          "question_difficulty": 3,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$2x^2 + 5x - 38 = 0$", "option_pic": null},
+            {"id": "B", "text": "$2x^2 + 5x - 32 = 0$", "option_pic": null},
+            {"id": "C", "text": "$2x^2 - 5x - 38 = 0$", "option_pic": null},
+            {"id": "D", "text": "$2x^2 + 7x - 35 = 0$", "option_pic": null}
+          ],
+          "ans": "A",
+          "hint": "Luas = Panjang × Lebar. Susun persamaan menjadi bentuk $ax^2 + bx + c = 0$.",
+          "explanation": "$(2x - 1)(x + 3) = 35 \\Rightarrow 2x^2 + 6x - x - 3 = 35 \\Rightarrow 2x^2 + 5x - 38 = 0$."
+        },
+        {
+          "type": "mcq",
+          "text": "Cari punca-punca bagi persamaan kuadratik $x(2x + 5) = 3$.",
+          "question_difficulty": 4,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$x = \\frac{1}{2}, x = -3$", "option_pic": null},
+            {"id": "B", "text": "$x = -\\frac{1}{2}, x = 3$", "option_pic": null},
+            {"id": "C", "text": "$x = 1, x = -\\frac{3}{2}$", "option_pic": null},
+            {"id": "D", "text": "$x = -1, x = \\frac{3}{2}$", "option_pic": null}
+          ],
+          "ans": "A",
+          "hint": "Kembangkan persamaan tersebut ke bentuk am $ax^2 + bx + c = 0$, kemudian faktorkan.",
+          "explanation": "Kembangkan: $2x^2 + 5x = 3 \\Rightarrow 2x^2 + 5x - 3 = 0$. Apabila difaktorkan: $(2x - 1)(x + 3) = 0$. Maka $x = \\frac{1}{2}$ atau $x = -3$."
+        },
+        {
+          "type": "mcq",
+          "text": "Graf $g(x) = px^2 - 3x + 5$ mempunyai lengkok parabola yang lebih lebar berbanding graf $f(x) = 4x^2 - 3x + 5$. Jika kedua-dua graf mempunyai titik minimum, apakah julat nilai $p$ yang mungkin?",
+          "question_difficulty": 4,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$p > 4$", "option_pic": null},
+            {"id": "B", "text": "$0 < p < 4$", "option_pic": null},
+            {"id": "C", "text": "$p < 0$", "option_pic": null},
+            {"id": "D", "text": "$-4 < p < 0$", "option_pic": null}
+          ],
+          "ans": "B",
+          "hint": "Bentuk parabola semakin lebar jika nilai mutlak $a$ semakin kecil. Titik minimum bermaksud $a > 0$.",
+          "explanation": "Titik minimum bermaksud $p > 0$. Oleh sebab $g(x)$ lebih lebar dari $f(x)$, nilai pekali $p$ mesti lebih kecil daripada $4$. Maka, $0 < p < 4$."
+        },
+        {
+          "type": "mcq",
+          "text": "Titik maksimum bagi graf fungsi kuadratik $f(x) = -x^2 - 6x + k$ ialah $(-3, 10)$. Cari nilai $k$.",
+          "question_difficulty": 4,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$k = 1$", "option_pic": null},
+            {"id": "B", "text": "$k = -1$", "option_pic": null},
+            {"id": "C", "text": "$k = 19$", "option_pic": null},
+            {"id": "D", "text": "$k = 10$", "option_pic": null}
+          ],
+          "ans": "A",
+          "hint": "Titik maksimum $(-3, 10)$ bermaksud apabila $x = -3$, nilai $f(x) = 10$. Gantikan nilai ini ke dalam persamaan.",
+          "explanation": "$f(-3) = -(-3)^2 - 6(-3) + k = 10 \\Rightarrow -9 + 18 + k = 10 \\Rightarrow 9 + k = 10 \\Rightarrow k = 1$."
+        },
+        {
+          "type": "mcq",
+          "text": "Diberi bahawa salah satu punca bagi persamaan kuadratik $2x^2 + px - 12 = 0$ ialah $x = 4$. Apakah nilai $p$?",
+          "question_difficulty": 4,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$p = -5$", "option_pic": null},
+            {"id": "B", "text": "$p = 5$", "option_pic": null},
+            {"id": "C", "text": "$p = 2$", "option_pic": null},
+            {"id": "D", "text": "$p = -2$", "option_pic": null}
+          ],
+          "ans": "A",
+          "hint": "Punca bermaksud nilai $x$ yang memuaskan persamaan (menjadikan persamaan sama dengan $0$).",
+          "explanation": "Gantikan $x = 4$ ke dalam persamaan: $2(4)^2 + p(4) - 12 = 0 \\Rightarrow 32 + 4p - 12 = 0 \\Rightarrow 20 + 4p = 0 \\Rightarrow 4p = -20 \\Rightarrow p = -5$."
+        },
+        {
+          "type": "mcq",
+          "text": "Sebuah segi tiga bersudut tegak mempunyai sisi hipotenus sepanjang $(2x + 1)\\text{ cm}$. Dua sisi yang lain masing-masing berukuran $x\\text{ cm}$ dan $(x + 7)\\text{ cm}$. Hitung perimeter segi tiga tersebut.",
+          "question_difficulty": 5,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$40\\text{ cm}$", "option_pic": null},
+            {"id": "B", "text": "$30\\text{ cm}$", "option_pic": null},
+            {"id": "C", "text": "$24\\text{ cm}$", "option_pic": null},
+            {"id": "D", "text": "$48\\text{ cm}$", "option_pic": null}
+          ],
+          "ans": "A",
+          "hint": "Gunakan Teorem Pythagoras ($a^2 + b^2 = c^2$) untuk mencari nilai x, kemudian tambahkan ketiga-tiga panjang sisi untuk mencari perimeter.",
+          "explanation": "$x^2 + (x+7)^2 = (2x+1)^2 \\Rightarrow x^2 + x^2 + 14x + 49 = 4x^2 + 4x + 1 \\Rightarrow 2x^2 - 10x - 48 = 0 \\Rightarrow x^2 - 5x - 24 = 0$. Faktor: $(x-8)(x+3)=0$. Ambil nilai positif $x = 8$. Sisi-sisinya adalah $8\\text{ cm}, 15\\text{ cm}, 17\\text{ cm}$. Perimeter = $8 + 15 + 17 = 40\\text{ cm}$."
+        },
+        {
+          "type": "mcq",
+          "text": "Graf $f(x) = ax^2 + bx + c$ mempunyai titik maksimum di sukuan pertama (kuadran 1) satah Cartes dan memotong paksi-y pada bahagian positif. Antara berikut, pernyataan manakah yang BENAR mengenai nilai $a$, $b$, dan $c$?",
+          "question_difficulty": 5,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$a < 0, b > 0, c > 0$", "option_pic": null},
+            {"id": "B", "text": "$a < 0, b < 0, c > 0$", "option_pic": null},
+            {"id": "C", "text": "$a > 0, b > 0, c > 0$", "option_pic": null},
+            {"id": "D", "text": "$a < 0, b > 0, c < 0$", "option_pic": null}
+          ],
+          "ans": "A",
+          "hint": "Kaji kesan a (bentuk), c (pintasan-y), dan b (kedudukan paksi simetri $x = -\\frac{b}{2a}$). Sukuan pertama bermaksud nilai koordinat x dan y bagi titik puncak adalah positif.",
+          "explanation": "Titik maksimum $\\Rightarrow a < 0$. Pintasan-y positif $\\Rightarrow c > 0$. Paksi simetri di sukuan 1 bermaksud $x > 0$, jadi $-\\frac{b}{2a} > 0$. Oleh sebab $a$ negatif, pembawah $2a$ juga negatif. Untuk keseluruhan pecahan menjadi positif, pengangka $-b$ mesti negatif, yang bermaksud $b > 0$."
+        },
+        {
+          "type": "mcq",
+          "text": "Diberi $\\frac{2}{x - 1} = \\frac{x}{x + 2}$. Hitung nilai-nilai $x$ yang memuaskan persamaan tersebut.",
+          "question_difficulty": 5,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$x = 4, x = -1$", "option_pic": null},
+            {"id": "B", "text": "$x = -4, x = 1$", "option_pic": null},
+            {"id": "C", "text": "$x = 2, x = -2$", "option_pic": null},
+            {"id": "D", "text": "$x = 4, x = 1$", "option_pic": null}
+          ],
+          "ans": "A",
+          "hint": "Lakukan pendaraban silang untuk menghapuskan pecahan, dan bentukkan satu persamaan kuadratik dalam bentuk am.",
+          "explanation": "Darab silang: $2(x+2) = x(x-1) \\Rightarrow 2x+4 = x^2-x$. Pindahkan semua sebutan ke satu sisi: $x^2-3x-4=0$. Pemfaktoran: $(x-4)(x+1)=0 \\Rightarrow x=4$ atau $x=-1$."
+        }
+      ]
+    }
+  ]
+}
