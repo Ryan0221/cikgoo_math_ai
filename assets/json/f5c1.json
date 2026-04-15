@@ -1,0 +1,990 @@
+{
+  "ch_id": "f5_c1",
+  "ch_name": "Ubahan",
+  "chapter_num": 1,
+  "form": 5,
+  "subtopics": [
+    {
+      "sub_id": "f5_c1.1",
+      "sub_name": "Ubahan Langsung",
+      "type": "quiz",
+      "order": 1,
+      "notes_location": "assets/notes/f5c1s1_n.pdf",
+      "author_id": "uid_12345",
+      "is_published": true,
+      "created_at": null,
+      "updated_at": null,
+      "q": [
+        {
+          "type": "mcq",
+          "text": "Apakah yang dimaksudkan dengan ubahan langsung?",
+          "question_difficulty": 1,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "Apabila pemboleh ubah $y$ bertambah, pemboleh ubah $x$ berkurang pada kadar yang sama.", "option_pic": null},
+            {"id": "B", "text": "Apabila pemboleh ubah $y$ bertambah, pemboleh ubah $x$ juga bertambah pada kadar yang sama dan sebaliknya.", "option_pic": null},
+            {"id": "C", "text": "Pemboleh ubah $y$ berubah secara rawak tanpa mengira pemboleh ubah $x$.", "option_pic": null},
+            {"id": "D", "text": "Pemboleh ubah $y$ dan $x$ sentiasa mempunyai nilai yang sama.", "option_pic": null}
+          ],
+          "ans": "B",
+          "hint": "Ingat kembali nota tentang 'Maksud' ubahan langsung. Ia melibatkan perubahan pada kadar yang sama pada arah yang sama.",
+          "explanation": "Dalam ubahan langsung, kedua-dua pemboleh ubah bergerak ke arah yang sama secara berkadar. Jika satu bertambah, satu lagi turut bertambah pada kadar yang sama."
+        },
+        {
+          "type": "tfq",
+          "text": "Bagi suatu ubahan langsung, graf $y$ melawan $x^n$ sentiasa merupakan satu garis lurus yang melalui asalan ($0,0$).",
+          "question_difficulty": 1,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "T", "text": "Benar", "option_pic": null},
+            {"id": "F", "text": "Palsu", "option_pic": null}
+          ],
+          "ans": "T",
+          "hint": "Rujuk bahagian 'Bentuk Graf' dalam nota 1.1.",
+          "explanation": "Ciri utama graf bagi ubahan langsung $y \\propto x^n$ ialah ia mesti menghasilkan satu garis lurus yang memintas pada titik asalan."
+        },
+        {
+          "type": "mcq",
+          "text": "Antara berikut, yang manakah bentuk persamaan yang tepat untuk mewakili hubungan ubahan $y \\propto x^3$?",
+          "question_difficulty": 1,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$y = kx^3$", "option_pic": null},
+            {"id": "B", "text": "$y = \\frac{k}{x^3}$", "option_pic": null},
+            {"id": "C", "text": "$k = yx^3$", "option_pic": null},
+            {"id": "D", "text": "$y = k + x^3$", "option_pic": null}
+          ],
+          "ans": "A",
+          "hint": "Gantikan simbol ubahan ($\\propto$) dengan tanda sama dengan ($=$) dan tambahkan pemalar ($k$).",
+          "explanation": "Untuk menukar hubungan ubahan langsung kepada bentuk persamaan, kita menggantikan simbol $\\propto$ dengan $= k$, di mana $k$ ialah pemalar."
+        },
+        {
+          "type": "mcq",
+          "text": "Diberi $y$ berubah secara langsung dengan $x$, dan $y = 15$ apabila $x = 3$. Apakah nilai pemalar $k$?",
+          "question_difficulty": 2,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$3$", "option_pic": null},
+            {"id": "B", "text": "$5$", "option_pic": null},
+            {"id": "C", "text": "$12$", "option_pic": null},
+            {"id": "D", "text": "$45$", "option_pic": null}
+          ],
+          "ans": "B",
+          "hint": "Gunakan rumus pemalar $k = \\frac{y}{x}$ untuk mencari nilai $k$.",
+          "explanation": "Daripada persamaan $y = kx$, kita susun semula menjadi $k = \\frac{y}{x}$. Jadi, $k = \\frac{15}{3} = 5$."
+        },
+        {
+          "type": "tfq",
+          "text": "Berdasarkan persamaan ubahan langsung $y = kx^n$, nilai pemalar $k$ boleh dicari menggunakan rumus $k = \\frac{x^n}{y}$.",
+          "question_difficulty": 2,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "T", "text": "Benar", "option_pic": null},
+            {"id": "F", "text": "Palsu", "option_pic": null}
+          ],
+          "ans": "F",
+          "hint": "Cuba jadikan $k$ sebagai tajuk rumus daripada persamaan $y = kx^n$.",
+          "explanation": "Rumus yang betul untuk mencari pemalar $k$ dalam ubahan langsung ialah $k = \\frac{y}{x^n}$, bukan sebaliknya."
+        },
+        {
+          "type": "mcq",
+          "text": "Pemboleh ubah $p$ berubah secara langsung dengan $q$. Diberi $p = 8$ apabila $q = 2$. Ungkapkan $p$ dalam sebutan $q$.",
+          "question_difficulty": 2,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$p = 2q$", "option_pic": null},
+            {"id": "B", "text": "$p = 4q$", "option_pic": null},
+            {"id": "C", "text": "$p = 16q$", "option_pic": null},
+            {"id": "D", "text": "$p = \\frac{q}{4}$", "option_pic": null}
+          ],
+          "ans": "B",
+          "hint": "Cari nilai pemalar $k$ dahulu, kemudian masukkan semula $k$ ke dalam persamaan $p = kq$.",
+          "explanation": "Langkah 1: Cari $k$. $k = \\frac{p}{q} = \\frac{8}{2} = 4$. Langkah 2: Tulis semula persamaan dengan nilai $k$. Persamaannya ialah $p = 4q$."
+        },
+        {
+          "type": "mcq",
+          "text": "Diberi $y \\propto x^2$. Jika $y = 18$ apabila $x = 3$, hitung nilai $y$ apabila $x = 5$.",
+          "question_difficulty": 3,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$30$", "option_pic": null},
+            {"id": "B", "text": "$50$", "option_pic": null},
+            {"id": "C", "text": "$90$", "option_pic": null},
+            {"id": "D", "text": "$100$", "option_pic": null}
+          ],
+          "ans": "B",
+          "hint": "Mula-mula cari pemalar $k$. Kemudian, gantikan $x = 5$ ke dalam persamaan yang lengkap untuk mencari $y$.",
+          "explanation": "Pertama, cari $k$: $k = \\frac{y}{x^2} = \\frac{18}{3^2} = \\frac{18}{9} = 2$. Persamaannya ialah $y = 2x^2$. Apabila $x = 5$, $y = 2(5^2) = 2(25) = 50$."
+        },
+        {
+          "type": "mcq",
+          "text": "Harga bagi $m$ kilogram buah mangga, $P$, berubah secara langsung dengan jisimnya, $m$. Jika harga untuk 4 kg mangga ialah RM 24, berapakah jisim mangga yang boleh dibeli dengan RM 42?",
+          "question_difficulty": 3,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$6$ kg", "option_pic": null},
+            {"id": "B", "text": "$7$ kg", "option_pic": null},
+            {"id": "C", "text": "$8$ kg", "option_pic": null},
+            {"id": "D", "text": "$9$ kg", "option_pic": null}
+          ],
+          "ans": "B",
+          "hint": "Cari kadar harga sekilogram (pemalar $k$), kemudian bahagikan RM 42 dengan kadar tersebut.",
+          "explanation": "$P = km$. Cari $k$: $k = \\frac{P}{m} = \\frac{24}{4} = 6$. Persamaan ialah $P = 6m$. Apabila $P = 42$, $42 = 6m$, maka $m = \\frac{42}{6} = 7$ kg."
+        },
+        {
+          "type": "tfq",
+          "text": "Jika pemboleh ubah $W$ berubah secara langsung dengan punca kuasa tiga $V$, hubungan ini boleh ditulis dalam bentuk matematik sebagai $W \\propto V^{\\frac{1}{2}}$.",
+          "question_difficulty": 3,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "T", "text": "Benar", "option_pic": null},
+            {"id": "F", "text": "Palsu", "option_pic": null}
+          ],
+          "ans": "F",
+          "hint": "Ingat semula indeks pecahan: kuasa $\\frac{1}{2}$ bermaksud punca kuasa dua, manakala punca kuasa tiga adalah berbeza.",
+          "explanation": "Punca kuasa tiga ditulis sebagai indeks pecahan $\\frac{1}{3}$. Oleh itu, hubungan yang betul ialah $W \\propto V^{\\frac{1}{3}}$, bukan $V^{\\frac{1}{2}}$."
+        },
+        {
+          "type": "mcq",
+          "text": "Diberi $y \\propto \\sqrt{x}$. Jika nilai $x$ didarabkan dengan 16, apakah kesan ke atas nilai $y$?",
+          "question_difficulty": 4,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "Menjadi 16 kali ganda", "option_pic": null},
+            {"id": "B", "text": "Menjadi 8 kali ganda", "option_pic": null},
+            {"id": "C", "text": "Menjadi 4 kali ganda", "option_pic": null},
+            {"id": "D", "text": "Tiada perubahan", "option_pic": null}
+          ],
+          "ans": "C",
+          "hint": "Masukkan nilai $16x$ ke dalam $\\sqrt{x}$. Apakah punca kuasa dua bagi 16?",
+          "explanation": "Hubungannya ialah $y = k\\sqrt{x}$. Jika $x$ didarab dengan 16, ia menjadi $y_{baru} = k\\sqrt{16x} = k(4\\sqrt{x}) = 4(k\\sqrt{x}) = 4y$. Jadi, $y$ menjadi 4 kali ganda."
+        },
+        {
+          "type": "mcq",
+          "text": "Diberi $s \\propto t^3$. Apabila $t = 2, s = 24$. Cari nilai $t$ apabila $s = 81$.",
+          "question_difficulty": 4,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$3$", "option_pic": null},
+            {"id": "B", "text": "$4$", "option_pic": null},
+            {"id": "C", "text": "$9$", "option_pic": null},
+            {"id": "D", "text": "$27$", "option_pic": null}
+          ],
+          "ans": "A",
+          "hint": "Dapatkan nilai $k$, bina persamaan $s = kt^3$, kemudian cari nilai $t$ menggunakan punca kuasa tiga.",
+          "explanation": "Cari $k$: $k = \\frac{s}{t^3} = \\frac{24}{2^3} = \\frac{24}{8} = 3$. Persamaan: $s = 3t^3$. Gantikan $s = 81$: $81 = 3t^3 \\Rightarrow t^3 = 27$. Maka, $t = \\sqrt[3]{27} = 3$."
+        },
+        {
+          "type": "tfq",
+          "text": "Kenyataan: 'Isi padu sebuah kubus berubah secara langsung dengan kuasa dua panjang tepinya.'",
+          "question_difficulty": 4,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "T", "text": "Benar", "option_pic": null},
+            {"id": "F", "text": "Palsu", "option_pic": null}
+          ],
+          "ans": "F",
+          "hint": "Fikirkan formula bagi isi padu sebuah kubus jika panjang sisinya ialah $x$. Adakah rumusnya melibatkan kuasa dua atau kuasa lain?",
+          "explanation": "Isi padu kubus dikira menggunakan rumus $V = x^3$. Oleh itu, isi padu berubah secara langsung dengan *kuasa tiga* panjang tepinya, bukan kuasa dua."
+        },
+        {
+          "type": "mcq",
+          "text": "Diberi $y$ berubah secara langsung dengan $x^2$. Jika nilai $x$ bertambah sebanyak $20\\%$, berapakah peratusan pertambahan bagi nilai $y$?",
+          "question_difficulty": 5,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$20\\%$", "option_pic": null},
+            {"id": "B", "text": "$40\\%$", "option_pic": null},
+            {"id": "C", "text": "$44\\%$", "option_pic": null},
+            {"id": "D", "text": "$144\\%$", "option_pic": null}
+          ],
+          "ans": "C",
+          "hint": "Jika $x$ bertambah $20\\%$, nilai baharu $x$ ialah $1.2x$. Kuasa duakan $1.2$ untuk melihat kesan pada $y$.",
+          "explanation": "Persamaan asal: $y_1 = kx^2$. Jika $x$ bertambah $20\\%$, $x_{baru} = 1.2x$. Maka $y_2 = k(1.2x)^2 = 1.44kx^2$. Ini bermakna $y_2 = 1.44y_1$, mewakili peningkatan sebanyak $44\\%$."
+        },
+        {
+          "type": "mcq",
+          "text": "Tenaga kinetik, $E$, bagi suatu zarah berubah secara langsung dengan kuasa dua halajunya, $v$. Diberi $E = 100\\text{ J}$ apabila $v = 5\\text{ ms}^{-1}$. Jika zarah tersebut memecut sehingga mencapai tenaga kinetik $400\\text{ J}$, berapakah halaju baharunya?",
+          "question_difficulty": 5,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$10\\text{ ms}^{-1}$", "option_pic": null},
+            {"id": "B", "text": "$15\\text{ ms}^{-1}$", "option_pic": null},
+            {"id": "C", "text": "$20\\text{ ms}^{-1}$", "option_pic": null},
+            {"id": "D", "text": "$100\\text{ ms}^{-1}$", "option_pic": null}
+          ],
+          "ans": "A",
+          "hint": "Cari pemalar $k$ terlebih dahulu. Kemudian susun persamaan untuk mencari $v$ dengan mempunca kuasa duakan bahagian sebelah.",
+          "explanation": "Hubungan: $E = kv^2$. Cari $k$: $k = \\frac{100}{5^2} = \\frac{100}{25} = 4$. Persamaan lengkap: $E = 4v^2$. Apabila $E = 400$: $400 = 4v^2 \\Rightarrow v^2 = 100 \\Rightarrow v = 10\\text{ ms}^{-1}$."
+        },
+        {
+          "type": "tfq",
+          "text": "Diberi $y \\propto x^n$. Jika pemerhatian menunjukkan graf $y$ melawan $x$ ialah satu lengkung yang licin dan bermula dari asalan, maka nilai $n$ semestinya sama dengan 1.",
+          "question_difficulty": 5,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "T", "text": "Benar", "option_pic": null},
+            {"id": "F", "text": "Palsu", "option_pic": null}
+          ],
+          "ans": "F",
+          "hint": "Apakah bentuk graf jika $n = 1$? Adakah ia melengkung?",
+          "explanation": "Jika $n = 1$, graf $y$ melawan $x$ akan membentuk garis lurus. Jika graf tersebut melengkung, nilai $n$ mestilah bukan 1 (contohnya $n=2$, $n=3$, dll)."
+        }
+      ]
+    },
+    {
+      "sub_id": "f5_c1.2",
+      "sub_name": "Ubahan Bergabung",
+      "type": "quiz",
+      "order": 2,
+      "notes_location": "assets/notes/f5c1s2_n.pdf",
+      "author_id": "uid_12345",
+      "is_published": true,
+      "created_at": null,
+      "updated_at": null,
+      "q": [
+        {
+          "type": "mcq",
+          "text": "Antara pernyataan berikut, yang manakah menerangkan maksud ubahan songsang dengan paling tepat?",
+          "question_difficulty": 1,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "Pemboleh ubah $y$ bertambah apabila pemboleh ubah $x$ bertambah.", "option_pic": null},
+            {"id": "B", "text": "Pemboleh ubah $y$ berkurang apabila pemboleh ubah $x$ berkurang pada kadar yang sama.", "option_pic": null},
+            {"id": "C", "text": "Pemboleh ubah $y$ bertambah apabila pemboleh ubah $x$ berkurang pada kadar yang sama dan sebaliknya.", "option_pic": null},
+            {"id": "D", "text": "Pemboleh ubah $y$ sentiasa malar walaupun pemboleh ubah $x$ berubah.", "option_pic": null}
+          ],
+          "ans": "C",
+          "hint": "Fikirkan tentang perkataan 'songsang'. Jika satu naik, apa yang akan terjadi kepada yang satu lagi?",
+          "explanation": "Dalam ubahan songsang, dua pemboleh ubah bergerak dalam arah yang berlawanan pada kadar yang sama. Apabila $x$ bertambah, $y$ berkurang, dan sebaliknya."
+        },
+        {
+          "type": "tfq",
+          "text": "Bagi hubungan ubahan songsang $y \\propto \\frac{1}{x^n}$, bentuk graf $y$ melawan $x$ ialah satu garis lurus yang bermula daripada asalan.",
+          "question_difficulty": 1,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "T", "text": "Benar", "option_pic": null},
+            {"id": "F", "text": "Palsu", "option_pic": null}
+          ],
+          "ans": "F",
+          "hint": "Ingat kembali perbezaan bentuk graf $y$ melawan $x$ dan $y$ melawan $\\frac{1}{x^n}$.",
+          "explanation": "Graf $y$ melawan $x$ bagi ubahan songsang ialah berbentuk hiperbola. Graf $y$ melawan $\\frac{1}{x^n}$ barulah berbentuk garis lurus yang bermula daripada asalan."
+        },
+        {
+          "type": "mcq",
+          "text": "Simbol yang manakah digunakan untuk mewakili hubungan '$y$ berubah secara songsang dengan kuasa dua $x$'?",
+          "question_difficulty": 1,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$y \\propto x^2$", "option_pic": null},
+            {"id": "B", "text": "$y \\propto \\frac{1}{x^2}$", "option_pic": null},
+            {"id": "C", "text": "$y = kx^2$", "option_pic": null},
+            {"id": "D", "text": "$y \\propto \\frac{1}{x}$", "option_pic": null}
+          ],
+          "ans": "B",
+          "hint": "Kuasa dua $x$ ditulis sebagai $x^2$. Ubahan songsang mesti ditulis dalam bentuk pecahan $\\frac{1}{\\text{pemboleh ubah}}$.",
+          "explanation": "Ubahan songsang menggunakan simbol $\\propto$ dan ditulis sebagai pecahan dengan pemboleh ubah di bahagian penyebut. Oleh itu, ia ditulis sebagai $y \\propto \\frac{1}{x^2}$."
+        },
+        {
+          "type": "mcq",
+          "text": "Diberi $p$ berubah secara songsang dengan $q$. Tuliskan hubungan ini dalam bentuk persamaan dengan $k$ sebagai pemalar.",
+          "question_difficulty": 2,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$p = kq$", "option_pic": null},
+            {"id": "B", "text": "$p = \\frac{q}{k}$", "option_pic": null},
+            {"id": "C", "text": "$p = \\frac{k}{q}$", "option_pic": null},
+            {"id": "D", "text": "$k = \\frac{p}{q}$", "option_pic": null}
+          ],
+          "ans": "C",
+          "hint": "Gantikan simbol ubahan $\\propto$ dengan tanda sama dengan ($=$) dan masukkan pemalar $k$ di bahagian pengangka.",
+          "explanation": "Daripada hubungan ubahan $p \\propto \\frac{1}{q}$, kita tukarkan kepada bentuk persamaan dengan menambah pemalar $k$, menjadi $p = k(\\frac{1}{q})$ atau $p = \\frac{k}{q}$."
+        },
+        {
+          "type": "tfq",
+          "text": "Untuk mencari nilai pemalar $k$ bagi persamaan $y = \\frac{k}{x^3}$, rumus yang perlu digunakan ialah $k = \\frac{y}{x^3}$.",
+          "question_difficulty": 2,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "T", "text": "Benar", "option_pic": null},
+            {"id": "F", "text": "Palsu", "option_pic": null}
+          ],
+          "ans": "F",
+          "hint": "Selesaikan persamaan $y = \\frac{k}{x^3}$ untuk menjadikan $k$ sebagai perkara rumus.",
+          "explanation": "Dengan menggunakan algebra, jika $y = \\frac{k}{x^3}$, kita darabkan $x^3$ ke sebelah kiri persamaan. Maka, rumus yang betul untuk mencari pemalar ialah $k = yx^3$."
+        },
+        {
+          "type": "mcq",
+          "text": "Diberi $m$ berubah secara songsang dengan $n$. Jika $m = 4$ apabila $n = 5$, cari nilai pemalar $k$.",
+          "question_difficulty": 2,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$0.8$", "option_pic": null},
+            {"id": "B", "text": "$1.25$", "option_pic": null},
+            {"id": "C", "text": "$9$", "option_pic": null},
+            {"id": "D", "text": "$20$", "option_pic": null}
+          ],
+          "ans": "D",
+          "hint": "Gunakan rumus pemalar bagi ubahan songsang: $k = mn$.",
+          "explanation": "Bentuk persamaan ialah $m = \\frac{k}{n}$. Oleh itu, $k = m \\times n$. Menggantikan nilai: $k = 4 \\times 5 = 20$."
+        },
+        {
+          "type": "mcq",
+          "text": "Diberi $y$ berubah secara songsang dengan $x$. Jika $y = 10$ apabila $x = 2$, hitung nilai $y$ apabila $x = 5$.",
+          "question_difficulty": 3,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$4$", "option_pic": null},
+            {"id": "B", "text": "$5$", "option_pic": null},
+            {"id": "C", "text": "$25$", "option_pic": null},
+            {"id": "D", "text": "$50$", "option_pic": null}
+          ],
+          "ans": "A",
+          "hint": "Cari nilai pemalar $k$ terlebih dahulu. Kemudian, gunakan $k$ tersebut untuk mencari nilai $y$ yang baharu.",
+          "explanation": "Langkah 1: Cari $k$. $k = yx = 10(2) = 20$. Persamaan ialah $y = \\frac{20}{x}$. Langkah 2: Gantikan $x = 5$ ke dalam persamaan. $y = \\frac{20}{5} = 4$."
+        },
+        {
+          "type": "tfq",
+          "text": "Diberi $a$ berubah secara songsang dengan punca kuasa dua $b$. Jika $a = 3$ apabila $b = 16$, maka nilai $b$ ialah $36$ apabila $a = 2$.",
+          "question_difficulty": 3,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "T", "text": "Benar", "option_pic": null},
+            {"id": "F", "text": "Palsu", "option_pic": null}
+          ],
+          "ans": "T",
+          "hint": "Tulis persamaan $a = \\frac{k}{\\sqrt{b}}$. Cari $k$, dan kemudian selesaikan untuk $\\sqrt{b}$ sebelum mencari nilai $b$.",
+          "explanation": "Cari $k$: $3 = \\frac{k}{\\sqrt{16}} \\Rightarrow 3 = \\frac{k}{4} \\Rightarrow k = 12$. Persamaan: $a = \\frac{12}{\\sqrt{b}}$. Apabila $a = 2$: $2 = \\frac{12}{\\sqrt{b}} \\Rightarrow \\sqrt{b} = \\frac{12}{2} = 6$. Maka, $b = 6^2 = 36$. Pernyataan adalah benar."
+        },
+        {
+          "type": "mcq",
+          "text": "Diberi $P = \\frac{36}{Q^2}$. Hitung nilai $Q$ yang positif apabila $P = 4$.",
+          "question_difficulty": 3,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$3$", "option_pic": null},
+            {"id": "B", "text": "$9$", "option_pic": null},
+            {"id": "C", "text": "$18$", "option_pic": null},
+            {"id": "D", "text": "$81$", "option_pic": null}
+          ],
+          "ans": "A",
+          "hint": "Gantikan $P = 4$ ke dalam persamaan dan jadikan $Q^2$ sebagai perkara rumus. Kemudian punca kuasa duakan jawapan tersebut.",
+          "explanation": "Gantikan $P = 4$: $4 = \\frac{36}{Q^2}$. Susun semula: $Q^2 = \\frac{36}{4} = 9$. Oleh kerana kita hanya mahu nilai $Q$ yang positif, $Q = \\sqrt{9} = 3$."
+        },
+        {
+          "type": "mcq",
+          "text": "Jadual menunjukkan nilai-nilai bagi dua pemboleh ubah, $x$ dan $y$. Diberi $y$ berubah secara songsang dengan $x$. Jika $x=3$ memberikan $y=8$, apakah nilai $x$ apabila $y=6$?",
+          "question_difficulty": 4,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$2$", "option_pic": null},
+            {"id": "B", "text": "$4$", "option_pic": null},
+            {"id": "C", "text": "$16$", "option_pic": null},
+            {"id": "D", "text": "$24$", "option_pic": null}
+          ],
+          "ans": "B",
+          "hint": "Cari nilai $k$ dari pasangan nilai pertama, kemudian selesaikan untuk $x$ bagi nilai kedua.",
+          "explanation": "Pemalar $k = xy = 3 \\times 8 = 24$. Maka persamaannya ialah $y = \\frac{24}{x}$. Apabila $y = 6$, $6 = \\frac{24}{x} \\Rightarrow x = \\frac{24}{6} = 4$."
+        },
+        {
+          "type": "mcq",
+          "text": "Masa yang diambil, $t$ jam, untuk membersihkan sebuah padang berubah secara songsang dengan bilangan pekerja, $w$. Sekumpulan 5 orang pekerja mengambil masa 4 jam. Berapa lamakah masa yang diambil jika hanya 2 orang pekerja yang melakukan kerja tersebut?",
+          "question_difficulty": 4,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$1.6 \\text{ jam}$", "option_pic": null},
+            {"id": "B", "text": "$8 \\text{ jam}$", "option_pic": null},
+            {"id": "C", "text": "$10 \\text{ jam}$", "option_pic": null},
+            {"id": "D", "text": "$20 \\text{ jam}$", "option_pic": null}
+          ],
+          "ans": "C",
+          "hint": "Lebih sikit pekerja, lebih lama masa yang diambil. Cari pemalar $k$ untuk hubungan $t \\propto \\frac{1}{w}$.",
+          "explanation": "Hubungan: $t = \\frac{k}{w}$. Cari $k$: $4 = \\frac{k}{5} \\Rightarrow k = 20$. Jika 2 pekerja, $w = 2$. Maka masa diambil, $t = \\frac{20}{2} = 10$ jam."
+        },
+        {
+          "type": "tfq",
+          "text": "Kekerapan, $f$, bagi satu gelombang radio berubah secara songsang dengan panjang gelombangnya, $\\lambda$. Jika panjang gelombang digandakan dua kali ganda, maka kekerapan gelombang tersebut juga akan digandakan dua kali ganda.",
+          "question_difficulty": 4,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "T", "text": "Benar", "option_pic": null},
+            {"id": "F", "text": "Palsu", "option_pic": null}
+          ],
+          "ans": "F",
+          "hint": "Dalam ubahan songsang, jika satu pemboleh ubah didarabkan dengan sesuatu nombor, pemboleh ubah satu lagi mesti dibahagikan dengan nombor yang sama.",
+          "explanation": "Oleh sebab $f = \\frac{k}{\\lambda}$, apabila $\\lambda$ didarab dengan 2 (menjadi $2\\lambda$), kekerapan baharu ialah $f_\\text{baharu} = \\frac{k}{2\\lambda} = \\frac{1}{2}f$. Kekerapan akan menjadi separuh, bukan berganda."
+        },
+        {
+          "type": "mcq",
+          "text": "Diberi daya tarikan graviti, $F$, antara dua objek berubah secara songsang dengan kuasa dua jarak antara mereka, $r$. Jika jarak $r$ dikurangkan menjadi separuh daripada jarak asal, apakah yang akan berlaku kepada daya $F$?",
+          "question_difficulty": 5,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "Daya $F$ menjadi separuh daripada daya asal.", "option_pic": null},
+            {"id": "B", "text": "Daya $F$ meningkat 2 kali ganda.", "option_pic": null},
+            {"id": "C", "text": "Daya $F$ meningkat 4 kali ganda.", "option_pic": null},
+            {"id": "D", "text": "Daya $F$ kekal tidak berubah.", "option_pic": null}
+          ],
+          "ans": "C",
+          "hint": "Gantikan $r$ dengan $\\frac{1}{2}r$ dalam persamaan $F = \\frac{k}{r^2}$ dan perhatikan perubahan pada pekali.",
+          "explanation": "Persamaan asal: $F_1 = \\frac{k}{r^2}$. Jika jarak dikurangkan separuh: $r_\\text{baharu} = 0.5r$. Daya baharu: $F_2 = \\frac{k}{(0.5r)^2} = \\frac{k}{0.25r^2} = 4\\left(\\frac{k}{r^2}\\right)$. Maka, $F$ meningkat sebanyak 4 kali ganda."
+        },
+        {
+          "type": "mcq",
+          "text": "Sebuah bongkah logam mempunyai isi padu $V$ dan jisim malar. Ketumpatan, $\\rho$, bagi logam tersebut berubah secara songsang dengan isi padunya. Diberi ketumpatan ialah $8000 \\text{ kg/m}^3$ apabila isi padu ialah $0.5 \\text{ m}^3$. Hitung peratus perubahan ketumpatan jika isi padu dikembangkan sebanyak $25\\%$.",
+          "question_difficulty": 5,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "Berkurang $20\\%$", "option_pic": null},
+            {"id": "B", "text": "Berkurang $25\\%$", "option_pic": null},
+            {"id": "C", "text": "Meningkat $20\\%$", "option_pic": null},
+            {"id": "D", "text": "Meningkat $25\\%$", "option_pic": null}
+          ],
+          "ans": "A",
+          "hint": "Cari isi padu baharu selepas pengembangan. Cari ketumpatan baharu menggunakan hubungan $\\rho = \\frac{k}{V}$, kemudian bandingkan dengan ketumpatan asal.",
+          "explanation": "Cari $k$: $k = \\rho V = 8000 \\times 0.5 = 4000$. Isi padu baharu selepas berkembang $25\\%$ ialah $0.5 \\times 1.25 = 0.625 \\text{ m}^3$. Ketumpatan baharu $\\rho_\\text{baharu} = \\frac{4000}{0.625} = 6400 \\text{ kg/m}^3$. Perubahan $= \\frac{6400 - 8000}{8000} \\times 100\\% = -20\\%$. Maka ketumpatan berkurang sebanyak $20\\%$."
+        },
+        {
+          "type": "tfq",
+          "text": "Jika pemboleh ubah $y$ berubah secara songsang dengan punca kuasa tiga $x$, dan persamaan ubahan itu ialah $y = \\frac{15}{\\sqrt[3]{x}}$, maka nilai $x$ akan berkurang sebanyak 7 kali ganda nilai asalnya jika nilai $y$ ditingkatkan menjadi dua kali ganda nilai asal.",
+          "question_difficulty": 5,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "T", "text": "Benar", "option_pic": null},
+            {"id": "F", "text": "Palsu", "option_pic": null}
+          ],
+          "ans": "F",
+          "hint": "Kaji kesan pada $x$ apabila $y$ didarab dengan 2. Ingat bahawa untuk mencari $x$, anda perlu mengkuasa tigakan keseluruhan nilai di sebelah sana.",
+          "explanation": "Jadikan $x$ sebagai subjek: $\\sqrt[3]{x} = \\frac{15}{y} \\Rightarrow x = \\frac{3375}{y^3}$. Jika $y$ didarab dengan 2 ($y_\\text{baharu} = 2y$), maka $x_\\text{baharu} = \\frac{3375}{(2y)^3} = \\frac{3375}{8y^3} = \\frac{1}{8}x_\\text{asal}$. Nilai $x$ akan menjadi $\\frac{1}{8}$ daripada nilai asal (berkurang 8 kali ganda), bukan 7 kali ganda."
+        }
+      ]
+    },
+    {
+      "sub_id": "f5_c1.3",
+      "sub_name": "Ubahan Songsang",
+      "type": "quiz",
+      "order": 3,
+      "notes_location": "assets/notes/f5c1s3_n.pdf",
+      "author_id": "uid_12345",
+      "is_published": true,
+      "created_at": null,
+      "updated_at": null,
+      "q": [
+        {
+          "type": "mcq",
+          "text": "Pernyataan yang manakah mewakili hubungan 'y berubah secara langsung dengan x dan secara songsang dengan z'?",
+          "question_difficulty": 1,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$y \\propto xz$", "option_pic": null},
+            {"id": "B", "text": "$y \\propto \\frac{x}{z}$", "option_pic": null},
+            {"id": "C", "text": "$y \\propto \\frac{z}{x}$", "option_pic": null},
+            {"id": "D", "text": "$y \\propto \\frac{1}{xz}$", "option_pic": null}
+          ],
+          "ans": "B",
+          "hint": "Ingat kembali format ubahan bergabung: pengangka untuk ubahan langsung dan penyebut untuk ubahan songsang.",
+          "explanation": "Dalam ubahan bergabung, pemboleh ubah yang berubah secara langsung diletakkan di bahagian atas (pengangka), manakala yang berubah secara songsang diletakkan di bahagian bawah (penyebut)."
+        },
+        {
+          "type": "tfq",
+          "text": "Dalam persamaan ubahan bergabung $y = \\frac{kx}{z^2}$, nilai pemalar $k$ boleh berubah-ubah bergantung kepada nilai $x$ dan $z$.",
+          "question_difficulty": 1,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "T", "text": "Benar", "option_pic": null},
+            {"id": "F", "text": "Palsu", "option_pic": null}
+          ],
+          "ans": "F",
+          "hint": "Fikirkan tentang maksud sebenar perkataan 'pemalar'.",
+          "explanation": "Nilai $k$ ialah pemalar ubahan. Ia adalah satu nilai tetap yang tidak akan berubah walaupun nilai pemboleh ubah $x$, $y$, dan $z$ berubah."
+        },
+        {
+          "type": "mcq",
+          "text": "Diberi $p$ berubah secara langsung dengan kuasa dua $q$ dan secara songsang dengan punca kuasa dua $r$. Tuliskan hubungan ubahan ini.",
+          "question_difficulty": 1,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$p \\propto \\frac{q^2}{\\sqrt{r}}$", "option_pic": null},
+            {"id": "B", "text": "$p \\propto \\frac{\\sqrt{q}}{r^2}$", "option_pic": null},
+            {"id": "C", "text": "$p \\propto q^2 \\sqrt{r}$", "option_pic": null},
+            {"id": "D", "text": "$p = \\frac{kq^2}{\\sqrt{r}}$", "option_pic": null}
+          ],
+          "ans": "A",
+          "hint": "Kuasa dua merujuk kepada kuasa $2$, manakala punca kuasa dua merujuk kepada simbol $\\sqrt{}$.",
+          "explanation": "Hubungan ini ditulis menggunakan simbol perkadaran $\\propto$. '$q$ kuasa dua' bermaksud $q^2$ (berubah secara langsung, jadi di atas), manakala 'punca kuasa dua $r$' bermaksud $\\sqrt{r}$ (berubah secara songsang, jadi di bawah)."
+        },
+        {
+          "type": "mcq",
+          "text": "Diberi $y \\propto \\frac{x}{z}$, dan $y=4$ apabila $x=2$ dan $z=3$. Apakah nilai pemalar, $k$?",
+          "question_difficulty": 2,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$2$", "option_pic": null},
+            {"id": "B", "text": "$4$", "option_pic": null},
+            {"id": "C", "text": "$6$", "option_pic": null},
+            {"id": "D", "text": "$12$", "option_pic": null}
+          ],
+          "ans": "C",
+          "hint": "Tukarkan hubungan ubahan kepada persamaan $y = \\frac{kx}{z}$ dan masukkan semua nilai yang diberi.",
+          "explanation": "Persamaan: $y = \\frac{kx}{z}$. Gantikan nilai: $4 = \\frac{k(2)}{3} \\implies 12 = 2k \\implies k = 6$."
+        },
+        {
+          "type": "tfq",
+          "text": "Jika $y \\propto \\frac{x}{z^2}$, dan $y=2$ apabila $x=8$ dan $z=2$, maka nilai pemalar $k$ ialah $1$.",
+          "question_difficulty": 2,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "T", "text": "Benar", "option_pic": null},
+            {"id": "F", "text": "Palsu", "option_pic": null}
+          ],
+          "ans": "T",
+          "hint": "Gunakan persamaan $y = \\frac{kx}{z^2}$ dan hitung nilai $k$.",
+          "explanation": "Daripada persamaan $y = \\frac{kx}{z^2}$, gantikan nilai: $2 = \\frac{k(8)}{2^2} \\implies 2 = \\frac{8k}{4} \\implies 2 = 2k \\implies k = 1$. Kenyataan ini benar."
+        },
+        {
+          "type": "mcq",
+          "text": "Diberi $m$ berubah secara langsung dengan $n$ dan secara songsang dengan $p$. Jika $m=5$ apabila $n=10$ dan $p=4$, cari nilai pemalar $k$.",
+          "question_difficulty": 2,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$1$", "option_pic": null},
+            {"id": "B", "text": "$2$", "option_pic": null},
+            {"id": "C", "text": "$5$", "option_pic": null},
+            {"id": "D", "text": "$20$", "option_pic": null}
+          ],
+          "ans": "B",
+          "hint": "Tuliskan bentuk persamaan ubahan, dan selesaikan ungkapan tersebut untuk mencari $k$.",
+          "explanation": "Bentuk persamaan: $m = \\frac{kn}{p}$. Gantikan nilai: $5 = \\frac{k(10)}{4} \\implies 20 = 10k \\implies k = 2$."
+        },
+        {
+          "type": "mcq",
+          "text": "Diberi $y = \\frac{3x^2}{z}$. Cari nilai $y$ apabila $x=4$ dan $z=6$.",
+          "question_difficulty": 3,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$2$", "option_pic": null},
+            {"id": "B", "text": "$4$", "option_pic": null},
+            {"id": "C", "text": "$8$", "option_pic": null},
+            {"id": "D", "text": "$16$", "option_pic": null}
+          ],
+          "ans": "C",
+          "hint": "Gantikan terus nilai $x$ dan $z$ ke dalam persamaan yang diberikan.",
+          "explanation": "$y = \\frac{3(4^2)}{6} = \\frac{3(16)}{6} = \\frac{48}{6} = 8$."
+        },
+        {
+          "type": "tfq",
+          "text": "Diberi persamaan ubahan bergabung $W = \\frac{5X}{\\sqrt[3]{Y}}$. Apabila $X=2$ dan $Y=8$, nilai $W$ ialah $10$.",
+          "question_difficulty": 3,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "T", "text": "Benar", "option_pic": null},
+            {"id": "F", "text": "Palsu", "option_pic": null}
+          ],
+          "ans": "F",
+          "hint": "Cari punca kuasa tiga bagi $8$ terlebih dahulu sebelum menyempurnakan operasi bahagi.",
+          "explanation": "Gantikan $X=2$ dan $Y=8$ ke dalam persamaan: $W = \\frac{5(2)}{\\sqrt[3]{8}}$. Memandangkan $\\sqrt[3]{8} = 2$, maka $W = \\frac{10}{2} = 5$. Oleh itu, kenyataan adalah palsu."
+        },
+        {
+          "type": "mcq",
+          "text": "Diberi $a \\propto \\frac{b}{c^2}$. Jika $a=2$ apabila $b=18$ dan $c=3$, ungkapkan $a$ dalam sebutan $b$ dan $c$.",
+          "question_difficulty": 3,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$a = \\frac{2b}{c^2}$", "option_pic": null},
+            {"id": "B", "text": "$a = \\frac{b}{c^2}$", "option_pic": null},
+            {"id": "C", "text": "$a = \\frac{b}{2c^2}$", "option_pic": null},
+            {"id": "D", "text": "$a = \\frac{3b}{c^2}$", "option_pic": null}
+          ],
+          "ans": "B",
+          "hint": "Anda perlu mencari nilai $k$ dahulu dan kemudian memasukkannya semula ke dalam persamaan umum ubahan.",
+          "explanation": "Persamaan: $a = \\frac{kb}{c^2}$. Gantikan nilai: $2 = \\frac{k(18)}{3^2} \\implies 2 = \\frac{18k}{9} \\implies 2 = 2k \\implies k = 1$. Persamaan akhirnya ialah $a = \\frac{b}{c^2}$."
+        },
+        {
+          "type": "mcq",
+          "text": "$P$ berubah secara langsung dengan $Q$ dan secara songsang dengan kuasa dua $R$. Diberi $P=3$ apabila $Q=12$ dan $R=2$. Hitung nilai positif $R$ apabila $P=9$ dan $Q=9$.",
+          "question_difficulty": 4,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$1$", "option_pic": null},
+            {"id": "B", "text": "$2$", "option_pic": null},
+            {"id": "C", "text": "$3$", "option_pic": null},
+            {"id": "D", "text": "$4$", "option_pic": null}
+          ],
+          "ans": "A",
+          "hint": "Cari nilai $k$ dahulu untuk membentuk persamaan, kemudian selesaikan untuk mencari nilai $R^2$ diikuti nilai $R$.",
+          "explanation": "Mula-mula cari $k$: $P = \\frac{kQ}{R^2} \\implies 3 = \\frac{k(12)}{2^2} \\implies 3 = 3k \\implies k = 1$. Persamaan: $P = \\frac{Q}{R^2}$. Gantikan $P=9, Q=9 \\implies 9 = \\frac{9}{R^2} \\implies 9R^2 = 9 \\implies R^2 = 1 \\implies R = 1$."
+        },
+        {
+          "type": "tfq",
+          "text": "Diberi persamaan $v = \\frac{4w}{\\sqrt{u}}$. Jika nilai $w$ digandakan dua kali dan nilai $u$ dibiarkan malar, maka nilai $v$ akan berkurang menjadi separuh.",
+          "question_difficulty": 4,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "T", "text": "Benar", "option_pic": null},
+            {"id": "F", "text": "Palsu", "option_pic": null}
+          ],
+          "ans": "F",
+          "hint": "Fikirkan apakah hubungan ubahan secara langsung. Jika parameter di atas (pengangka) bertambah, adakah hasilnya bertambah atau berkurang?",
+          "explanation": "Kerana $v$ berubah secara langsung dengan $w$, peningkatan pada $w$ akan menyebabkan peningkatan yang berkadar terus pada $v$. Jika $w$ digandakan dua, nilai $v$ juga akan menjadi dua kali ganda, bukan separuh."
+        },
+        {
+          "type": "mcq",
+          "text": "Masa, $t$ jam yang diambil untuk mengecat bangunan berubah secara langsung dengan luas permukaan, $A$ dan secara songsang dengan bilangan pekerja, $N$. Jika $5$ pekerja mengambil masa $10$ jam untuk mengecat $200\\,m^2$, cari masa yang diambil oleh $10$ pekerja untuk mengecat $400\\,m^2$.",
+          "question_difficulty": 4,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$5$ jam", "option_pic": null},
+            {"id": "B", "text": "$10$ jam", "option_pic": null},
+            {"id": "C", "text": "$15$ jam", "option_pic": null},
+            {"id": "D", "text": "$20$ jam", "option_pic": null}
+          ],
+          "ans": "B",
+          "hint": "Bentukkan persamaan $t = \\frac{kA}{N}$ menggunakan senario pertama untuk mencari $k$, kemudian guna $k$ tersebut untuk senario kedua.",
+          "explanation": "Cari $k$: $t = \\frac{kA}{N} \\implies 10 = \\frac{k(200)}{5} \\implies 10 = 40k \\implies k = 0.25$. Guna untuk senario baru: $t = \\frac{0.25(400)}{10} = \\frac{100}{10} = 10$ jam."
+        },
+        {
+          "type": "mcq",
+          "text": "$y$ berubah secara langsung dengan $x$ dan secara songsang dengan $z$. Jika nilai $x$ ditingkatkan sebanyak $100\\%$ dan nilai $z$ dikurangkan sebanyak $50\\%$, apakah yang akan berlaku kepada nilai $y$?",
+          "question_difficulty": 5,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "Kekal tidak berubah", "option_pic": null},
+            {"id": "B", "text": "Bertambah sebanyak $100\\%$", "option_pic": null},
+            {"id": "C", "text": "Bertambah sebanyak $200\\%$", "option_pic": null},
+            {"id": "D", "text": "Bertambah sebanyak $300\\%$", "option_pic": null}
+          ],
+          "ans": "D",
+          "hint": "Uji dengan nombor atau gantikan $x_{baru} = 2x$ (naik $100\\%$) dan $z_{baru} = 0.5z$ (turun $50\\%$) ke dalam bentuk persamaan $y = \\frac{kx}{z}$.",
+          "explanation": "Katakan $y_1 = \\frac{kx}{z}$. Selepas perubahan, $x_{baru} = 2x$ dan $z_{baru} = 0.5z$. Maka $y_2 = \\frac{k(2x)}{0.5z} = 4\\left(\\frac{kx}{z}\\right) = 4y_1$. Peningkatan hasil sebanyak $4$ kali ganda bermaksud pertambahan sebanyak $(4 - 1) \\times 100\\% = 300\\%$."
+        },
+        {
+          "type": "tfq",
+          "text": "Tenaga kinetik, $E$ bagi sebuah zarah berubah secara langsung dengan jisimnya, $m$ dan kuasa dua halajunya, $v$. Situasi ini adalah satu contoh yang tepat bagi konsep ubahan bergabung.",
+          "question_difficulty": 5,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "T", "text": "Benar", "option_pic": null},
+            {"id": "F", "text": "Palsu", "option_pic": null}
+          ],
+          "ans": "F",
+          "hint": "Kenal pasti sama ada wujud elemen 'berubah secara songsang' dalam pernyataan tersebut.",
+          "explanation": "Pernyataan ini menerangkan ubahan tercantum ($E \\propto mv^2$), di mana kedua-dua pemboleh ubah berubah secara langsung. Ubahan bergabung wajib melibatkan gabungan ubahan secara langsung/tercantum DENGAN ubahan secara songsang."
+        },
+        {
+          "type": "mcq",
+          "text": "Daya tarikan graviti, $F$ berubah secara langsung dengan hasil darab jisim dua planet ($m_1$ dan $m_2$) dan secara songsang dengan kuasa dua jarak ($d$) di antara mereka. Jika kesemua parameter ($m_1$, $m_2$, dan $d$) digandakan dua secara serentak, apakah kesan yang berlaku pada daya graviti $F$?",
+          "question_difficulty": 5,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "Kekal sama", "option_pic": null},
+            {"id": "B", "text": "Menjadi separuh", "option_pic": null},
+            {"id": "C", "text": "Digandakan dua", "option_pic": null},
+            {"id": "D", "text": "Digandakan empat", "option_pic": null}
+          ],
+          "ans": "A",
+          "hint": "Bandingkan persamaan asal $F = \\frac{k m_1 m_2}{d^2}$ dengan persamaan baru selepas semua pemboleh ubah digandakan.",
+          "explanation": "Jisim yang digandakan menghasilkan pekali $2 \\times 2 = 4$ pada pengangka. Jarak digandakan menghasilkan pekali $2^2 = 4$ pada penyebut. Memandangkan $\\frac{4}{4} = 1$, nilai $F$ tidak akan berubah dan kekal sama."
+        }
+      ]
+    },
+    {
+      "sub_id": "f5_c1.4",
+      "sub_name": "Chapter 1 Revision",
+      "type": "revision",
+      "order": 4,
+      "notes_location": null,
+      "author_id": "uid_12345",
+      "is_published": true,
+      "created_at": null,
+      "updated_at": null,
+      "q": [
+        {
+          "type": "mcq",
+          "text": "Pemanjangan spring, $x\\text{ cm}$, berubah secara langsung dengan daya yang dikenakan, $F\\text{ Newton}$. Jika daya $15\\text{ N}$ menghasilkan pemanjangan spring sebanyak $3\\text{ cm}$, cari pemanjangan spring tersebut apabila daya $40\\text{ N}$ dikenakan.",
+          "question_difficulty": 3,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$5\\text{ cm}$", "option_pic": null},
+            {"id": "B", "text": "$8\\text{ cm}$", "option_pic": null},
+            {"id": "C", "text": "$12\\text{ cm}$", "option_pic": null},
+            {"id": "D", "text": "$24\\text{ cm}$", "option_pic": null}
+          ],
+          "ans": "B",
+          "hint": "Cari nilai pemalar $k$ menggunakan maklumat awal, kemudian gunakan persamaan $x = kF$ untuk mencari pemanjangan baharu.",
+          "explanation": "Bentuk persamaan: $x = kF$. Cari nilai pemalar: $k = \\frac{x}{F} = \\frac{3}{15} = \\frac{1}{5} = 0.2$. Persamaan lengkap ialah $x = 0.2F$. Apabila $F = 40\\text{ N}$, $x = 0.2(40) = 8\\text{ cm}$."
+        },
+        {
+          "type": "mcq",
+          "text": "Diberi pemboleh ubah $p$ berubah secara langsung dengan kuasa dua $q$. Jika $p = 27$ apabila $q = 3$, hitung nilai positif bagi $q$ apabila $p = 108$.",
+          "question_difficulty": 4,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$4$", "option_pic": null},
+            {"id": "B", "text": "$6$", "option_pic": null},
+            {"id": "C", "text": "$18$", "option_pic": null},
+            {"id": "D", "text": "$36$", "option_pic": null}
+          ],
+          "ans": "B",
+          "hint": "Persamaan ialah $p = kq^2$. Cari nilai $k$ dahulu. Kemudian, gantikan $p = 108$ untuk mencari nilai $q$.",
+          "explanation": "Daripada hubungan ubahan, $p = kq^2$. Cari $k$: $k = \\frac{p}{q^2} = \\frac{27}{3^2} = \\frac{27}{9} = 3$. Jadi, persamaannya ialah $p = 3q^2$. Apabila $p = 108$, $108 = 3q^2 \\Rightarrow q^2 = \\frac{108}{3} = 36$. Nilai positif bagi $q = \\sqrt{36} = 6$."
+        },
+        {
+          "type": "mcq",
+          "text": "Tempoh ayunan, $T\\text{ saat}$, bagi satu bandul ringkas berubah secara langsung dengan punca kuasa dua panjangnya, $l\\text{ cm}$. Diberi bahawa bandul berukuran $25\\text{ cm}$ panjang mempunyai tempoh ayunan $2\\text{ saat}$. Cari panjang bandul tersebut jika ia mempunyai tempoh ayunan $3\\text{ saat}$.",
+          "question_difficulty": 4,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$37.5\\text{ cm}$", "option_pic": null},
+            {"id": "B", "text": "$42.25\\text{ cm}$", "option_pic": null},
+            {"id": "C", "text": "$56.25\\text{ cm}$", "option_pic": null},
+            {"id": "D", "text": "$75.0\\text{ cm}$", "option_pic": null}
+          ],
+          "ans": "C",
+          "hint": "Hubungan ubahan ialah $T \\propto \\sqrt{l}$. Bentuk persamaan, cari pemalar $k$, dan kemudian selesaikan untuk mencari nilai $l$ yang baharu dengan mengkuasa duakan jawapan akhir.",
+          "explanation": "Tulis persamaan: $T = k\\sqrt{l}$. Cari $k$: $k = \\frac{T}{\\sqrt{l}} = \\frac{2}{\\sqrt{25}} = \\frac{2}{5} = 0.4$. Persamaan ialah $T = 0.4\\sqrt{l}$. Apabila $T = 3$, $3 = 0.4\\sqrt{l} \\Rightarrow \\sqrt{l} = \\frac{3}{0.4} = 7.5$. Oleh itu, $l = 7.5^2 = 56.25\\text{ cm}$."
+        },
+        {
+          "type": "mcq",
+          "text": "Diberi bahawa $y$ berubah secara langsung dengan kuasa tiga $x$. Sebahagian nilai pemerhatian menunjukkan $y = 40$ apabila $x = 2$, dan $y = 135$ apabila $x = h$. Hitung nilai $h$.",
+          "question_difficulty": 5,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$3$", "option_pic": null},
+            {"id": "B", "text": "$4$", "option_pic": null},
+            {"id": "C", "text": "$9$", "option_pic": null},
+            {"id": "D", "text": "$27$", "option_pic": null}
+          ],
+          "ans": "A",
+          "hint": "Cari pemalar $k$ dengan nilai pasangan pertama. Bina persamaan dalam bentuk $y = kx^3$, kemudian masukkan nilai pasangan kedua dan mempunca kuasa tigakan persamaan tersebut untuk mendapatkan $h$.",
+          "explanation": "Daripada $y \\propto x^3$, persamaannya ialah $y = kx^3$. Cari $k$: $k = \\frac{40}{2^3} = \\frac{40}{8} = 5$. Persamaannya ialah $y = 5x^3$. Gunakan pasangan kedua untuk mencari $h$: $135 = 5(h)^3 \\Rightarrow h^3 = \\frac{135}{5} = 27$. Maka, $h = \\sqrt[3]{27} = 3$."
+        },
+        {
+          "type": "mcq",
+          "text": "Luas sebuah bulatan, $A$, berubah secara langsung dengan kuasa dua jejarinya, $r$. Jika nilai jejari bulatan itu berkurang sebanyak $30\\%$, hitung peratusan penurunan bagi luas bulatan tersebut.",
+          "question_difficulty": 5,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$9\\%$", "option_pic": null},
+            {"id": "B", "text": "$30\\%$", "option_pic": null},
+            {"id": "C", "text": "$51\\%$", "option_pic": null},
+            {"id": "D", "text": "$60\\%$", "option_pic": null}
+          ],
+          "ans": "C",
+          "hint": "Jika jejari berkurang $30\\%$, nilai jejari yang baharu ialah $70\\%$ daripada nilai asal, iaitu $0.7r$. Kuasa duakan $0.7$ untuk melihat kesannya kepada pemboleh ubah luas.",
+          "explanation": "Persamaan asal ialah $A_1 = kr^2$. Jika $r$ berkurang $30\\%$, jejari baharu ialah $0.7r$. Luas baharu ialah $A_2 = k(0.7r)^2 = 0.49kr^2 = 0.49A_1$. Ini bermakna luas baharu hanya tinggal $49\\%$ daripada luas asal. Oleh itu, peratusan penurunan luas ialah $100\\% - 49\\% = 51\\%$."
+        },
+        {
+          "type": "mcq",
+          "text": "Diberi $y$ berubah secara songsang dengan punca kuasa dua $x$. Jika $y = 4$ apabila $x = 9$, hitung nilai $x$ apabila $y = 6$.",
+          "question_difficulty": 3,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$2$", "option_pic": null},
+            {"id": "B", "text": "$4$", "option_pic": null},
+            {"id": "C", "text": "$16$", "option_pic": null},
+            {"id": "D", "text": "$36$", "option_pic": null}
+          ],
+          "ans": "B",
+          "hint": "Cari nilai pemalar $k$ menggunakan persamaan $y = \\frac{k}{\\sqrt{x}}$. Kemudian gantikan nilai $y=6$ untuk mencari $x$.",
+          "explanation": "Persamaan: $y = \\frac{k}{\\sqrt{x}}$. Gantikan nilai awal: $4 = \\frac{k}{\\sqrt{9}} \\Rightarrow 4 = \\frac{k}{3} \\Rightarrow k = 12$. Persamaan baharu: $y = \\frac{12}{\\sqrt{x}}$. Apabila $y = 6$: $6 = \\frac{12}{\\sqrt{x}} \\Rightarrow \\sqrt{x} = \\frac{12}{6} = 2$. Maka, $x = 2^2 = 4$."
+        },
+        {
+          "type": "mcq",
+          "text": "Diberi $p$ berubah secara songsang dengan kuasa tiga $q$. Jika $p = 2$ apabila $q = 2$, hitung nilai $p$ apabila $q = 4$.",
+          "question_difficulty": 4,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$\\frac{1}{2}$", "option_pic": null},
+            {"id": "B", "text": "$\\frac{1}{4}$", "option_pic": null},
+            {"id": "C", "text": "$\\frac{1}{8}$", "option_pic": null},
+            {"id": "D", "text": "$\\frac{1}{16}$", "option_pic": null}
+          ],
+          "ans": "B",
+          "hint": "Kuasa tiga $q$ bermaksud $q^3$. Cari pemalar $k$ terlebih dahulu untuk ubahan $p \\propto \\frac{1}{q^3}$.",
+          "explanation": "Persamaan: $p = \\frac{k}{q^3}$. Cari $k$: $2 = \\frac{k}{2^3} \\Rightarrow 2 = \\frac{k}{8} \\Rightarrow k = 16$. Apabila $q = 4$: $p = \\frac{16}{4^3} = \\frac{16}{64} = \\frac{1}{4}$."
+        },
+        {
+          "type": "mcq",
+          "text": "Rintangan, $R$, bagi seutas dawai berubah secara songsang dengan kuasa dua jejarinya, $j$. Jika jejari dawai itu dikurangkan menjadi separuh daripada jejari asal, apakah yang akan berlaku kepada rintangannya?",
+          "question_difficulty": 4,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "Berkurang 2 kali ganda", "option_pic": null},
+            {"id": "B", "text": "Berkurang 4 kali ganda", "option_pic": null},
+            {"id": "C", "text": "Bertambah 2 kali ganda", "option_pic": null},
+            {"id": "D", "text": "Bertambah 4 kali ganda", "option_pic": null}
+          ],
+          "ans": "D",
+          "hint": "Gantikan $j$ dengan $\\frac{1}{2}j$ di dalam persamaan $R = \\frac{k}{j^2}$ dan kembangkan penyebutnya.",
+          "explanation": "Persamaan asal: $R_1 = \\frac{k}{j^2}$. Jika jejari baharu $j_2 = \\frac{1}{2}j$, maka rintangan baharu $R_2 = \\frac{k}{(\\frac{1}{2}j)^2} = \\frac{k}{\\frac{1}{4}j^2} = 4\\left(\\frac{k}{j^2}\\right)$. Maka, rintangan bertambah 4 kali ganda daripada rintangan asal."
+        },
+        {
+          "type": "mcq",
+          "text": "Diberi $y$ berubah secara songsang dengan $(x - 1)^2$. Jika $y = 3$ apabila $x = 5$, hitung nilai-nilai yang mungkin bagi $x$ apabila $y = 12$.",
+          "question_difficulty": 5,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$x = 3, x = -1$", "option_pic": null},
+            {"id": "B", "text": "$x = 5, x = -3$", "option_pic": null},
+            {"id": "C", "text": "$x = 2, x = -2$", "option_pic": null},
+            {"id": "D", "text": "$x = 4, x = -2$", "option_pic": null}
+          ],
+          "ans": "A",
+          "hint": "Selepas mencari persamaan ubahan, selesaikan persamaan kuadratik $(x - 1)^2 = a$ dengan mempunca kuasa duakan kedua-dua belah. Ingat bahawa punca kuasa dua menghasilkan nilai positif dan negatif.",
+          "explanation": "Cari $k$: $3 = \\frac{k}{(5 - 1)^2} \\Rightarrow 3 = \\frac{k}{16} \\Rightarrow k = 48$. Persamaan: $y = \\frac{48}{(x - 1)^2}$. Apabila $y = 12$: $12 = \\frac{48}{(x - 1)^2} \\Rightarrow (x - 1)^2 = \\frac{48}{12} = 4$. Maka, $x - 1 = \\sqrt{4}$. Ini bermakna $x - 1 = 2$ atau $x - 1 = -2$. Penyelesaiannya ialah $x = 3$ atau $x = -1$."
+        },
+        {
+          "type": "mcq",
+          "text": "Mengikut Hukum Boyle, tekanan gas, $P$, berubah secara songsang dengan isi padunya, $V$, pada suhu yang malar. Jika isi padu gas ditingkatkan sebanyak $25\\%$, hitung peratusan penurunan tekanan gas tersebut.",
+          "question_difficulty": 5,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$20\\%$", "option_pic": null},
+            {"id": "B", "text": "$25\\%$", "option_pic": null},
+            {"id": "C", "text": "$75\\%$", "option_pic": null},
+            {"id": "D", "text": "$80\\%$", "option_pic": null}
+          ],
+          "ans": "A",
+          "hint": "Anggap isi padu asal sebagai $V$ dan tekanan asal sebagai $P$. Isi padu baharu ialah $1.25V$. Cari tekanan baharu dalam sebutan $P$ dan kemudian kira peratus penurunannya.",
+          "explanation": "Persamaan asal: $P = \\frac{k}{V}$. Isi padu baharu, $V_2 = V + 0.25V = 1.25V$. Tekanan baharu, $P_2 = \\frac{k}{1.25V} = \\frac{1}{1.25}\\left(\\frac{k}{V}\\right) = 0.8P$. Tekanan baharu ialah $80\\%$ daripada tekanan asal. Ini bermakna tekanan telah mengalami penurunan sebanyak $100\\% - 80\\% = 20\\%$."
+        },
+        {
+          "type": "mcq",
+          "text": "Diberi $P$ berubah secara langsung dengan kuasa tiga $Q$ dan secara songsang dengan punca kuasa dua $R$. Jika $P=4$ apabila $Q=2$ dan $R=16$, hitung nilai $P$ apabila $Q=3$ dan $R=81$.",
+          "question_difficulty": 3,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$3$", "option_pic": null},
+            {"id": "B", "text": "$6$", "option_pic": null},
+            {"id": "C", "text": "$9$", "option_pic": null},
+            {"id": "D", "text": "$18$", "option_pic": null}
+          ],
+          "ans": "B",
+          "hint": "Bentukkan persamaan $P = \\frac{kQ^3}{\\sqrt{R}}$. Cari nilai pemalar $k$ dahulu menggunakan set nilai pertama.",
+          "explanation": "Mula-mula, cari nilai $k$: $4 = \\frac{k(2^3)}{\\sqrt{16}} \\implies 4 = \\frac{k(8)}{4} \\implies 4 = 2k \\implies k = 2$. Persamaan penuh ialah $P = \\frac{2Q^3}{\\sqrt{R}}$. Gantikan nilai baharu: $P = \\frac{2(3^3)}{\\sqrt{81}} = \\frac{2(27)}{9} = \\frac{54}{9} = 6$."
+        },
+        {
+          "type": "mcq",
+          "text": "$M$ berubah secara langsung dengan $N$ dan secara songsang dengan kuasa dua $L$. Diberi bahawa $M=10$ apabila $N=8$ dan $L=2$. Hitung nilai positif $L$ apabila $M=5$ dan $N=16$.",
+          "question_difficulty": 4,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$2$", "option_pic": null},
+            {"id": "B", "text": "$4$", "option_pic": null},
+            {"id": "C", "text": "$8$", "option_pic": null},
+            {"id": "D", "text": "$16$", "option_pic": null}
+          ],
+          "ans": "B",
+          "hint": "Cari nilai $k$ untuk melengkapkan persamaan $M = \\frac{kN}{L^2}$. Kemudian jadikan $L^2$ sebagai perkara rumus.",
+          "explanation": "Cari nilai $k$: $10 = \\frac{k(8)}{2^2} \\implies 10 = \\frac{8k}{4} \\implies 10 = 2k \\implies k = 5$. Persamaan ialah $M = \\frac{5N}{L^2}$. Gantikan nilai baharu: $5 = \\frac{5(16)}{L^2} \\implies 5 = \\frac{80}{L^2} \\implies 5L^2 = 80 \\implies L^2 = 16$. Maka, nilai positif $L = 4$."
+        },
+        {
+          "type": "mcq",
+          "text": "Rintangan, $R$ bagi seutas dawai berubah secara langsung dengan panjangnya, $l$ dan secara songsang dengan kuasa dua diameternya, $d$. Seutas dawai $X$ mempunyai panjang $50\\,cm$, diameter $2\\,mm$ dan rintangan $5\\,\\Omega$. Dawai $Y$ dari bahan yang sama mempunyai panjang $100\\,cm$ dan diameter $4\\,mm$. Berapakah rintangan dawai $Y$?",
+          "question_difficulty": 4,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$1.25\\,\\Omega$", "option_pic": null},
+            {"id": "B", "text": "$2.5\\,\\Omega$", "option_pic": null},
+            {"id": "C", "text": "$5.0\\,\\Omega$", "option_pic": null},
+            {"id": "D", "text": "$10.0\\,\\Omega$", "option_pic": null}
+          ],
+          "ans": "B",
+          "hint": "Aplikasi konsep $R = \\frac{kl}{d^2}$ dengan mencari nilai $k$ bagi dawai $X$ terlebih dahulu, kemudian gunakan $k$ tersebut untuk dawai $Y$.",
+          "explanation": "Untuk dawai $X$: $5 = \\frac{k(50)}{2^2} \\implies 5 = \\frac{50k}{4} \\implies 20 = 50k \\implies k = 0.4$. Untuk dawai $Y$: $R = \\frac{0.4(100)}{4^2} = \\frac{40}{16} = 2.5\\,\\Omega$."
+        },
+        {
+          "type": "mcq",
+          "text": "Pemboleh ubah $H$ berubah secara langsung dengan $J$ dan secara songsang dengan $K$. Jika nilai $J$ meningkat sebanyak $20\\%$ dan nilai $K$ menurun sebanyak $20\\%$, apakah yang akan berlaku kepada nilai $H$?",
+          "question_difficulty": 5,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "Bertambah sebanyak $50\\%$", "option_pic": null},
+            {"id": "B", "text": "Bertambah sebanyak $20\\%$", "option_pic": null},
+            {"id": "C", "text": "Berkurang sebanyak $20\\%$", "option_pic": null},
+            {"id": "D", "text": "Tidak berubah", "option_pic": null}
+          ],
+          "ans": "A",
+          "hint": "Gantikan $J_{baru} = 1.2J$ dan $K_{baru} = 0.8K$ ke dalam persamaan $H = \\frac{kJ}{K}$ untuk melihat pekali yang terhasil.",
+          "explanation": "Nilai asal: $H_1 = \\frac{kJ}{K}$. Selepas perubahan: $J_{baru} = 1.2J$ dan $K_{baru} = 0.8K$. Maka $H_2 = \\frac{k(1.2J)}{0.8K} = \\frac{1.2}{0.8} \\times \\left(\\frac{kJ}{K}\\right) = 1.5 H_1$. Faktor $1.5$ bermaksud nilai $H$ telah bertambah sebanyak $50\\%$."
+        },
+        {
+          "type": "mcq",
+          "text": "Jadual menunjukkan nilai-nilai bagi pemboleh ubah $X$, $Y$ dan $Z$. Diberi bahawa $Y$ berubah secara langsung dengan $X$ dan secara songsang dengan kuasa tiga $Z$. Jika baris pertama jadual mencatatkan $X=a, Z=2, Y=3$ dan baris kedua mencatatkan $X=4a, Z=b, Y=\\frac{3}{2}$, cari nilai $b$.",
+          "question_difficulty": 5,
+          "question_pic": null,
+          "options_has_picture": false,
+          "options": [
+            {"id": "A", "text": "$2$", "option_pic": null},
+            {"id": "B", "text": "$4$", "option_pic": null},
+            {"id": "C", "text": "$6$", "option_pic": null},
+            {"id": "D", "text": "$8$", "option_pic": null}
+          ],
+          "ans": "B",
+          "hint": "Ungkapkan pemalar $k$ dalam sebutan $a$ dari set data pertama, kemudian gantikan ungkapan tersebut ke dalam set data kedua.",
+          "explanation": "Daripada $Y = \\frac{kX}{Z^3}$. Set 1: $3 = \\frac{ka}{2^3} \\implies 3 = \\frac{ka}{8} \\implies ka = 24$. Set 2: $\\frac{3}{2} = \\frac{k(4a)}{b^3} \\implies \\frac{3}{2} = \\frac{4(ka)}{b^3}$. Gantikan $ka = 24$ ke dalam persamaan kedua: $\\frac{3}{2} = \\frac{4(24)}{b^3} \\implies \\frac{3}{2} = \\frac{96}{b^3} \\implies 3b^3 = 192 \\implies b^3 = 64$. Maka, $b = 4$."
+        }
+      ]
+    }
+  ]
+}

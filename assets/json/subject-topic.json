@@ -1,0 +1,59 @@
+{
+  "description": "list of subject",
+  "subjects": [
+    {
+      "subject_id": "spm_math_f4",
+      "subject_name": "Mathematics SPM Form 4",
+      "sequences": [
+        {
+          "chapter_num": 1,
+          "ch_id": "f4_c1",
+          "ch_file_location": "assets/json/f4c1.json",
+          "subtopics": [
+            {
+              "sub_id": "f4_c1.1",
+              "sub_name": "Fungsi dan Persamaan Kuadratik",
+              "type": "quiz",
+              "order": 1
+            },
+            {
+              "sub_id": "f4_c1.2",
+              "sub_name": "Chapter 1 Revision",
+              "type": "revision",
+              "order": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "subject_id": "spm_math_f5",
+      "subject_name": "Mathematics SPM Form 5",
+      "sequences": [
+        {
+          "chapter_num": 1,
+          "ch_id": "f5_c1",
+          "ch_file_location": "assets/json/f5c1.json",
+          "subtopics": [
+            {
+              "sub_id": "f5_c1.1",
+              "sub_name": "Fungsi dan Persamaan Kuadratik",
+              "type": "quiz",
+              "order": 1
+            },
+            {
+              "sub_id": "f5_c1.2",
+              "sub_name": "Chapter 1 Revision",
+              "type": "revision",
+              "order": 2
+            }
+          ]
+        }
+      ]
+    }
+
+  ]
+}
+
+
+

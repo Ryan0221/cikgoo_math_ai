@@ -5,7 +5,7 @@
   "form": 4,
   "subtopics": [
     {
-      "sub_id": "1.1",
+      "sub_id": "f4_c1.1",
       "sub_name": "Fungsi dan Persamaan Kuadratik",
       "type": "quiz",
       "order": 1,
@@ -48,30 +48,30 @@
           "explanation": "Bentuk am fungsi kuadratik mesti mempunyai terma kuasa dua sebagai kuasa tertinggi, iaitu $f(x) = ax^2 + bx + c$."
         },
         {
-          "type": "mcq",
+          "type": "tfq",
           "text": "Nilai pekali 'a' dalam ungkapan kuadratik $ax^2+bx+c$ boleh menjadi sifar ($0$).",
           "question_difficulty": 1,
           "question_pic": null,
           "options_has_picture": false,
           "options": [
-            {"id": "A", "text": "Benar", "option_pic": null},
-            {"id": "B", "text": "Palsu", "option_pic": null}
+            {"id": "T", "text": "Benar", "option_pic": null},
+            {"id": "F", "text": "Palsu", "option_pic": null}
           ],
-          "ans": "B",
+          "ans": "F",
           "hint": "Fikirkan apa yang terjadi kepada bentuk persamaan jika kita meletakkan $0$ pada nilai a.",
           "explanation": "Syarat utama ungkapan kuadratik ialah $a \\ne 0$ supaya kuasa dua sentiasa wujud. Jika $a=0$, terma $x^2$ akan hilang dan ungkapan itu menjadi linear."
         },
         {
-          "type": "mcq",
+          "type": "tfq",
           "text": "Jika nilai $a > 0$ dalam fungsi kuadratik $f(x)=ax^2+bx+c$, graf akan berbentuk 'U' dan mempunyai titik minimum.",
           "question_difficulty": 2,
           "question_pic": null,
           "options_has_picture": false,
           "options": [
-            {"id": "A", "text": "Benar", "option_pic": null},
-            {"id": "B", "text": "Palsu", "option_pic": null}
+            {"id": "T", "text": "Benar", "option_pic": null},
+            {"id": "F", "text": "Palsu", "option_pic": null}
           ],
-          "ans": "A",
+          "ans": "T",
           "hint": "Ingat konsep bentuk 'senyum' berbanding bentuk 'masam'.",
           "explanation": "Apabila nilai pekali kuasa dua adalah positif ($a > 0$), graf parabola terbuka ke atas memberikan bentuk 'U' dan titik minimum."
         },
@@ -414,10 +414,10 @@
       ]
     },
     {
-      "sub_id": "1.2",
+      "sub_id": "f4_c1.2",
       "sub_name": "Chapter 1 Revision",
       "type": "revision",
-      "order": 1,
+      "order": 2,
       "notes_location": null,
       "author_id": "uid_12345",
       "is_published": true,
