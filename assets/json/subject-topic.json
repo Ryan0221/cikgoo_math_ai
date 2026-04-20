@@ -8,6 +8,7 @@
         {
           "chapter_num": 1,
           "ch_id": "f4_c1",
+          "ch_name": "Fungsi dan Persamaan Kuadratik dalam Satu Pemboleh Ubah",
           "ch_file_location": "assets/json/f4c1.json",
           "subtopics": [
             {
@@ -21,6 +22,38 @@
               "sub_name": "Chapter 1 Revision",
               "type": "revision",
               "order": 2
+            }
+          ]
+        },
+        {
+          "chapter_num": 2,
+          "ch_id": "f4_c2",
+          "ch_name": "Dummy f4 c2",
+          "ch_file_location": "assets/json/f4c2.json",
+          "subtopics": [
+            {
+              "sub_id": "f5_c1.1",
+              "sub_name": "Dummy Ubahan Langsung",
+              "type": "quiz",
+              "order": 1
+            },
+            {
+              "sub_id": "f5_c1.2",
+              "sub_name": "Dummy Ubahan Bergabung",
+              "type": "quiz",
+              "order": 2
+            },
+            {
+              "sub_id": "f5_c1.3",
+              "sub_name": "Dummy Ubahan Songsang",
+              "type": "quiz",
+              "order": 3
+            },
+            {
+              "sub_id": "f5_c1.4",
+              "sub_name": "Dummy Chapter 2 Revision",
+              "type": "revision",
+              "order": 4
             }
           ]
         }
@@ -37,15 +70,27 @@
           "subtopics": [
             {
               "sub_id": "f5_c1.1",
-              "sub_name": "Fungsi dan Persamaan Kuadratik",
+              "sub_name": "Ubahan Langsung",
               "type": "quiz",
               "order": 1
             },
             {
               "sub_id": "f5_c1.2",
-              "sub_name": "Chapter 1 Revision",
+              "sub_name": "Ubahan Bergabung",
               "type": "revision",
               "order": 2
+            },
+            {
+              "sub_id": "f5_c1.3",
+              "sub_name": "Ubahan Songsang",
+              "type": "quiz",
+              "order": 3
+            },
+            {
+              "sub_id": "f5_c1.4",
+              "sub_name": "Chapter 1 Revision",
+              "type": "revision",
+              "order": 4
             }
           ]
         }
