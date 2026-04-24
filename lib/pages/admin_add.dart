@@ -142,7 +142,6 @@ class _AddContentPanelState extends State<AddContentPanel> {
                   _buildDropdown("Type", Colors.grey[350]!, _types, _selectedType, (val) => setState(() => _selectedType = val)),
 
                   Container(
-                    //padding: const EdgeInsets.all(16), // Padding inside the rounded box
                     margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                     decoration: BoxDecoration(
                       color: Colors.grey[350], // Gives it a distinct background from the grey dashboard
@@ -187,7 +186,6 @@ class _AddContentPanelState extends State<AddContentPanel> {
                             ),
                           ],
                         ),
-
                         _buildImageTextField("Question", Colors.grey[200]!, maxLines: 1),
                         _buildStandardTextField("Hint", Colors.grey[200]!, maxLines: 1),
                         _buildImageTextField("Option 1", Colors.grey[200]!,),
@@ -201,11 +199,6 @@ class _AddContentPanelState extends State<AddContentPanel> {
                       ],
                     ),
                   ),
-
-
-
-
-
                 ],
               ),
             ),

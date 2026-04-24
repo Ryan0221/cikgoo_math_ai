@@ -4,9 +4,7 @@ import 'package:cikgoo_math_ai/pages/pdf_viewer_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:math';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'adaptive_quiz_screen.dart';
-import 'quiz_screen.dart';
 
 // --- 1. DATA MODELS FOR JSON ---
 class SubjectModel {

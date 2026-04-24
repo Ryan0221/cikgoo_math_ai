@@ -97,12 +97,10 @@ class _AdaptiveQuizScreenState extends State<AdaptiveQuizScreen> {
         _handleLevelEnd(true);
         return; // Stop running the rest of this method
       }
-
       // 2. Otherwise, prepare the next question
       currentQuestionIndex++;
       _selectedOptionId = null;
       _hasSubmitted = false;
-
       // 3. EXHAUSTION CHECK: Check if they ran out of questions in the current block
       if (currentQuestionIndex >= currentBlock.length) {
         if (isReviewingWrong) {

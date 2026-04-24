@@ -77,9 +77,6 @@ class _FirstPageState extends State<FirstPage> {
       ),
 
       // bottom navigation bar
-      // NEW: AnimatedSlide animates the hiding/showing based on _isVisible
-      // Offset(0, 2.5) slides it DOWN off the screen completely when hiding.
-      // Offset.zero (0,0) slides it UP to its normal resting position.
       bottomNavigationBar: AnimatedSlide(
         duration: const Duration(milliseconds: 350), // Smooth 0.35s speed
         curve: Curves.easeOutCubic, // Makes it snap into place nicely

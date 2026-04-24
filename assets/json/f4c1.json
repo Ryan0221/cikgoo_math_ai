@@ -30,7 +30,7 @@
           ],
           "ans": "B",
           "hint": "Cari ungkapan yang hanya mempunyai satu huruf pemboleh ubah dan kuasa terbesarnya mestilah tepat 2.",
-          "explanation": "Ungkapan ini mempunyai satu pemboleh ubah (x) dan kuasa tertingginya ialah 2. Pilihan lain sama ada mempunyai kuasa negatif, dua pemboleh ubah, atau kuasa lebih dari 2."
+          "explanation": "Ungkapan ini mempunyai satu pemboleh ubah (x) dan kuasa tertingginya ialah 2. Pilihan lain sama ada mempunyai kuasa negatif, dua pemboleh ubah, atau kuasa lebih dari 2.",
         },
         {
           "q_id": "f4_c1.1.2",
