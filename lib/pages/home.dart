@@ -99,8 +99,8 @@ class _HomeState extends State<Home> {
   // Reads the JSON file and prepares the initial state
   Future<void> _loadSubjectData() async {
     try {
-      // Ensure you have "assets/json/subject-topic.json" declared in pubspec.yaml
-      String jsonString = await rootBundle.loadString('assets/json/subject-topic.json');
+      // Ensure you have "assets/json/subjects-chapters-subtopics.json" declared in pubspec.yaml
+      String jsonString = await rootBundle.loadString('assets/json/subjects-chapters-subtopics.json');
       final Map<String, dynamic> jsonData = json.decode(jsonString);
 
       List<SubjectModel> loadedSubjects = (jsonData['subjects'] as List)
@@ -420,7 +420,7 @@ class _HomeState extends State<Home> {
     return GestureDetector(
       onTap: () async {
         try {
-          // 1. Load the specific chapter file dynamically (e.g., assets/json/f4c1.json)
+          // 1. Load the specific chapter file dynamically (e.g., assets/json/spmMathF4_c1.json)
           String jsonStr = await rootBundle.loadString(chapter.chFileLocation);
           Map<String, dynamic> data = json.decode(jsonStr);
 
