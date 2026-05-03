@@ -28,30 +28,62 @@
         {
           "chapter_num": 2,
           "ch_id": "f4_c2",
-          "ch_name": "Dummy f4 c2",
+          "ch_name": "Dummy F4 C2",
           "ch_file_location": "assets/json/f4c2.json",
           "subtopics": [
             {
-              "sub_id": "f5_c1.1",
+              "sub_id": "f4_c2.1",
               "sub_name": "Dummy Ubahan Langsung",
               "type": "quiz",
               "order": 1
             },
             {
-              "sub_id": "f5_c1.2",
+              "sub_id": "f4_c2.2",
               "sub_name": "Dummy Ubahan Bergabung",
               "type": "quiz",
               "order": 2
             },
             {
-              "sub_id": "f5_c1.3",
+              "sub_id": "f4_c2.3",
               "sub_name": "Dummy Ubahan Songsang",
               "type": "quiz",
               "order": 3
             },
             {
-              "sub_id": "f5_c1.4",
+              "sub_id": "f4_c2.4",
               "sub_name": "Dummy Chapter 2 Revision",
+              "type": "revision",
+              "order": 4
+            }
+          ]
+        },
+        {
+          "chapter_num": 3,
+          "ch_id": "f4_c3",
+          "ch_name": "Dummy F4 C3",
+          "ch_file_location": "assets/json/f4c2.json",
+          "subtopics": [
+            {
+              "sub_id": "f4_c3.1",
+              "sub_name": "Dummy Ubahan Langsung",
+              "type": "quiz",
+              "order": 1
+            },
+            {
+              "sub_id": "f4_c3.2",
+              "sub_name": "Dummy Ubahan Bergabung",
+              "type": "quiz",
+              "order": 2
+            },
+            {
+              "sub_id": "f4_c3.3",
+              "sub_name": "Dummy Ubahan Songsang",
+              "type": "quiz",
+              "order": 3
+            },
+            {
+              "sub_id": "f4_c3.4",
+              "sub_name": "Dummy Chapter 3 Revision",
               "type": "revision",
               "order": 4
             }

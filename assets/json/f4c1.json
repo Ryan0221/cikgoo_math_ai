@@ -1,11 +1,11 @@
 {
-  "ch_id": "f4_c1",
+  "ch_id": "spmMathF4_c1",
   "ch_name": "Fungsi dan Persamaan Kuadratik dalam Satu Pemboleh Ubah",
   "chapter_num": 1,
   "form": 4,
   "subtopics": [
     {
-      "sub_id": "f4_c1.1",
+      "sub_id": "spmMathF4_c1.1",
       "sub_name": "Fungsi dan Persamaan Kuadratik",
       "type": "quiz",
       "order": 1,
@@ -30,7 +30,7 @@
           ],
           "ans": "B",
           "hint": "Cari ungkapan yang hanya mempunyai satu huruf pemboleh ubah dan kuasa terbesarnya mestilah tepat 2.",
-          "explanation": "Ungkapan ini mempunyai satu pemboleh ubah (x) dan kuasa tertingginya ialah 2. Pilihan lain sama ada mempunyai kuasa negatif, dua pemboleh ubah, atau kuasa lebih dari 2.",
+          "explanation": "Ungkapan ini mempunyai satu pemboleh ubah (x) dan kuasa tertingginya ialah 2. Pilihan lain sama ada mempunyai kuasa negatif, dua pemboleh ubah, atau kuasa lebih dari 2."
         },
         {
           "q_id": "f4_c1.1.2",

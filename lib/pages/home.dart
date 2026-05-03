@@ -220,7 +220,7 @@ class _HomeState extends State<Home> {
               child: _buildChapterDivider(chapterTitle),
             )
         );
-        currentY += 60;
+        currentY += 100;
         currentChapterId = chapter.chId;
       } else {
         currentY += nodeHeight;
