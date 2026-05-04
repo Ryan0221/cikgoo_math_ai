@@ -41,6 +41,9 @@ dependencies:
   cloud_firestore: ^5.6.12
   flutter_cache_manager: ^3.4.1
   syncfusion_flutter_pdfviewer: ^33.1.46
+  firebase_storage: ^12.4.10
+  path_provider: ^2.1.5
+  shared_preferences: ^2.5.5
 
 dev_dependencies:
   flutter_test:

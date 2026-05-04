@@ -4,6 +4,7 @@ import 'package:cikgoo_math_ai/pages/pdf_viewer_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:math';
+import '../services/content_manager.dart';
 import 'adaptive_quiz_screen.dart';
 
 // --- 1. DATA MODELS FOR JSON ---
@@ -93,6 +94,7 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
+    ContentManager.checkForUpdates();
     _loadSubjectData();
   }
 
@@ -100,7 +102,8 @@ class _HomeState extends State<Home> {
   Future<void> _loadSubjectData() async {
     try {
       // Ensure you have "assets/json/subjects-chapters-subtopics.json" declared in pubspec.yaml
-      String jsonString = await rootBundle.loadString('assets/json/subjects-chapters-subtopics.json');
+      String jsonString = await ContentManager.readLocalJson('subjects-chapters-subtopics.json');
+      //String jsonString = await rootBundle.loadString('assets/json/subjects-chapters-subtopics.json');
       final Map<String, dynamic> jsonData = json.decode(jsonString);
 
       List<SubjectModel> loadedSubjects = (jsonData['subjects'] as List)
@@ -421,7 +424,8 @@ class _HomeState extends State<Home> {
       onTap: () async {
         try {
           // 1. Load the specific chapter file dynamically (e.g., assets/json/spmMathF4_c1.json)
-          String jsonStr = await rootBundle.loadString(chapter.chFileLocation);
+          //String jsonStr = await rootBundle.loadString(chapter.chFileLocation);
+          String jsonStr = await ContentManager.readLocalJson('subjects-chapters-subtopics.json');
           Map<String, dynamic> data = json.decode(jsonStr);
 
           // 2. Find the specific subtopic data
