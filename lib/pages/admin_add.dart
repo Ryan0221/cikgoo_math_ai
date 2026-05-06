@@ -1,4 +1,10 @@
+import 'dart:convert';
+import 'dart:io';
+import 'package:flutter/services.dart'; // REQUIRED for rootBundle
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:image_picker/image_picker.dart';
 
 class AddContentPanel extends StatefulWidget {
   const AddContentPanel({Key? key}) : super(key: key);
@@ -25,8 +31,6 @@ class _AddContentPanelState extends State<AddContentPanel> {
   String? _attachedFileName;
 
   // Sample Options for Dropdowns
-  final List<String> _subjects = ['Mathematics SPM Form 4', 'Mathematics SPM Form 5'];
-  List<String> _chapters = ['Chapter 1', 'Chapter 2']; // Made mutable so we can add to it
   final List<String> _subtopicTypes = ['Quiz', 'Revision'];
   final List<String> _questionTypes = ['Multiple Choice Question', 'True/False Question'];
   final List<String> _questionDifficulties = ['1', '2', '3', '4', '5'];
@@ -36,6 +40,134 @@ class _AddContentPanelState extends State<AddContentPanel> {
   // State for Reorderable List
   List<String> _subtopicOrderList = ['Subtopic A', 'Subtopic B', 'Subtopic C'];
   int _prefilledOrderNumber = 1; // E.g., defaulting to order 1
+
+  bool _isLoadingMap = true;
+  Map<String, dynamic>? _masterSyllabusMap; // Holds the whole JSON
+
+  // Dynamic Lists (No longer hardcoded!)
+  List<String> _subjects = [];
+  List<String> _chapters = [];
+
+  final TextEditingController _subtopicNameController = TextEditingController();
+  final TextEditingController _optionAController = TextEditingController();
+  final TextEditingController _optionBController = TextEditingController();
+  final TextEditingController _optionCController = TextEditingController();
+  final TextEditingController _optionDController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    // This tells Flutter to run your JSON loader as soon as the panel opens
+    _loadMasterSyllabus();
+  }
+
+  @override
+  void dispose() {
+    _subtopicNameController.dispose();
+    _optionAController.dispose();
+    _optionBController.dispose();
+    _optionCController.dispose();
+    _optionDController.dispose();
+    super.dispose();
+  }
+
+  // Reads the local file and populates the initial Subject list
+  Future<void> _loadMasterSyllabus() async {
+    try {
+      Directory appDocDir = await getApplicationDocumentsDirectory();
+      File localFile = File('${appDocDir.path}/subjects-chapters-subtopics.json');
+
+      String jsonString;
+
+      // 1. Check if we downloaded an update from the cloud
+      if (await localFile.exists()) {
+        jsonString = await localFile.readAsString();
+      } else {
+        // 2. FALLBACK: Read the default file bundled with the app!
+        jsonString = await rootBundle.loadString('assets/json/subjects-chapters-subtopics.json');
+      }
+
+      // 3. Parse the data
+      Map<String, dynamic> data = json.decode(jsonString);
+
+      setState(() {
+        _masterSyllabusMap = data;
+
+        // Extract just the subject names for the first dropdown
+        _subjects = (data['subjects'] as List)
+            .map((s) => s['subject_name'].toString())
+            .toList();
+
+        _isLoadingMap = false; // Stop the spinner!
+      });
+
+    } catch (e) {
+      print("Error loading syllabus: $e");
+
+      // 4. FAILSAFE: Stop the spinner even if the JSON is broken
+      setState(() {
+        _isLoadingMap = false;
+      });
+
+      // Optional: Show an error message to the admin
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to load syllabus data: $e')),
+        );
+      }
+    }
+  }
+
+  // Update Chapters list based on the chosen subject
+  void _updateChaptersList(String subjectName) {
+    if (_masterSyllabusMap == null) return;
+
+    // Find the specific subject in the JSON
+    var subjectData = (_masterSyllabusMap!['subjects'] as List).firstWhere(
+          (s) => s['subject_name'] == subjectName,
+      orElse: () => null,
+    );
+
+    if (subjectData != null) {
+      // Remember we standardized the array name to 'sequences' or 'chapters'
+      var chaptersList = subjectData['sequences'] ?? subjectData['chapters'] ?? [];
+
+      setState(() {
+        _chapters = (chaptersList as List)
+            .map((c) => c['ch_name'].toString())
+            .toList();
+
+        // Reset subsequent selections
+        _selectedChapter = null;
+        _subtopicOrderList.clear();
+      });
+    }
+  }
+
+  // Update Subtopic Order based on chosen chapter
+  void _updateSubtopicOrder(String chapterName) {
+    if (_masterSyllabusMap == null || _selectedSubject == null) return;
+
+    var subjectData = (_masterSyllabusMap!['subjects'] as List).firstWhere((s) => s['subject_name'] == _selectedSubject);
+    var chaptersList = subjectData['sequences'] ?? subjectData['chapters'] ?? [];
+
+    var chapterData = (chaptersList as List).firstWhere(
+          (c) => c['ch_name'] == chapterName,
+      orElse: () => null,
+    );
+
+    if (chapterData != null) {
+      var subtopics = chapterData['subtopics'] as List? ?? [];
+
+      setState(() {
+        // Extract existing subtopics for the reorderable list
+        _subtopicOrderList = subtopics.map((st) => st['sub_name'].toString()).toList();
+
+        // The prefilled order number is simply the length of the list + 1
+        _prefilledOrderNumber = _subtopicOrderList.length + 1;
+      });
+    }
+  }
 
   Widget _buildCustomDropdown({
     required String label,
@@ -179,12 +311,27 @@ class _AddContentPanelState extends State<AddContentPanel> {
 
   // Dialog that contains the drag-and-drop ReorderableListView
   void _showReorderDialog(List<String> list) {
-    List<String> tempList = List.from(list); // Local copy for dragging
+    // 1. Get the name the user just typed. Give it a default if they left it blank.
+    String currentNewName = _subtopicNameController.text.trim();
+    if (currentNewName.isEmpty) {
+      currentNewName = "(New Subtopic)";
+    }
+
+    // 2. Create a local copy for dragging
+    List<String> tempList = List.from(list);
+
+    // 3. Insert the new subtopic into the temporary list at its current order number
+    int insertIndex = _prefilledOrderNumber - 1;
+    if (insertIndex >= 0 && insertIndex <= tempList.length) {
+      tempList.insert(insertIndex, currentNewName);
+    } else {
+      tempList.add(currentNewName);
+    }
 
     showDialog(
         context: context,
         builder: (ctx) {
-          return StatefulBuilder( // StatefulBuilder allows setState inside the dialog
+          return StatefulBuilder(
               builder: (context, setStateDialog) {
                 return AlertDialog(
                   title: const Text("Reorder Items"),
@@ -205,7 +352,14 @@ class _AddContentPanelState extends State<AddContentPanel> {
                         for (int i = 0; i < tempList.length; i++)
                           ListTile(
                             key: ValueKey(tempList[i]),
-                            title: Text(tempList[i]),
+                            title: Text(
+                              tempList[i],
+                              // Highlight the new subtopic in blue so the admin can easily spot it!
+                              style: TextStyle(
+                                fontWeight: tempList[i] == currentNewName ? FontWeight.bold : FontWeight.normal,
+                                color: tempList[i] == currentNewName ? Colors.blue : Colors.black,
+                              ),
+                            ),
                             leading: Text("${i + 1}."),
                             trailing: const Icon(Icons.drag_handle),
                           ),
@@ -220,7 +374,13 @@ class _AddContentPanelState extends State<AddContentPanel> {
                     ElevatedButton(
                       onPressed: () {
                         setState(() {
-                          _subtopicOrderList = tempList; // Save the new order
+                          // 4. Find where the admin dragged the new item, and update the Order Number!
+                          _prefilledOrderNumber = tempList.indexOf(currentNewName) + 1;
+
+                          // 5. Remove the new item from the background tracking list
+                          // (It will be permanently added later when they click "Complete")
+                          tempList.remove(currentNewName);
+                          _subtopicOrderList = tempList;
                         });
                         Navigator.pop(ctx);
                       },
@@ -244,11 +404,18 @@ class _AddContentPanelState extends State<AddContentPanel> {
           const SizedBox(height: 8),
           InkWell(
             onTap: () async {
-              // TODO: Implement actual file picker logic here (e.g., using file_picker package)
-              // For now, we simulate a file being selected:
-              setState(() {
-                _attachedFileName = "my_chapter_notes.pdf";
-              });
+              // OPEN THE NATIVE FILE PICKER (Limited to PDF)
+              FilePickerResult? result = await FilePicker.platform.pickFiles(
+                type: FileType.custom,
+                allowedExtensions: ['pdf'],
+              );
+
+              if (result != null) {
+                setState(() {
+                  // Save the name of the picked file
+                  _attachedFileName = result.files.single.name;
+                });
+              }
             },
             borderRadius: BorderRadius.circular(30),
             child: Container(
@@ -282,7 +449,11 @@ class _AddContentPanelState extends State<AddContentPanel> {
   }
 
   // Helper method for Image-enabled TextFields (Question & Options)
-  Widget _buildImageTextField(String label, Color fillColor, {int maxLines = 1}) {
+  Widget _buildImageTextField(String label, Color fillColor, {
+    int maxLines = 1,
+    TextEditingController? controller,
+    bool readOnly = false
+  }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16.0, left: 16.0, right: 16.0),
       child: Column(
@@ -291,7 +462,10 @@ class _AddContentPanelState extends State<AddContentPanel> {
           Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           TextField(
+            controller: controller,
+            readOnly: readOnly, // Locks the field if true
             maxLines: maxLines,
+            style: TextStyle(color: readOnly ? Colors.grey[700] : Colors.black),
             decoration: InputDecoration(
               filled: true,
               fillColor: fillColor,
@@ -301,8 +475,18 @@ class _AddContentPanelState extends State<AddContentPanel> {
               ),
               suffixIcon: IconButton(
                 icon: const Icon(Icons.image, color: Colors.grey),
-                onPressed: () {
-                  // TODO: Add image picker logic here
+                onPressed: () async {
+                  // OPEN THE NATIVE PHOTO ALBUM
+                  final ImagePicker picker = ImagePicker();
+                  final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+                  if (image != null) {
+                    print("Admin selected image: ${image.path}");
+                    // TODO: Later, you will upload this image.path to Firebase Storage!
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Image selected: ${image.name}')),
+                    );
+                  }
                 },
               ),
             ),
@@ -313,10 +497,8 @@ class _AddContentPanelState extends State<AddContentPanel> {
   }
 
   // Helper method for Standard TextFields
-  Widget _buildStandardTextField(String label, Color fillColor, {int maxLines = 1}) {
+  Widget _buildStandardTextField(String label, Color fillColor, {int maxLines = 1, TextEditingController? controller}) {
     return Container(
-      // 1. Add your margin here!
-      // You can use EdgeInsets.all(), EdgeInsets.symmetric(), or EdgeInsets.only()
       margin: const EdgeInsets.only(bottom: 16.0, left: 16.0, right: 16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -324,6 +506,7 @@ class _AddContentPanelState extends State<AddContentPanel> {
           Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           TextField(
+            controller: controller, // <-- Attach the controller here!
             maxLines: maxLines,
             decoration: InputDecoration(
               filled: true,
@@ -340,9 +523,12 @@ class _AddContentPanelState extends State<AddContentPanel> {
   }
 
 
-
   @override
   Widget build(BuildContext context) {
+    if (_isLoadingMap) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Padding(
       // Removed the white container decoration, leaving just padding
       padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -371,8 +557,11 @@ class _AddContentPanelState extends State<AddContentPanel> {
                     fillColor: Colors.grey[350]!,
                     items: _subjects,
                     selectedValue: _selectedSubject,
-                    onChanged: (val) => setState(() => _selectedSubject = val),
-                    allowAdd: false,
+                    onChanged: (val) {
+                      setState(() => _selectedSubject = val);
+                      _updateChaptersList(val!); // TRIGGER CASCADE TO CHAPTERS
+                    },
+                    allowAdd: true,
                   ),
 
                   // ADD-ENABLED DROPDOWN: Shows "+ Add New"
@@ -382,35 +571,23 @@ class _AddContentPanelState extends State<AddContentPanel> {
                       items: _chapters,
                       selectedValue: _selectedChapter,
                       allowAdd: true, // Turns on the pop-up feature
-                      onChanged: (val) => setState(() => _selectedChapter = val),
+                      onChanged: (val) {
+                        setState(() => _selectedChapter = val);
+                        _updateSubtopicOrder(val!); // TRIGGER CASCADE TO SUBTOPIC ORDER
+                      },
                       onAddNew: (id, name) {
                         setState(() {
-                          // Logic to handle the new ID and Name goes here
                           _chapters.add(name);
-                          _selectedChapter = name; // Auto-select the newly created item
+                          _selectedChapter = name;
+
+                          // If it's a brand new chapter, the first subtopic order is 1
+                          _subtopicOrderList = [];
+                          _prefilledOrderNumber = 1;
                         });
                       }
                   ),
 
-                  _buildStandardTextField("Subtopic Name", Colors.grey[350]!),
-
-                  _buildCustomDropdown(
-                    label: "Type",
-                    fillColor: Colors.grey[350]!,
-                    items: _subtopicTypes,
-                    selectedValue: _selectedSubtopicType,
-                    onChanged: (val) {
-                      setState(() {
-                        _selectedSubtopicType = val;
-                        // Optional: clear attached file if user switches away from Quiz
-                        if (val != 'Quiz') _attachedFileName = null;
-                      });
-                    },
-                  ),
-
-                  // CONDITIONAL VISIBILITY: Show Notes attachment ONLY if 'Quiz' is selected
-                  if (_selectedSubtopicType == 'Quiz')
-                    _buildFileAttachField("Notes (only PDF file)", Colors.grey[350]!),
+                  _buildStandardTextField("Subtopic Name", Colors.grey[350]!, controller: _subtopicNameController),
 
                   // NEW REORDERABLE PREFILLED FIELD
                   _buildReorderableField(
@@ -419,6 +596,37 @@ class _AddContentPanelState extends State<AddContentPanel> {
                       _subtopicOrderList,
                       _prefilledOrderNumber
                   ),
+
+                  _buildCustomDropdown(
+                      label: "Type",
+                      fillColor: Colors.grey[200]!,
+                      items: _questionTypes,
+                      selectedValue: _selectedQuestionType,
+                      onChanged: (val) {
+                        setState(() {
+                          _selectedQuestionType = val;
+
+                          // Automatically fill Option A and B if it's True/False
+                          if (val == 'True/False Question') {
+                            _optionAController.text = "True";
+                            _optionBController.text = "False";
+                            // We clear C and D just to be safe
+                            _optionCController.clear();
+                            _optionDController.clear();
+                          } else {
+                            // If they switch back to MCQ, clear the fields so they can type
+                            _optionAController.clear();
+                            _optionBController.clear();
+                          }
+                        });
+                      }
+                  ),
+
+                  // CONDITIONAL VISIBILITY: Show Notes attachment ONLY if 'Quiz' is selected
+                  if (_selectedSubtopicType == 'Quiz')
+                    _buildFileAttachField("Notes (only PDF file)", Colors.grey[350]!),
+
+
                   //_buildDropdown("Subject Level", Colors.grey[350]!, _subjects, _selectedSubject, (val) => setState(() => _selectedSubject = val)),
                   //_buildDropdown("Chapter Name", Colors.grey[350]!, _subjects, _selectedSubject, (val) => setState(() => _selectedSubject = val)),
                   //_buildStandardTextField("Subtopic Name", Colors.grey[350]!),
@@ -500,10 +708,28 @@ class _AddContentPanelState extends State<AddContentPanel> {
                         _buildImageTextField("Question", Colors.grey[200]!, maxLines: 1),
 
                         _buildStandardTextField("Hint", Colors.grey[200]!, maxLines: 1),
-                        _buildImageTextField("Option A", Colors.grey[200]!,),
-                        _buildImageTextField("Option B", Colors.grey[200]!,),
-                        _buildImageTextField("Option C", Colors.grey[200]!,),
-                        _buildImageTextField("Option D", Colors.grey[200]!,),
+
+                        _buildImageTextField(
+                            "Option A", Colors.grey[200]!,
+                            controller: _optionAController,
+                            readOnly: _selectedQuestionType == 'True/False Question'
+                        ),
+
+                        _buildImageTextField(
+                            "Option B", Colors.grey[200]!,
+                            controller: _optionBController,
+                            readOnly: _selectedQuestionType == 'True/False Question'
+                        ),
+
+                        Visibility(
+                          visible: _selectedQuestionType != 'True/False Question',
+                          child: Column(
+                            children: [
+                              _buildImageTextField("Option C", Colors.grey[200]!, controller: _optionCController),
+                              _buildImageTextField("Option D", Colors.grey[200]!, controller: _optionDController),
+                            ],
+                          ),
+                        ),
                         /*_buildDropdown("Answer", Colors.grey[200]!, _answers, _selectedAnswer, (val) {
                           setState(() => _selectedAnswer = val);
                         }),*/
