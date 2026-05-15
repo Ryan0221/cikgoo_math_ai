@@ -5,7 +5,6 @@
   "total_sub": 2,
   "subtopics": [
     {
-      //The last integer in "sub_id" is not stay the same with the "order"
       "sub_id": "spmMathF4_c1.1",
       "sub_name": "Fungsi dan Persamaan Kuadratik",
       "type": "quiz",
@@ -18,7 +17,6 @@
       "total_q": 15,
       "q": [
         {
-          //The last integer in "q_id" is not stay the same with the "q_order"
           "q_id": "spmMathF4_c1.1.1",
           "q_order": 1,
           "type": "mcq",

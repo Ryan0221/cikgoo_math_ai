@@ -140,18 +140,28 @@ class _LoginSignupState extends State<LoginSignup> {
         await _checkAndCreateUserDoc(userCredential.user!);
       }
 
-      /*if (mounted) {
+      // FAILSAFE NAVIGATION: Force the app to move if AuthGate is bypassed
+      if (mounted) {
+        // Change '/first_page' to whatever route name you actually use in main.dart
         Navigator.pushReplacementNamed(context, '/first_page');
-      }*/
+      }
     } catch (e) {
-      // CRITICAL: This catches any crashes or Exception 10s so the app doesn't freeze!
       print("Google Sign-In Error: $e");
+
+      // VISUAL ERROR REPORTING: No more silent failures!
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Login Error: ${e.toString()}"),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
     } finally {
-      // FINALLY always runs at the very end, whether the try succeeds OR fails.
-      // We check 'mounted' just in case the AuthGate already navigated them away.
       if (mounted) {
         setState(() {
-          _isLoading = false; // Turn off the spinner safely
+          _isLoading = false;
         });
       }
     }

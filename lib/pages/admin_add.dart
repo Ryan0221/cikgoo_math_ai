@@ -16,7 +16,6 @@ class AddContentPanel extends StatefulWidget {
 class _AddContentPanelState extends State<AddContentPanel> {
   // Navigation State
   int _currentIndex = 1;
-  int _totalQuestions = 1;
 
   // Dropdown States
   String? _selectedSubject;
@@ -49,10 +48,13 @@ class _AddContentPanelState extends State<AddContentPanel> {
   List<String> _chapters = [];
 
   final TextEditingController _subtopicNameController = TextEditingController();
-  final TextEditingController _optionAController = TextEditingController();
-  final TextEditingController _optionBController = TextEditingController();
-  final TextEditingController _optionCController = TextEditingController();
-  final TextEditingController _optionDController = TextEditingController();
+  List<QuestionItem> _questions = [QuestionItem()];
+  //final TextEditingController _optionAController = TextEditingController();
+  //final TextEditingController _optionBController = TextEditingController();
+  //final TextEditingController _optionCController = TextEditingController();
+  //final TextEditingController _optionDController = TextEditingController();
+
+  int get _totalQuestions => _questions.length;
 
   @override
   void initState() {
@@ -64,10 +66,14 @@ class _AddContentPanelState extends State<AddContentPanel> {
   @override
   void dispose() {
     _subtopicNameController.dispose();
-    _optionAController.dispose();
-    _optionBController.dispose();
-    _optionCController.dispose();
-    _optionDController.dispose();
+    // Dispose all question controllers to prevent memory leaks
+    for (var q in _questions) {
+      q.dispose();
+    }
+    //_optionAController.dispose();
+    //_optionBController.dispose();
+    //_optionCController.dispose();
+    //_optionDController.dispose();
     super.dispose();
   }
 
@@ -194,8 +200,9 @@ class _AddContentPanelState extends State<AddContentPanel> {
           Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           DropdownButtonFormField<String>(
+              isExpanded: true,
             // Ensure the value exists in the list to prevent Flutter assertion errors
-            value: (selectedValue != null && dropdownItems.contains(selectedValue)) ? selectedValue : null,
+            initialValue: (selectedValue != null && dropdownItems.contains(selectedValue)) ? selectedValue : null,
             decoration: InputDecoration(
               filled: true,
               fillColor: fillColor,
@@ -207,11 +214,14 @@ class _AddContentPanelState extends State<AddContentPanel> {
             items: dropdownItems.map((String value) {
               return DropdownMenuItem<String>(
                 value: value,
-                child: Text(
-                  value,
-                  style: TextStyle(
-                    color: value == addOptionLabel ? Colors.blue : Colors.black,
-                    fontWeight: value == addOptionLabel ? FontWeight.bold : FontWeight.normal,
+                child: SingleChildScrollView( // 2. Adds horizontal scrolling for long text!
+                  scrollDirection: Axis.horizontal,
+                  child: Text(
+                    value,
+                    style: TextStyle(
+                      color: value == addOptionLabel ? Colors.blue : Colors.black,
+                      fontWeight: value == addOptionLabel ? FontWeight.bold : FontWeight.normal,
+                    ),
                   ),
                 ),
               );
@@ -394,6 +404,120 @@ class _AddContentPanelState extends State<AddContentPanel> {
     );
   }
 
+  // 1. The UI Box for the Question Order
+  Widget _buildQuestionReorderField(String label, Color fillColor) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16.0, left: 16.0, right: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          InkWell(
+            // Open the dialog when tapped!
+            onTap: () => _showQuestionReorderDialog(),
+            borderRadius: BorderRadius.circular(30),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              decoration: BoxDecoration(
+                color: fillColor,
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Show the current index as the text
+                  Text(_currentIndex.toString(), style: const TextStyle(fontSize: 16)),
+                  const Icon(Icons.reorder, color: Colors.grey),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 2. The Pop-Up Dialog to drag and drop questions
+  void _showQuestionReorderDialog() {
+    // Make a temporary copy of the questions list for dragging
+    List<QuestionItem> tempList = List.from(_questions);
+
+    showDialog(
+        context: context,
+        builder: (ctx) {
+          return StatefulBuilder(
+              builder: (context, setStateDialog) {
+                return AlertDialog(
+                  title: const Text("Reorder Questions"),
+                  content: SizedBox(
+                    width: double.maxFinite,
+                    height: 300,
+                    child: ReorderableListView(
+                      onReorder: (oldIndex, newIndex) {
+                        setStateDialog(() {
+                          if (newIndex > oldIndex) {
+                            newIndex -= 1;
+                          }
+                          final item = tempList.removeAt(oldIndex);
+                          tempList.insert(newIndex, item);
+                        });
+                      },
+                      children: [
+                        for (int i = 0; i < tempList.length; i++)
+                          ListTile(
+                            key: ValueKey(tempList[i]), // Use the actual object as the key
+                            title: Text(
+                              // Show the question text, or a placeholder if it's blank
+                              tempList[i].questionCtrl.text.trim().isNotEmpty
+                                  ? tempList[i].questionCtrl.text
+                                  : "(Blank Question)",
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              // Highlight the question they were just working on!
+                              style: TextStyle(
+                                fontWeight: tempList[i] == _questions[_currentIndex - 1]
+                                    ? FontWeight.bold : FontWeight.normal,
+                                color: tempList[i] == _questions[_currentIndex - 1]
+                                    ? Colors.blue : Colors.black,
+                              ),
+                            ),
+                            leading: Text("${i + 1}."),
+                            trailing: const Icon(Icons.drag_handle),
+                          ),
+                      ],
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                        onPressed: () => Navigator.pop(ctx),
+                        child: const Text("Cancel")
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        // SAVE THE NEW ORDER
+                        setState(() {
+                          // Find out where the question we were just looking at ended up
+                          QuestionItem activeQuestion = _questions[_currentIndex - 1];
+
+                          _questions = tempList;
+
+                          // Update the index so the screen stays on the question they were editing
+                          _currentIndex = _questions.indexOf(activeQuestion) + 1;
+                        });
+                        Navigator.pop(ctx);
+                      },
+                      child: const Text("Save Order"),
+                    ),
+                  ],
+                );
+              }
+          );
+        }
+    );
+  }
+
   Widget _buildFileAttachField(String label, Color fillColor) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16.0, left: 16.0, right: 16.0),
@@ -405,7 +529,7 @@ class _AddContentPanelState extends State<AddContentPanel> {
           InkWell(
             onTap: () async {
               // OPEN THE NATIVE FILE PICKER (Limited to PDF)
-              FilePickerResult? result = await FilePicker.platform.pickFiles(
+              FilePickerResult? result = await FilePicker.pickFiles(
                 type: FileType.custom,
                 allowedExtensions: ['pdf'],
               );
@@ -529,6 +653,9 @@ class _AddContentPanelState extends State<AddContentPanel> {
       return const Center(child: CircularProgressIndicator());
     }
 
+    // Grab the current question object before we start drawing the UI
+    QuestionItem currentQ = _questions[_currentIndex - 1];
+
     return Padding(
       // Removed the white container decoration, leaving just padding
       padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -598,40 +725,22 @@ class _AddContentPanelState extends State<AddContentPanel> {
                   ),
 
                   _buildCustomDropdown(
-                      label: "Type",
-                      fillColor: Colors.grey[200]!,
-                      items: _questionTypes,
-                      selectedValue: _selectedQuestionType,
-                      onChanged: (val) {
-                        setState(() {
-                          _selectedQuestionType = val;
-
-                          // Automatically fill Option A and B if it's True/False
-                          if (val == 'True/False Question') {
-                            _optionAController.text = "True";
-                            _optionBController.text = "False";
-                            // We clear C and D just to be safe
-                            _optionCController.clear();
-                            _optionDController.clear();
-                          } else {
-                            // If they switch back to MCQ, clear the fields so they can type
-                            _optionAController.clear();
-                            _optionBController.clear();
-                          }
-                        });
-                      }
+                    label: "Type",
+                    fillColor: Colors.grey[350]!,
+                    items: _subtopicTypes,
+                    selectedValue: _selectedSubtopicType,
+                    onChanged: (val) {
+                      setState(() {
+                        _selectedSubtopicType = val;
+                        // Optional: clear attached file if user switches away from Quiz
+                        if (val != 'Quiz') _attachedFileName = null;
+                      });
+                    },
                   ),
 
                   // CONDITIONAL VISIBILITY: Show Notes attachment ONLY if 'Quiz' is selected
                   if (_selectedSubtopicType == 'Quiz')
                     _buildFileAttachField("Notes (only PDF file)", Colors.grey[350]!),
-
-
-                  //_buildDropdown("Subject Level", Colors.grey[350]!, _subjects, _selectedSubject, (val) => setState(() => _selectedSubject = val)),
-                  //_buildDropdown("Chapter Name", Colors.grey[350]!, _subjects, _selectedSubject, (val) => setState(() => _selectedSubject = val)),
-                  //_buildStandardTextField("Subtopic Name", Colors.grey[350]!),
-                  //_buildDropdown("Type", Colors.grey[350]!, _subtopicTypes, _selectedSubtopicType, (val) => setState(() => _selectedSubtopicType = val)),
-                  //_buildDropdown("Subtopic Order", Colors.grey[350]!, _subtopicTypes, _selectedSubtopicType, (val) => setState(() => _selectedSubtopicType = val)),
 
                   Container(
                     margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -657,9 +766,15 @@ class _AddContentPanelState extends State<AddContentPanel> {
                               maintainSize: true,
                               maintainAnimation: true,
                               maintainState: true,
-                              child: IconButton(
+                              child:
+                              // The Left Arrow (<)
+                              IconButton(
                                 icon: const Icon(Icons.chevron_left),
-                                onPressed: () => setState(() => _currentIndex--),
+                                onPressed: () {
+                                  if (_currentIndex > 1) {
+                                    setState(() => _currentIndex--);
+                                  }
+                                },
                               ),
                             ),
                             Text(
@@ -671,62 +786,64 @@ class _AddContentPanelState extends State<AddContentPanel> {
                               maintainSize: true,
                               maintainAnimation: true,
                               maintainState: true,
-                              child: IconButton(
+                              child:
+                              // The Right Arrow (>)
+                              IconButton(
                                 icon: const Icon(Icons.chevron_right),
-                                onPressed: () => setState(() => _currentIndex++),
+                                onPressed: () {
+                                  if (_currentIndex < _totalQuestions) {
+                                    setState(() => _currentIndex++);
+                                  }
+                                },
                               ),
                             ),
                           ],
                         ),
-                        /*_buildDropdown("Question Order", Colors.grey[200]!, _answers, _selectedAnswer, (val) {
-                        setState(() => _selectedAnswer = val);
-                        }),
-                        _buildDropdown("Type", Colors.grey[350]!, _questionTypes, _selectedQuestionType, (val) => setState(() => _selectedQuestionType = val)),
-                        _buildDropdown("Question Difficulty", Colors.grey[350]!, _questionDifficulties, _selectedQuestionDifficulty, (val) => setState(() => _selectedQuestionDifficulty = val)),
-                        */
-                        _buildCustomDropdown(
-                            label: "Question Order",
-                            fillColor: Colors.grey[200]!,
-                            items: _questionDifficulties,
-                            selectedValue: _selectedQuestionOrder,
-                            onChanged: (val) => setState(() => _selectedQuestionOrder = val)
-                        ),
+
+                        _buildQuestionReorderField("Question Order", Colors.grey[200]!),
+
                         _buildCustomDropdown(
                             label: "Type",
                             fillColor: Colors.grey[200]!,
                             items: _questionTypes,
-                            selectedValue: _selectedQuestionType,
-                            onChanged: (val) => setState(() => _selectedQuestionType = val)
+                            selectedValue: currentQ.questionType,
+                            onChanged: (val) {
+                              setState(() {
+                                currentQ.questionType = val;
+
+                                // True/False Auto-Fill logic applied to CURRENT question
+                                if (val == 'True/False Question') {
+                                  currentQ.optACtrl.text = "True";
+                                  currentQ.optBCtrl.text = "False";
+                                  currentQ.optCCtrl.clear();
+                                  currentQ.optDCtrl.clear();
+                                } else {
+                                  currentQ.optACtrl.clear();
+                                  currentQ.optBCtrl.clear();
+                                }
+                              });
+                            }
                         ),
                         _buildCustomDropdown(
                             label: "Question Difficulty",
                             fillColor: Colors.grey[200]!,
                             items: _questionDifficulties,
-                            selectedValue: _selectedQuestionDifficulty,
-                            onChanged: (val) => setState(() => _selectedQuestionDifficulty = val)
-                        ),
-                        _buildImageTextField("Question", Colors.grey[200]!, maxLines: 1),
-
-                        _buildStandardTextField("Hint", Colors.grey[200]!, maxLines: 1),
-
-                        _buildImageTextField(
-                            "Option A", Colors.grey[200]!,
-                            controller: _optionAController,
-                            readOnly: _selectedQuestionType == 'True/False Question'
+                            selectedValue: currentQ.questionDifficulty,
+                            onChanged: (val) => setState(() => currentQ.questionDifficulty = val)
                         ),
 
-                        _buildImageTextField(
-                            "Option B", Colors.grey[200]!,
-                            controller: _optionBController,
-                            readOnly: _selectedQuestionType == 'True/False Question'
-                        ),
+                        _buildImageTextField("Question", Colors.grey[200]!, controller: currentQ.questionCtrl),
+                        _buildStandardTextField("Hint", Colors.grey[200]!, controller: currentQ.hintCtrl),
+
+                        _buildImageTextField("Option A", Colors.grey[200]!, controller: currentQ.optACtrl, readOnly: currentQ.questionType == 'True/False Question'),
+                        _buildImageTextField("Option B", Colors.grey[200]!, controller: currentQ.optBCtrl, readOnly: currentQ.questionType == 'True/False Question'),
 
                         Visibility(
-                          visible: _selectedQuestionType != 'True/False Question',
+                          visible: currentQ.questionType != 'True/False Question',
                           child: Column(
                             children: [
-                              _buildImageTextField("Option C", Colors.grey[200]!, controller: _optionCController),
-                              _buildImageTextField("Option D", Colors.grey[200]!, controller: _optionDController),
+                              _buildImageTextField("Option C", Colors.grey[200]!, controller: currentQ.optCCtrl),
+                              _buildImageTextField("Option D", Colors.grey[200]!, controller: currentQ.optDCtrl),
                             ],
                           ),
                         ),
@@ -736,11 +853,11 @@ class _AddContentPanelState extends State<AddContentPanel> {
                         _buildCustomDropdown(
                             label: "Answer",
                             fillColor: Colors.grey[200]!,
-                            items: _selectedQuestionType == "Multiple Choice Question" ? _mcqAnswers : _tfqAnswers,
-                            selectedValue: _selectedAnswer,
-                            onChanged: (val) => setState(() => _selectedAnswer = val)
+                            items: currentQ.questionType == "Multiple Choice Question" ? _mcqAnswers : _tfqAnswers,
+                            selectedValue: currentQ.answer,
+                            onChanged: (val) => setState(() => currentQ.answer = val)
                         ),
-                        _buildStandardTextField("Explanation", Colors.grey[200]!, maxLines: 1),
+                        _buildStandardTextField("Explanation", Colors.grey[200]!, controller: currentQ.expCtrl),
                       ],
                     ),
                   ),
@@ -778,22 +895,51 @@ class _AddContentPanelState extends State<AddContentPanel> {
                   width: 200,
                   height: 55,
                   child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                    ),
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                     onPressed: () {
                       setState(() {
-                        _totalQuestions += 1;
+                        // Add a fresh, blank question to the list
+                        _questions.add(QuestionItem());
+
+                        // Automatically jump the view to the newly created question
+                        _currentIndex = _questions.length;
                       });
                     },
                     child: const Text("Add More Question", style: TextStyle(color: Colors.white)),
                   ),
-                ),
               ),
+    ),
             ],
           )
         ],
       ),
     );
+  }
+}
+
+// Blueprint for a single question's data
+class QuestionItem {
+  String? questionOrder;
+  String? questionType;
+  String? questionDifficulty;
+  String? answer;
+
+  final TextEditingController questionCtrl = TextEditingController();
+  final TextEditingController hintCtrl = TextEditingController();
+  final TextEditingController optACtrl = TextEditingController();
+  final TextEditingController optBCtrl = TextEditingController();
+  final TextEditingController optCCtrl = TextEditingController();
+  final TextEditingController optDCtrl = TextEditingController();
+  final TextEditingController expCtrl = TextEditingController();
+
+  // We must clean up controllers to prevent memory leaks when a question is deleted
+  void dispose() {
+    questionCtrl.dispose();
+    hintCtrl.dispose();
+    optACtrl.dispose();
+    optBCtrl.dispose();
+    optCCtrl.dispose();
+    optDCtrl.dispose();
+    expCtrl.dispose();
   }
 }

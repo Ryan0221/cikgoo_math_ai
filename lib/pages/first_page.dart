@@ -90,7 +90,7 @@ class _FirstPageState extends State<FirstPage> {
               child: Container(
                 height: 66,
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.4),
+                  color: Colors.white.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(50),
                   border: Border.all(
                     color: Colors.white.withValues(alpha: 0.1),
@@ -127,7 +127,7 @@ class _FirstPageState extends State<FirstPage> {
         decoration: BoxDecoration(
           // Darker background for active, slightly transparent dark for inactive
           color: isSelected
-              ? Colors.black.withValues(alpha: 0.8)
+              ? Colors.black.withValues(alpha: 0.6)
               : Colors.black.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(
             25,

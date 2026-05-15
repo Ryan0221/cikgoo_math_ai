@@ -16,10 +16,11 @@ class SubjectModel {
   SubjectModel({required this.subjectId, required this.subjectName, required this.sequences});
 
   factory SubjectModel.fromJson(Map<String, dynamic> json) {
+    var listData = json['sequences'] ?? json['chapters'] ?? [];
     return SubjectModel(
-      subjectId: json['subject_id'],
-      subjectName: json['subject_name'],
-      sequences: (json['sequences'] as List)
+      subjectId: json['subject_id'] ?? '',
+      subjectName: json['subject_name'] ?? 'Unknown Subject',
+      sequences: (listData as List)
           .map((seq) => ChapterModel.fromJson(seq))
           .toList(),
     );
@@ -36,13 +37,15 @@ class ChapterModel {
   ChapterModel({required this.chapterNum, required this.chId, required this.chName, required this.chFileLocation, required this.subtopics});
 
   factory ChapterModel.fromJson(Map<String, dynamic> json) {
+    // FIX: Default to an empty list [] if 'subtopics' is missing
+    var subList = json['subtopics'] ?? [];
+
     return ChapterModel(
-      chapterNum: json['chapter_num'],
-      chId: json['ch_id'],
-      // Fallback to empty string if ch_name is missing (like in your Form 5 example)
+      chapterNum: json['chapter_num'] ?? 0,
+      chId: json['ch_id'] ?? '',
       chName: json['ch_name'] ?? '',
       chFileLocation: json['ch_file_location'] ?? '',
-      subtopics: (json['subtopics'] as List)
+      subtopics: (subList as List)
           .map((sub) => SubtopicModel.fromJson(sub))
           .toList(),
     );
@@ -106,7 +109,9 @@ class _HomeState extends State<Home> {
       //String jsonString = await rootBundle.loadString('assets/json/subjects-chapters-subtopics.json');
       final Map<String, dynamic> jsonData = json.decode(jsonString);
 
-      List<SubjectModel> loadedSubjects = (jsonData['subjects'] as List)
+      var subjectsData = jsonData['subjects'] ?? [];
+
+      List<SubjectModel> loadedSubjects = (subjectsData as List)
           .map((sub) => SubjectModel.fromJson(sub))
           .toList();
 
@@ -117,6 +122,9 @@ class _HomeState extends State<Home> {
         });
         // Select the first subject by default
         _selectSubject(loadedSubjects.first);
+      } else {
+        // If the JSON is valid but completely empty
+        setState(() => _isLoading = false);
       }
     } catch (e) {
       debugPrint("Error loading JSON: $e");
@@ -423,13 +431,16 @@ class _HomeState extends State<Home> {
     return GestureDetector(
       onTap: () async {
         try {
-          // 1. Load the specific chapter file dynamically (e.g., assets/json/spmMathF4_c1.json)
-          //String jsonStr = await rootBundle.loadString(chapter.chFileLocation);
-          String jsonStr = await ContentManager.readLocalJson('subjects-chapters-subtopics.json');
+          // 1. CRITICAL FIX: Extract JUST the file name (e.g., 'spmMathF4_c1.json')
+          // This strips away 'assets/json/' if it exists in the string!
+          String safeFileName = chapter.chFileLocation.split('/').last;
+
+          // 2. Load the specific chapter file dynamically using the safe name
+          String jsonStr = await ContentManager.readLocalJson(safeFileName);
           Map<String, dynamic> data = json.decode(jsonStr);
 
-          // 2. Find the specific subtopic data
-          var subList = data['subtopics'] as List;
+          // 3. Find the specific subtopic data
+          var subList = data['subtopics'] as List? ?? [];
           var subData = subList.firstWhere((s) => s['sub_id'] == subtopic.subId, orElse: () => null);
 
           if (subData != null) {

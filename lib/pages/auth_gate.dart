@@ -1,4 +1,5 @@
 import 'package:cikgoo_math_ai/pages/first_page.dart';
+import 'package:cikgoo_math_ai/pages/sync_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -42,7 +43,7 @@ class AuthGate extends StatelessWidget {
                 if (role == 'admin' || role == 'super admin') {
                   return const AdminDashboard();
                 } else {
-                  return const FirstPage();
+                  return const SyncScreen();
                 }
               }
 
