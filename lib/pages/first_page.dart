@@ -1,3 +1,4 @@
+import 'dart:math'; // Added for random math logic
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart'; // Required for ScrollDirection
@@ -61,17 +62,8 @@ class _FirstPageState extends State<FirstPage> {
 
           return false; // Return false so the scroll events continue to function normally
         },
-        child: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Color(0xFF0F172A),
-                Color(0xFF000000),
-              ], // Soft pastel gradient
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
+        // Wrap the active page in the StarryBackground
+        child: StarryBackground(
           child: _pages[_selectedIndex],
         ),
       ),
@@ -134,20 +126,20 @@ class _FirstPageState extends State<FirstPage> {
           ), // Pill shape for individual items
           border: isSelected
               ? Border.all(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  width: 0.5,
-                )
+            color: Colors.white.withValues(alpha: 0.2),
+            width: 0.5,
+          )
               : null,
           boxShadow: isSelected
               ? [
-                  BoxShadow(
-                    color: Colors.black.withValues(
-                      alpha: 0.4,
-                    ), // Outer glow effect
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ]
+            BoxShadow(
+              color: Colors.black.withValues(
+                alpha: 0.4,
+              ), // Outer glow effect
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ]
               : [],
         ),
         child: Column(
@@ -176,4 +168,145 @@ class _FirstPageState extends State<FirstPage> {
       ),
     );
   }
+}
+
+// --- MOVED STARRY BACKGROUND FEATURE CLASSES ---
+
+class Star {
+  double x;
+  double y;
+  double maxOpacity;
+  double currentOpacity = 0.0;
+  int state = 0; // 0: completely dark, 1: brightening up, 2: dimming down
+
+  Star({required this.x, required this.y, required this.maxOpacity});
+}
+
+class StarryBackground extends StatefulWidget {
+  final Widget child;
+
+  const StarryBackground({super.key, required this.child});
+
+  @override
+  State<StarryBackground> createState() => _StarryBackgroundState();
+}
+
+class _StarryBackgroundState extends State<StarryBackground> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  final List<Star> _stars = [];
+  final int _starCount = 100; // Number of stars
+  final Random _random = Random();
+
+  @override
+  void initState() {
+    super.initState();
+    // Constantly ticking animation controller to update the star brightness
+    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 1))
+      ..addListener(() {
+        _updateStars();
+      })
+      ..repeat();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_stars.isEmpty) {
+      final size = MediaQuery.of(context).size;
+      // Initialize stars spread randomly across the screen
+      for (int i = 0; i < _starCount; i++) {
+        _stars.add(Star(
+          x: _random.nextDouble() * size.width,
+          y: _random.nextDouble() * size.height,
+          maxOpacity: 0.3 + _random.nextDouble() * 0.7, // Random maximum brightness
+        ));
+      }
+    }
+  }
+
+  void _updateStars() {
+    bool needsRepaint = false;
+    for (var star in _stars) {
+      if (star.state == 0) {
+        // Star is dark: Very low probability it decides to start shining on this frame
+        if (_random.nextDouble() < 0.01) {
+          star.state = 1;
+          needsRepaint = true;
+        }
+      } else if (star.state == 1) {
+        // Brightening up
+        star.currentOpacity += 0.015;
+        if (star.currentOpacity >= star.maxOpacity) {
+          star.state = 2; // Reached peak, start dimming
+        }
+        needsRepaint = true;
+      } else if (star.state == 2) {
+        // Dimming down
+        star.currentOpacity -= 0.010;
+        if (star.currentOpacity <= 0) {
+          star.currentOpacity = 0;
+          star.state = 0; // Back to dark
+        }
+        needsRepaint = true;
+      }
+    }
+    // Only rebuild if a star is actively shining
+    if (needsRepaint) {
+      setState(() {});
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        // Base dark background (Using your beautiful gradient)
+        Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color(0xFF0F172A),
+                Color(0xFF000000),
+              ], // Soft pastel gradient
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        // Draws the animated stars
+        CustomPaint(
+          size: Size.infinite,
+          painter: StarPainter(_stars),
+        ),
+        // Your main interactive UI overlaid on top
+        widget.child,
+      ],
+    );
+  }
+}
+
+class StarPainter extends CustomPainter {
+  final List<Star> stars;
+  StarPainter(this.stars);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint();
+    for (var star in stars) {
+      if (star.currentOpacity > 0) {
+        paint.color = Colors.white.withValues(alpha: star.currentOpacity);
+        // Drawing a small star.
+        canvas.drawCircle(Offset(star.x, star.y), 1.5, paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

@@ -47,7 +47,6 @@ class ChapterModel {
   });
 
   factory ChapterModel.fromJson(Map<String, dynamic> json) {
-    // FIX: Default to an empty list [] if 'subtopics' is missing
     var subList = json['subtopics'] ?? [];
 
     return ChapterModel(
@@ -123,7 +122,6 @@ class _HomeState extends State<Home> {
       String jsonString = await ContentManager.readLocalJson(
         'subjects-chapters-subtopics.json',
       );
-      //String jsonString = await rootBundle.loadString('assets/json/subjects-chapters-subtopics.json');
       final Map<String, dynamic> jsonData = json.decode(jsonString);
 
       var subjectsData = jsonData['subjects'] ?? [];
@@ -166,7 +164,7 @@ class _HomeState extends State<Home> {
       final random = Random();
       _randomOffsets = List.generate(
         _currentNodes.length,
-        (index) => (random.nextDouble() * 1.2) - 0.6,
+            (index) => (random.nextDouble() * 1.2) - 0.6,
       );
     });
   }
@@ -213,14 +211,14 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const Scaffold(
-        backgroundColor: Color(0xFF0B0B1A), // Dark starry background match
+        backgroundColor: Colors.transparent, // Let stars show through
         body: Center(child: CircularProgressIndicator()),
       );
     }
 
     if (_selectedSubject == null || _currentNodes.isEmpty) {
       return const Scaffold(
-        backgroundColor: Color(0xFF0B0B1A),
+        backgroundColor: Colors.transparent, // Let stars show through
         body: Center(
           child: Text("Coming Soon", style: TextStyle(color: Colors.white)),
         ),
@@ -273,8 +271,6 @@ class _HomeState extends State<Home> {
       // 3. BUILD NODE WITH TEXT LABEL
       bool isRightSide = xPos > screenWidth / 2;
 
-      // Calculate the absolute maximum width the text can take without hitting the edge of the screen
-      // 35 is half the node width. 24 is padding (12 for icon gap + 12 for screen edge).
       double maxTextWidth = isRightSide
           ? (xPos - 35 - 24)
           : (screenWidth - xPos - 35 - 24);
@@ -287,15 +283,13 @@ class _HomeState extends State<Home> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
-            // Aligns multiline text with the icon center
             children: [
               if (isRightSide) ...[
-                // Wrap text in SizedBox to force wrapping
                 SizedBox(
                   width: maxTextWidth,
                   child: Text(
                     subtopic.subName,
-                    textAlign: TextAlign.right, // Align text towards the node
+                    textAlign: TextAlign.right,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 14,
@@ -311,12 +305,11 @@ class _HomeState extends State<Home> {
 
               if (!isRightSide) ...[
                 const SizedBox(width: 12),
-                // Wrap text in SizedBox to force wrapping
                 SizedBox(
                   width: maxTextWidth,
                   child: Text(
                     subtopic.subName,
-                    textAlign: TextAlign.left, // Align text towards the node
+                    textAlign: TextAlign.left,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 14,
@@ -331,47 +324,41 @@ class _HomeState extends State<Home> {
         ),
       );
     }
-    return StarryBackground(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        extendBody: true,
-        body: SafeArea(
-          bottom: false,
-          // CHANGED: Replaced Column with a Stack
-          child: Stack(
-            children: [
-              // 1. The Scrollable Content (Layered underneath)
-              Positioned.fill(
-                // Removed the 'Expanded' widget as it is not needed in a Stack
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  // ADDED: Padding at the top so the content starts below the sticky header
-                  padding: const EdgeInsets.only(top: 50, bottom: 50),
-                  child: SizedBox(
-                    height: currentY + 150,
-                    child: Stack(
-                      children: [
-                        Positioned.fill(
-                          child: CustomPaint(
-                            painter: PathPainter(points: nodePositions),
-                          ),
+
+    // Scaffold background changed to transparent to allow parent stars to show
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      extendBody: true,
+      body: SafeArea(
+        bottom: false,
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.only(top: 50, bottom: 50),
+                child: SizedBox(
+                  height: currentY + 150,
+                  child: Stack(
+                    children: [
+                      Positioned.fill(
+                        child: CustomPaint(
+                          painter: PathPainter(points: nodePositions),
                         ),
-                        ...positionedWidgets,
-                      ],
-                    ),
+                      ),
+                      ...positionedWidgets,
+                    ],
                   ),
                 ),
               ),
-
-              // 2. The Sticky Header (Layered on top)
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: _buildStickyHeader(),
-              ),
-            ],
-          ),
+            ),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: _buildStickyHeader(),
+            ),
+          ],
         ),
       ),
     );
@@ -379,25 +366,20 @@ class _HomeState extends State<Home> {
 
   Widget _buildStickyHeader() {
     return Padding(
-      // Added outer padding so it floats like your bottom nav bar
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(40),
         child: BackdropFilter(
-          // Exact same blur values as your bottom nav bar
           filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
           child: Container(
             padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
             decoration: BoxDecoration(
-              // Matched liquid glass color and border
               color: Colors.white.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(40),
               border: Border.all(
                 color: Colors.white.withValues(alpha: 0.1),
                 width: 1.0,
               ),
-              // Removed the black shadow because glassmorphism relies on the backdrop
-              // blur and borders to create depth rather than solid shadows.
             ),
             child: Row(
               children: [
@@ -409,7 +391,6 @@ class _HomeState extends State<Home> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Display the selected subject name dynamically
                       Text(
                         _selectedSubject?.subjectName ?? "Loading...",
                         style: TextStyle(
@@ -418,7 +399,7 @@ class _HomeState extends State<Home> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 5), // Added a tiny gap for better breathing room
+                      const SizedBox(height: 5),
                       Row(
                         children: [
                           Expanded(
@@ -427,7 +408,6 @@ class _HomeState extends State<Home> {
                               child: LinearProgressIndicator(
                                 value: 1.0,
                                 minHeight: 10,
-                                // Changed from grey[400] to a translucent white to fit the glass theme better
                                 backgroundColor: Colors.white.withValues(alpha: 0.2),
                                 valueColor: const AlwaysStoppedAnimation<Color>(
                                   Colors.green,
@@ -462,11 +442,8 @@ class _HomeState extends State<Home> {
       child: Row(
         children: [
           const Expanded(child: DashedDivider()),
-
-          // Wrap the text in a Flexible widget to prevent overflow and allow multi-line!
           Flexible(
-            flex:
-                2, // Gives the text slightly more priority/space than the dashes
+            flex: 2,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
               child: Text(
@@ -474,14 +451,13 @@ class _HomeState extends State<Home> {
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white, // Text color is white
+                  color: Colors.white,
                 ),
                 textAlign: TextAlign.center,
-                softWrap: true, // Allows it to drop to the next line
+                softWrap: true,
               ),
             ),
           ),
-
           const Expanded(child: DashedDivider()),
         ],
       ),
@@ -494,27 +470,20 @@ class _HomeState extends State<Home> {
     return GestureDetector(
       onTap: () async {
         try {
-          // 1. CRITICAL FIX: Extract JUST the file name (e.g., 'spmMathF4_c1.json')
-          // This strips away 'assets/json/' if it exists in the string!
           String safeFileName = chapter.chFileLocation.split('/').last;
-
-          // 2. Load the specific chapter file dynamically using the safe name
           String jsonStr = await ContentManager.readLocalJson(safeFileName);
           Map<String, dynamic> data = json.decode(jsonStr);
 
-          // 3. Find the specific subtopic data
           var subList = data['subtopics'] as List? ?? [];
           var subData = subList.firstWhere(
-            (s) => s['sub_id'] == subtopic.subId,
+                (s) => s['sub_id'] == subtopic.subId,
             orElse: () => null,
           );
 
           if (subData != null) {
-            // THIS is the variable that extracts the "q" list from your JSON!
             List<dynamic> qList = subData['q'] ?? [];
 
             if (isRevision) {
-              // Directly launch the Adaptive Quiz
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -522,7 +491,6 @@ class _HomeState extends State<Home> {
                 ),
               );
             } else {
-              // Launch the PDF Viewer
               String notesLoc = subData['notes_location'] ?? '';
               Navigator.push(
                 context,
@@ -530,7 +498,7 @@ class _HomeState extends State<Home> {
                   builder: (_) => PdfViewerScreen(
                     pdfPath: notesLoc,
                     title: subtopic.subName,
-                    questions: qList, // We pass the qList variable here!
+                    questions: qList,
                   ),
                 ),
               );
@@ -630,132 +598,4 @@ class DashedDivider extends StatelessWidget {
       },
     );
   }
-}
-
-class Star {
-  double x;
-  double y;
-  double maxOpacity;
-  double currentOpacity = 0.0;
-  int state = 0; // 0: completely dark, 1: brightening up, 2: dimming down
-
-  Star({required this.x, required this.y, required this.maxOpacity});
-}
-
-class StarryBackground extends StatefulWidget {
-  final Widget child;
-
-  const StarryBackground({super.key, required this.child});
-
-  @override
-  State<StarryBackground> createState() => _StarryBackgroundState();
-}
-
-class _StarryBackgroundState extends State<StarryBackground> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  final List<Star> _stars = [];
-  final int _starCount = 100; // Number of stars
-  final Random _random = Random();
-
-  @override
-  void initState() {
-    super.initState();
-    // Constantly ticking animation controller to update the star brightness
-    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 1))
-      ..addListener(() {
-        _updateStars();
-      })
-      ..repeat();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_stars.isEmpty) {
-      final size = MediaQuery.of(context).size;
-      // Initialize stars spread randomly across the screen
-      for (int i = 0; i < _starCount; i++) {
-        _stars.add(Star(
-          x: _random.nextDouble() * size.width,
-          y: _random.nextDouble() * size.height,
-          maxOpacity: 0.3 + _random.nextDouble() * 0.7, // Random maximum brightness
-        ));
-      }
-    }
-  }
-
-  void _updateStars() {
-    bool needsRepaint = false;
-    for (var star in _stars) {
-      if (star.state == 0) {
-        // Star is dark: Very low probability it decides to start shining on this frame
-        if (_random.nextDouble() < 0.01) {
-          star.state = 1;
-          needsRepaint = true;
-        }
-      } else if (star.state == 1) {
-        // Brightening up
-        star.currentOpacity += 0.015;
-        if (star.currentOpacity >= star.maxOpacity) {
-          star.state = 2; // Reached peak, start dimming
-        }
-        needsRepaint = true;
-      } else if (star.state == 2) {
-        // Dimming down
-        star.currentOpacity -= 0.010;
-        if (star.currentOpacity <= 0) {
-          star.currentOpacity = 0;
-          star.state = 0; // Back to dark
-        }
-        needsRepaint = true;
-      }
-    }
-    // Only rebuild if a star is actively shining
-    if (needsRepaint) {
-      setState(() {});
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        // Base dark background (deep night sky color)
-        Container(color: const Color(0xFF0B0B1A)),
-        // Draws the animated stars
-        CustomPaint(
-          size: Size.infinite,
-          painter: StarPainter(_stars),
-        ),
-        // Your main interactive UI overlaid on top
-        widget.child,
-      ],
-    );
-  }
-}
-
-class StarPainter extends CustomPainter {
-  final List<Star> stars;
-  StarPainter(this.stars);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint();
-    for (var star in stars) {
-      if (star.currentOpacity > 0) {
-        paint.color = Colors.white.withValues(alpha: star.currentOpacity);
-        // Drawing a small star. You can increase radius from 1.5 if you want bigger stars.
-        canvas.drawCircle(Offset(star.x, star.y), 2, paint);
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
