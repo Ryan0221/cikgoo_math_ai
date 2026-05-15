@@ -13,7 +13,11 @@ class SubjectModel {
   final String subjectName;
   final List<ChapterModel> sequences;
 
-  SubjectModel({required this.subjectId, required this.subjectName, required this.sequences});
+  SubjectModel({
+    required this.subjectId,
+    required this.subjectName,
+    required this.sequences,
+  });
 
   factory SubjectModel.fromJson(Map<String, dynamic> json) {
     var listData = json['sequences'] ?? json['chapters'] ?? [];
@@ -31,10 +35,16 @@ class ChapterModel {
   final int chapterNum;
   final String chId;
   final String chName;
-  final String chFileLocation; // Add this line
+  final String chFileLocation;
   final List<SubtopicModel> subtopics;
 
-  ChapterModel({required this.chapterNum, required this.chId, required this.chName, required this.chFileLocation, required this.subtopics});
+  ChapterModel({
+    required this.chapterNum,
+    required this.chId,
+    required this.chName,
+    required this.chFileLocation,
+    required this.subtopics,
+  });
 
   factory ChapterModel.fromJson(Map<String, dynamic> json) {
     // FIX: Default to an empty list [] if 'subtopics' is missing
@@ -58,7 +68,12 @@ class SubtopicModel {
   final String type; // "quiz" or "revision"
   final int order;
 
-  SubtopicModel({required this.subId, required this.subName, required this.type, required this.order});
+  SubtopicModel({
+    required this.subId,
+    required this.subName,
+    required this.type,
+    required this.order,
+  });
 
   factory SubtopicModel.fromJson(Map<String, dynamic> json) {
     return SubtopicModel(
@@ -105,7 +120,9 @@ class _HomeState extends State<Home> {
   Future<void> _loadSubjectData() async {
     try {
       // Ensure you have "assets/json/subjects-chapters-subtopics.json" declared in pubspec.yaml
-      String jsonString = await ContentManager.readLocalJson('subjects-chapters-subtopics.json');
+      String jsonString = await ContentManager.readLocalJson(
+        'subjects-chapters-subtopics.json',
+      );
       //String jsonString = await rootBundle.loadString('assets/json/subjects-chapters-subtopics.json');
       final Map<String, dynamic> jsonData = json.decode(jsonString);
 
@@ -147,8 +164,9 @@ class _HomeState extends State<Home> {
 
       // Generate new random offsets for the new path
       final random = Random();
-      _randomOffsets = List.generate(_currentNodes.length,
-              (index) => (random.nextDouble() * 1.2) - 0.6
+      _randomOffsets = List.generate(
+        _currentNodes.length,
+        (index) => (random.nextDouble() * 1.2) - 0.6,
       );
     });
   }
@@ -159,7 +177,9 @@ class _HomeState extends State<Home> {
       barrierDismissible: true,
       builder: (BuildContext context) {
         return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(
@@ -192,17 +212,22 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(
+        backgroundColor: Color(0xFF0B0B1A), // Dark starry background match
+        body: Center(child: CircularProgressIndicator()),
+      );
     }
 
     if (_selectedSubject == null || _currentNodes.isEmpty) {
-      return const Scaffold(body: Center(child: Text("Coming Soon")));
+      return const Scaffold(
+        backgroundColor: Color(0xFF0B0B1A),
+        body: Center(
+          child: Text("Coming Soon", style: TextStyle(color: Colors.white)),
+        ),
+      );
     }
 
-    double screenWidth = MediaQuery
-        .of(context)
-        .size
-        .width;
+    double screenWidth = MediaQuery.of(context).size.width;
     List<Widget> positionedWidgets = [];
     List<Offset> nodePositions = [];
 
@@ -224,12 +249,12 @@ class _HomeState extends State<Home> {
         }
 
         positionedWidgets.add(
-            Positioned(
-              top: currentY,
-              left: 0,
-              right: 0,
-              child: _buildChapterDivider(chapterTitle),
-            )
+          Positioned(
+            top: currentY,
+            left: 0,
+            right: 0,
+            child: _buildChapterDivider(chapterTitle),
+          ),
         );
         currentY += 100;
         currentChapterId = chapter.chId;
@@ -267,15 +292,17 @@ class _HomeState extends State<Home> {
               if (isRightSide) ...[
                 // Wrap text in SizedBox to force wrapping
                 SizedBox(
-                    width: maxTextWidth,
-                    child: Text(
-                      subtopic.subName,
-                      textAlign: TextAlign.right, // Align text towards the node
-                      style: const TextStyle(fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                          color: Colors.white),
-                      softWrap: true,
-                    )
+                  width: maxTextWidth,
+                  child: Text(
+                    subtopic.subName,
+                    textAlign: TextAlign.right, // Align text towards the node
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      color: Colors.white,
+                    ),
+                    softWrap: true,
+                  ),
                 ),
                 const SizedBox(width: 12),
               ],
@@ -286,15 +313,17 @@ class _HomeState extends State<Home> {
                 const SizedBox(width: 12),
                 // Wrap text in SizedBox to force wrapping
                 SizedBox(
-                    width: maxTextWidth,
-                    child: Text(
-                      subtopic.subName,
-                      textAlign: TextAlign.left, // Align text towards the node
-                      style: const TextStyle(fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                          color: Colors.white),
-                      softWrap: true,
-                    )
+                  width: maxTextWidth,
+                  child: Text(
+                    subtopic.subName,
+                    textAlign: TextAlign.left, // Align text towards the node
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      color: Colors.white,
+                    ),
+                    softWrap: true,
+                  ),
                 ),
               ],
             ],
@@ -302,17 +331,22 @@ class _HomeState extends State<Home> {
         ),
       );
     }
-      return Scaffold(
+    return StarryBackground(
+      child: Scaffold(
         backgroundColor: Colors.transparent,
         extendBody: true,
         body: SafeArea(
           bottom: false,
-          child: Column(
+          // CHANGED: Replaced Column with a Stack
+          child: Stack(
             children: [
-              _buildStickyHeader(),
-              Expanded(
+              // 1. The Scrollable Content (Layered underneath)
+              Positioned.fill(
+                // Removed the 'Expanded' widget as it is not needed in a Stack
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
+                  // ADDED: Padding at the top so the content starts below the sticky header
+                  padding: const EdgeInsets.only(top: 50, bottom: 50),
                   child: SizedBox(
                     height: currentY + 150,
                     child: Stack(
@@ -328,68 +362,96 @@ class _HomeState extends State<Home> {
                   ),
                 ),
               ),
+
+              // 2. The Sticky Header (Layered on top)
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: _buildStickyHeader(),
+              ),
             ],
           ),
         ),
-      );
-    }
-
+      ),
+    );
+  }
 
   Widget _buildStickyHeader() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-      decoration: BoxDecoration(
-        color: const Color(0xFFDCDCDC),
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(30),
-          bottomRight: Radius.circular(30),
-          topLeft: Radius.circular(30),
-          topRight: Radius.circular(30),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.menu, color: Colors.black87, size: 50),
-            onPressed: _showMenuPopup,
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return Padding(
+      // Added outer padding so it floats like your bottom nav bar
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(40),
+        child: BackdropFilter(
+          // Exact same blur values as your bottom nav bar
+          filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+            decoration: BoxDecoration(
+              // Matched liquid glass color and border
+              color: Colors.white.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(40),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.1),
+                width: 1.0,
+              ),
+              // Removed the black shadow because glassmorphism relies on the backdrop
+              // blur and borders to create depth rather than solid shadows.
+            ),
+            child: Row(
               children: [
-                // Display the selected subject name dynamically
-                Text(
-                  _selectedSubject?.subjectName ?? "Loading...",
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                IconButton(
+                  icon: const Icon(Icons.menu, color: Colors.white, size: 50),
+                  onPressed: _showMenuPopup,
                 ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: LinearProgressIndicator(
-                          value: 1.0,
-                          minHeight: 10,
-                          backgroundColor: Colors.grey[400],
-                          valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Display the selected subject name dynamically
+                      Text(
+                        _selectedSubject?.subjectName ?? "Loading...",
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.8),
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 10),
-                    const Text("100%", style: TextStyle(fontWeight: FontWeight.bold)),
-                  ],
+                      const SizedBox(height: 5), // Added a tiny gap for better breathing room
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: LinearProgressIndicator(
+                                value: 1.0,
+                                minHeight: 10,
+                                // Changed from grey[400] to a translucent white to fit the glass theme better
+                                backgroundColor: Colors.white.withValues(alpha: 0.2),
+                                valueColor: const AlwaysStoppedAnimation<Color>(
+                                  Colors.green,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          const Text(
+                            "100%",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -403,7 +465,8 @@ class _HomeState extends State<Home> {
 
           // Wrap the text in a Flexible widget to prevent overflow and allow multi-line!
           Flexible(
-            flex: 2, // Gives the text slightly more priority/space than the dashes
+            flex:
+                2, // Gives the text slightly more priority/space than the dashes
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
               child: Text(
@@ -441,7 +504,10 @@ class _HomeState extends State<Home> {
 
           // 3. Find the specific subtopic data
           var subList = data['subtopics'] as List? ?? [];
-          var subData = subList.firstWhere((s) => s['sub_id'] == subtopic.subId, orElse: () => null);
+          var subData = subList.firstWhere(
+            (s) => s['sub_id'] == subtopic.subId,
+            orElse: () => null,
+          );
 
           if (subData != null) {
             // THIS is the variable that extracts the "q" list from your JSON!
@@ -449,19 +515,25 @@ class _HomeState extends State<Home> {
 
             if (isRevision) {
               // Directly launch the Adaptive Quiz
-              Navigator.push(context, MaterialPageRoute(
-                  builder: (_) => AdaptiveQuizScreen(questions: qList)
-              ));
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => AdaptiveQuizScreen(questions: qList),
+                ),
+              );
             } else {
               // Launch the PDF Viewer
               String notesLoc = subData['notes_location'] ?? '';
-              Navigator.push(context, MaterialPageRoute(
+              Navigator.push(
+                context,
+                MaterialPageRoute(
                   builder: (_) => PdfViewerScreen(
                     pdfPath: notesLoc,
                     title: subtopic.subName,
                     questions: qList, // We pass the qList variable here!
-                  )
-              ));
+                  ),
+                ),
+              );
             }
           } else {
             debugPrint("Subtopic not found in file");
@@ -560,22 +632,130 @@ class DashedDivider extends StatelessWidget {
   }
 }
 
-/*class PdfViewerScreen extends StatelessWidget {
-  final String pdfPath;
-  final String title;
+class Star {
+  double x;
+  double y;
+  double maxOpacity;
+  double currentOpacity = 0.0;
+  int state = 0; // 0: completely dark, 1: brightening up, 2: dimming down
 
-  const PdfViewerScreen({
-    super.key,
-    required this.pdfPath,
-    required this.title,
-  });
+  Star({required this.x, required this.y, required this.maxOpacity});
+}
+
+class StarryBackground extends StatefulWidget {
+  final Widget child;
+
+  const StarryBackground({super.key, required this.child});
+
+  @override
+  State<StarryBackground> createState() => _StarryBackgroundState();
+}
+
+class _StarryBackgroundState extends State<StarryBackground> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  final List<Star> _stars = [];
+  final int _starCount = 100; // Number of stars
+  final Random _random = Random();
+
+  @override
+  void initState() {
+    super.initState();
+    // Constantly ticking animation controller to update the star brightness
+    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 1))
+      ..addListener(() {
+        _updateStars();
+      })
+      ..repeat();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_stars.isEmpty) {
+      final size = MediaQuery.of(context).size;
+      // Initialize stars spread randomly across the screen
+      for (int i = 0; i < _starCount; i++) {
+        _stars.add(Star(
+          x: _random.nextDouble() * size.width,
+          y: _random.nextDouble() * size.height,
+          maxOpacity: 0.3 + _random.nextDouble() * 0.7, // Random maximum brightness
+        ));
+      }
+    }
+  }
+
+  void _updateStars() {
+    bool needsRepaint = false;
+    for (var star in _stars) {
+      if (star.state == 0) {
+        // Star is dark: Very low probability it decides to start shining on this frame
+        if (_random.nextDouble() < 0.01) {
+          star.state = 1;
+          needsRepaint = true;
+        }
+      } else if (star.state == 1) {
+        // Brightening up
+        star.currentOpacity += 0.015;
+        if (star.currentOpacity >= star.maxOpacity) {
+          star.state = 2; // Reached peak, start dimming
+        }
+        needsRepaint = true;
+      } else if (star.state == 2) {
+        // Dimming down
+        star.currentOpacity -= 0.010;
+        if (star.currentOpacity <= 0) {
+          star.currentOpacity = 0;
+          star.state = 0; // Back to dark
+        }
+        needsRepaint = true;
+      }
+    }
+    // Only rebuild if a star is actively shining
+    if (needsRepaint) {
+      setState(() {});
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: SfPdfViewer.asset(pdfPath),
+    return Stack(
+      children: [
+        // Base dark background (deep night sky color)
+        Container(color: const Color(0xFF0B0B1A)),
+        // Draws the animated stars
+        CustomPaint(
+          size: Size.infinite,
+          painter: StarPainter(_stars),
+        ),
+        // Your main interactive UI overlaid on top
+        widget.child,
+      ],
     );
   }
 }
-*/
+
+class StarPainter extends CustomPainter {
+  final List<Star> stars;
+  StarPainter(this.stars);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint();
+    for (var star in stars) {
+      if (star.currentOpacity > 0) {
+        paint.color = Colors.white.withValues(alpha: star.currentOpacity);
+        // Drawing a small star. You can increase radius from 1.5 if you want bigger stars.
+        canvas.drawCircle(Offset(star.x, star.y), 2, paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+}
