@@ -3,6 +3,8 @@ import 'package:cikgoo_math_ai/services/firestore_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'admin_add.dart';
+import 'admin_edit.dart';
+import 'admin_user_feedback.dart';
 import 'admin_view.dart';
 
 class AdminDashboard extends StatefulWidget {
@@ -99,9 +101,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
     // Dynamic pages based on your tabs
     final List<Widget> pages = [
       const ViewContentPanel(),
-      const Center(child: Text("Edit Content", style: TextStyle(fontSize: 24))),
+      const EditContentPanel(),
       const AddContentPanel(),
-      const Center(child: Text("User Feedback Content", style: TextStyle(fontSize: 24))),
+      const UserFeedbackPanel(),
     ];
 
     return Scaffold(
