@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_math_fork/flutter_math.dart';
 
 class AdaptiveQuizScreen extends StatefulWidget {
   final List<dynamic> questions;
@@ -262,6 +263,48 @@ class _AdaptiveQuizScreenState extends State<AdaptiveQuizScreen> {
     );
   }
 
+  Widget _buildMathText(String text) {
+    // 1. If there's no math, just return a simple Text widget
+    if (!text.contains(r'$')) {
+      return Text(
+        text,
+        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+      );
+    }
+
+    // 2. Split the text by the $ delimiter
+    List<String> parts = text.split(r'$');
+    List<InlineSpan> spans = [];
+
+    // 3. Loop through the parts and format them accordingly
+    for (int i = 0; i < parts.length; i++) {
+      if (parts[i].isEmpty) continue; // Skip empty parts if any
+
+      if (i % 2 == 0) {
+        // EVEN indices are normal text
+        spans.add(TextSpan(
+          text: parts[i],
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+        ));
+      } else {
+        // ODD indices are LaTeX formulas
+        spans.add(WidgetSpan(
+          alignment: PlaceholderAlignment.middle, // Aligns the math vertically with the text
+          child: Math.tex(
+            parts[i],
+            mathStyle: MathStyle.text, // Use text style instead of display for inline math
+            textStyle: const TextStyle(fontSize: 18, color: Colors.black87),
+          ),
+        ));
+      }
+    }
+
+    // 4. Return the combined text and math
+    return RichText(
+      text: TextSpan(children: spans),
+    );
+  }
+
   Widget _buildActionIcon(IconData icon, VoidCallback onTap) {
     return Padding(
       padding: const EdgeInsets.only(left: 4.0),
@@ -507,10 +550,7 @@ class _AdaptiveQuizScreenState extends State<AdaptiveQuizScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
-                          child: Text(
-                            currentQ['text'] ?? "",
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                          ),
+                          child: _buildMathText(currentQ['text'] ?? ""),
                         ),
                         Row(
                           mainAxisSize: MainAxisSize.min,
