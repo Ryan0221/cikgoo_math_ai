@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AdaptiveQuizScreen extends StatefulWidget {
   final List<dynamic> questions;
@@ -26,11 +28,37 @@ class _AdaptiveQuizScreenState extends State<AdaptiveQuizScreen> {
   String? _selectedOptionId;
   bool _hasSubmitted = false;
 
+  late final GenerativeModel _generativeModel;
+  ChatSession? _chatSession;
+
   @override
   void initState() {
     super.initState();
     _organizeQuestions();
     _startLevel(2); // Always start with level 2
+
+    final apiKey = dotenv.env['GEMINI_API_KEY'] ?? '';
+
+    // Initialize the Gemini Model
+    _generativeModel = GenerativeModel(
+        model: 'gemini-2.5-flash', // Recommended for fast text chat
+        apiKey: apiKey, // DO NOT hardcode this in production, use flutter_dotenv!
+
+        // 1. SET THE TEMPLATE (System Instruction)
+        systemInstruction: Content.system(
+            'You are the Cikgoo Math AI, an encouraging and brilliant math tutor. '
+                'Your goal is to help students understand mathematical concepts. '
+                'Do not just give the direct answer. Instead, ask guiding questions to help '
+                'the student figure it out themselves. Keep your answers concise, friendly, '
+                'and formatted clearly.'
+        ),
+
+        // 2. SET THE LIMITS (Generation Config)
+      generationConfig: GenerationConfig(
+        maxOutputTokens: 150,
+        temperature: 0.4,
+      ),
+    );
   }
 
   void _organizeQuestions() {
@@ -248,6 +276,202 @@ class _AdaptiveQuizScreenState extends State<AdaptiveQuizScreen> {
     );
   }
 
+  // --- AI DISCUSSION POPUP (NEW) ---
+  void _showAIDiscussionPopup(dynamic currentQ) {
+    final TextEditingController chatController = TextEditingController();
+    bool isTyping = false; // To show a loading indicator
+
+    // 3. INITIALIZE THE CHAT HISTORY
+    // We start the chat session here so it knows WHICH question we are discussing
+    String initialGreeting = "Hi there! I see you are looking at the question:\n\n\"${currentQ['text']}\"\n\nWhat would you like to discuss or need help understanding?";
+
+    _chatSession = _generativeModel.startChat(history: [
+      // Give the AI the hidden context of what the user is looking at
+      Content.text('The user is currently looking at this math question: ${currentQ['text']}. The correct answer is ${currentQ['ans']}.'),
+      Content.model([TextPart(initialGreeting)])
+    ]);
+
+    List<Map<String, String>> messages = [
+      {"sender": "AI", "text": initialGreeting}
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+
+            // 4. THE FUNCTION TO TALK TO GEMINI
+            Future<void> sendMessage() async {
+              if (chatController.text.trim().isEmpty) return;
+
+              String userText = chatController.text.trim();
+              chatController.clear();
+
+              setModalState(() {
+                messages.add({"sender": "User", "text": userText});
+                isTyping = true; // Start loading
+              });
+
+              try {
+                // 1. Add an empty AI message to the list immediately
+                int aiMessageIndex = messages.length;
+                setModalState(() {
+                  messages.add({"sender": "AI", "text": ""});
+                  isTyping = false; // Turn off the circular loader, text is about to stream!
+                });
+
+                // 2. Call the STREAMING method instead of the standard sendMessage
+                final stream = _chatSession!.sendMessageStream(Content.text(userText));
+
+                // 3. Listen to the stream and update the UI chunk-by-chunk
+                await for (final chunk in stream) {
+                  if (context.mounted) {
+                    setModalState(() {
+                      messages[aiMessageIndex]["text"] =
+                          (messages[aiMessageIndex]["text"] ?? "") + (chunk.text ?? "");
+                    });
+                  }
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  setModalState(() {
+                    // If an error happens, append it or replace the empty text
+                    messages.add({"sender": "AI", "text": "Error connecting to Gemini AI chatbot. Please check your connection."});
+                    isTyping = false;
+                  });
+                }
+              }
+            }
+
+            return Container(
+              height: MediaQuery.of(context).size.height * 0.85,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+              ),
+              child: Column(
+                children: [
+                  // --- Header ---
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                    decoration: BoxDecoration(
+                      border: Border(bottom: BorderSide(color: Colors.grey[200]!)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Row(
+                          children: [
+                            Icon(Icons.auto_awesome, color: Color(0xFF223257)),
+                            SizedBox(width: 10),
+                            Text("Discuss with AI", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.pop(context),
+                        )
+                      ],
+                    ),
+                  ),
+
+                  // --- Chat Messages Area ---
+                  Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.all(20),
+                      itemCount: messages.length + (isTyping ? 1 : 0),
+                      itemBuilder: (context, index) {
+                        // Show a loading indicator if AI is typing
+                        if (index == messages.length && isTyping) {
+                          return const Align(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: CircularProgressIndicator(),
+                            ),
+                          );
+                        }
+
+                        bool isUser = messages[index]["sender"] == "User";
+                        return Align(
+                          alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            constraints: BoxConstraints(
+                              maxWidth: MediaQuery.of(context).size.width * 0.75,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isUser ? const Color(0xFF223257) : Colors.blue[50],
+                              borderRadius: BorderRadius.circular(15).copyWith(
+                                bottomRight: isUser ? const Radius.circular(0) : const Radius.circular(15),
+                                bottomLeft: !isUser ? const Radius.circular(0) : const Radius.circular(15),
+                              ),
+                            ),
+                            child: Text(
+                              messages[index]["text"]!,
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: isUser ? Colors.white : Colors.black87,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+
+                  // --- Input Area ---
+                  Padding(
+                    padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom + 15,
+                      left: 15,
+                      right: 15,
+                      top: 10,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: chatController,
+                            textInputAction: TextInputAction.send,
+                            onSubmitted: (_) => sendMessage(),
+                            decoration: InputDecoration(
+                              hintText: "Ask something...",
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                              filled: true,
+                              fillColor: Colors.grey[100],
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        CircleAvatar(
+                          radius: 25,
+                          backgroundColor: const Color(0xFF223257),
+                          child: IconButton(
+                            icon: const Icon(Icons.send, color: Colors.white, size: 20),
+                            onPressed: isTyping ? null : sendMessage,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   // --- BUILD METHOD ---
 
   @override
@@ -327,18 +551,36 @@ class _AdaptiveQuizScreenState extends State<AdaptiveQuizScreen> {
                         : _buildListLayout(currentQ),
 
                     // --- 3. EXPLANATION ---
-                    if (_hasSubmitted && currentQ['explanation'] != null) ...[
-                      const SizedBox(height: 20),
-                      Container(
-                        padding: const EdgeInsets.all(15),
-                        decoration: BoxDecoration(
-                          color: Colors.blue[50],
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.blue[200]!),
+                    if (_hasSubmitted) ...[
+                      if (currentQ['explanation'] != null) ...[
+                        const SizedBox(height: 20),
+                        Container(
+                          padding: const EdgeInsets.all(15),
+                          decoration: BoxDecoration(
+                            color: Colors.blue[50],
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.blue[200]!),
+                          ),
+                          child: Text(
+                            "💡 Explanation: ${currentQ['explanation']}",
+                            style: TextStyle(color: Colors.blue[800], fontSize: 15),
+                          ),
                         ),
-                        child: Text(
-                          "💡 Explanation: ${currentQ['explanation']}",
-                          style: TextStyle(color: Colors.blue[800], fontSize: 15),
+                      ],
+                      const SizedBox(height: 15),
+                      Center(
+                        child: OutlinedButton.icon(
+                          onPressed: () => _showAIDiscussionPopup(currentQ),
+                          icon: const Icon(Icons.auto_awesome, color: Color(0xFF223257)),
+                          label: const Text(
+                            "Discuss further with AI",
+                            style: TextStyle(color: Color(0xFF223257), fontWeight: FontWeight.bold),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Color(0xFF223257)),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                          ),
                         ),
                       ),
                     ],

@@ -374,7 +374,7 @@ class _HomeState extends State<Home> {
           child: Container(
             padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.15),
+              color: Colors.white.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(40),
               border: Border.all(
                 color: Colors.white.withValues(alpha: 0.1),
