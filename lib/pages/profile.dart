@@ -2,9 +2,49 @@ import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class Profile extends StatelessWidget {
+class Profile extends StatefulWidget {
   const Profile({super.key});
+
+  @override
+  State<Profile> createState() => _ProfileState();
+}
+
+class _ProfileState extends State<Profile> {
+  bool _isAdminOrSuperAdmin = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAdminRole();
+  }
+
+  // --- NEW: Check if the user is an admin or super admin ---
+  Future<void> _checkAdminRole() async {
+    final User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        DocumentSnapshot doc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
+
+        if (doc.exists && doc.data() != null) {
+          final data = doc.data() as Map<String, dynamic>;
+          final role = data['role'];
+
+          if (role == 'admin' || role == 'super admin') {
+            setState(() {
+              _isAdminOrSuperAdmin = true;
+            });
+          }
+        }
+      } catch (e) {
+        debugPrint("Error checking admin role: $e");
+      }
+    }
+  }
 
   Future<void> _signOut(BuildContext context) async {
     await GoogleSignIn().signOut();
@@ -140,76 +180,95 @@ class Profile extends StatelessWidget {
                   alignment: Alignment.topRight,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: PopupMenuButton<String>(
-                      icon: const Icon(
-                        Icons.settings,
-                        color: Colors.white,
-                        size: 28,
-                      ),
-                      color: const Color(0xFF1A2A49),
-                      elevation: 10,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        side: BorderSide(
-                          color: Colors.white.withValues(alpha: 0.1),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // --- NEW: Admin Dashboard Button ---
+                        if (_isAdminOrSuperAdmin) ...[
+                          IconButton(
+                            icon: const Icon(
+                              Icons.admin_panel_settings,
+                              color: Colors.white,
+                              size: 28,
+                            ),
+                            tooltip: 'Return to Admin Dashboard',
+                            onPressed: () {
+                              Navigator.pushReplacementNamed(context, '/admin_dashboard');
+                            },
+                          ),
+                          const SizedBox(width: 8),
+                        ],
+
+                        // Existing Settings Menu
+                        PopupMenuButton<String>(
+                          icon: const Icon(
+                            Icons.settings,
+                            color: Colors.white,
+                            size: 28,
+                          ),
+                          color: const Color(0xFF1A2A49),
+                          elevation: 10,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                            side: BorderSide(
+                              color: Colors.white.withValues(alpha: 0.1),
+                            ),
+                          ),
+                          onSelected: (String choice) {
+                            if (choice == 'Switch Language') {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: const Text("Language settings coming soon!"),
+                                  backgroundColor: Colors.blueAccent.withValues(alpha: 0.8),
+                                ),
+                              );
+                            } else if (choice == 'Change Password') {
+                              if (user != null) {
+                                bool hasPassword = user.providerData.any((userInfo) => userInfo.providerId == 'password');
+                                _showPasswordDialog(context, user, hasPassword);
+                              }
+                            } else if (choice == 'Logout') {
+                              _signOut(context);
+                            }
+                          },
+                          itemBuilder: (BuildContext context) {
+                            return [
+                              const PopupMenuItem<String>(
+                                value: 'Switch Language',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.language, color: Colors.white70, size: 22),
+                                    SizedBox(width: 22),
+                                    Text('Switch Language', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+                                  ],
+                                ),
+                              ),
+                              const PopupMenuDivider(height: 1),
+                              const PopupMenuItem<String>(
+                                value: 'Change Password',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.password, color: Colors.white70, size: 22),
+                                    SizedBox(width: 22),
+                                    Text('Change Password', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+                                  ],
+                                ),
+                              ),
+                              const PopupMenuDivider(height: 1.5),
+                              const PopupMenuItem<String>(
+                                value: 'Logout',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.logout, color: Colors.redAccent, size: 22),
+                                    SizedBox(width: 22),
+                                    Text('Log Out', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.w500)),
+                                  ],
+                                ),
+                              ),
+                            ];
+                          },
                         ),
-                      ),
-                      onSelected: (String choice) {
-                        if (choice == 'Switch Language') {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text("Language settings coming soon!"),
-                              backgroundColor: Colors.blueAccent.withValues(alpha: 0.8),
-                            ),
-                          );
-                        } else if (choice == 'Change Password') {
-                          // --- NEW: TRIGGER PASSWORD LOGIC ---
-                          if (user != null) {
-                            // Check if the user already has a 'password' provider linked to their account
-                            bool hasPassword = user.providerData.any((userInfo) => userInfo.providerId == 'password');
-                            _showPasswordDialog(context, user, hasPassword);
-                          }
-                        } else if (choice == 'Logout') {
-                          _signOut(context);
-                        }
-                      },
-                      itemBuilder: (BuildContext context) {
-                        return [
-                          const PopupMenuItem<String>(
-                            value: 'Switch Language',
-                            child: Row(
-                              children: [
-                                Icon(Icons.language, color: Colors.white70, size: 22),
-                                SizedBox(width: 22),
-                                Text('Switch Language', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
-                              ],
-                            ),
-                          ),
-                          const PopupMenuDivider(height: 1),
-                          const PopupMenuItem<String>(
-                            value: 'Change Password',
-                            child: Row(
-                              children: [
-                                Icon(Icons.password, color: Colors.white70, size: 22),
-                                SizedBox(width: 22),
-                                // Text updates dynamically later, but static here is fine
-                                Text('Change Password', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
-                              ],
-                            ),
-                          ),
-                          const PopupMenuDivider(height: 1.5),
-                          const PopupMenuItem<String>(
-                            value: 'Logout',
-                            child: Row(
-                              children: [
-                                Icon(Icons.logout, color: Colors.redAccent, size: 22),
-                                SizedBox(width: 22),
-                                Text('Log Out', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.w500)),
-                              ],
-                            ),
-                          ),
-                        ];
-                      },
+                      ],
                     ),
                   ),
                 ),

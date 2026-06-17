@@ -153,6 +153,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
           ),
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.person_outline, color: Colors.black, size: 28),
+            tooltip: 'View as User',
+            onPressed: () {
+              Navigator.pushReplacementNamed(context, '/first_page');
+            },
+          ),
           // 1. NEW: The User Management Button (Only visible to super admin)
           if (_isSuperAdmin)
             IconButton(
@@ -275,7 +282,7 @@ class _UserManagementDialogState extends State<UserManagementDialog> {
   // Tracks ONLY the changes made before saving. Map format: {uid: newRole}
   final Map<String, String> _pendingChanges = {};
 
-  final List<String> _availableRoles = ['admin', 'student', 'user'];
+  final List<String> _availableRoles = ['admin', 'user'];
 
   @override
   void initState() {
@@ -335,16 +342,18 @@ class _UserManagementDialogState extends State<UserManagementDialog> {
 
   @override
   Widget build(BuildContext context) {
-    // Filter users based on the active tab and their CURRENT computed role
+    // NEW LOGIC: Keep users visible in their original tab while editing
     List<Map<String, dynamic>> filteredUsers = _allUsers.where((user) {
-      // If a role was changed, use the new role. Otherwise, use the original role.
-      String currentRole = _pendingChanges[user['uid']] ?? user['role'] ?? 'student';
+      String originalRole = user['role'] ?? 'user';
+      String? pendingRole = _pendingChanges[user['uid']];
+      String currentRole = pendingRole ?? originalRole;
 
       if (_activeTab == 0) {
-        return currentRole == 'admin';
+        // ADMIN TAB: Show if they WERE an admin, OR if they are BEING MADE an admin
+        return originalRole == 'admin' || currentRole == 'admin';
       } else {
-        // Anything not an admin is considered a standard user for the "User" tab
-        return currentRole != 'admin';
+        // USER TAB: Show if they WERE a user, OR if they are BEING MADE a user
+        return originalRole != 'admin' || currentRole != 'admin';
       }
     }).toList();
 
@@ -446,7 +455,7 @@ class _UserManagementDialogState extends State<UserManagementDialog> {
                       itemBuilder: (context, index) {
                         var user = filteredUsers[index];
                         String uid = user['uid'];
-                        String currentRole = _pendingChanges[uid] ?? user['role'] ?? 'student';
+                        String currentRole = _pendingChanges[uid] ?? user['role'] ?? 'user';
                         bool isModified = _pendingChanges.containsKey(uid);
 
                         return Padding(

@@ -147,10 +147,10 @@ class _LoginSignupState extends State<LoginSignup> {
             .doc(userCredential.user!.uid)
             .get();
 
-        String userRole = 'student'; // Default fallback
+        String userRole = 'user'; // Default fallback
         if (userDoc.exists && userDoc.data() != null) {
           var data = userDoc.data() as Map<String, dynamic>;
-          userRole = data['role'] ?? 'student';
+          userRole = data['role'] ?? 'user';
         }
 
         // 2. Direct the user to the correct screen based on their role!
