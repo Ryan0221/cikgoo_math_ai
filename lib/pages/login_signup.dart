@@ -140,11 +140,30 @@ class _LoginSignupState extends State<LoginSignup> {
         await _checkAndCreateUserDoc(userCredential.user!);
       }
 
-      // FAILSAFE NAVIGATION: Force the app to move if AuthGate is bypassed
       if (mounted) {
-        // Change '/first_page' to whatever route name you actually use in main.dart
-        Navigator.pushReplacementNamed(context, '/first_page');
+        // 1. Fetch the user's profile from Firestore to check their role
+        DocumentSnapshot userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userCredential.user!.uid)
+            .get();
+
+        String userRole = 'student'; // Default fallback
+        if (userDoc.exists && userDoc.data() != null) {
+          var data = userDoc.data() as Map<String, dynamic>;
+          userRole = data['role'] ?? 'student';
+        }
+
+        // 2. Direct the user to the correct screen based on their role!
+        if (userRole == 'admin' || userRole == 'super admin') {
+          // IMPORTANT: Change '/admin_home' to whatever you named your admin route in main.dart!
+          Navigator.pushReplacementNamed(context, '/admin_dashboard');
+        } else {
+          // Standard students go through the sync screen to download content
+          Navigator.pushReplacementNamed(context, '/sync_screen');
+        }
       }
+      // -------------------------
+
     } catch (e) {
       print("Google Sign-In Error: $e");
 

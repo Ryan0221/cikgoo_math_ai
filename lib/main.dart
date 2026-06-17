@@ -1,3 +1,4 @@
+import 'package:cikgoo_math_ai/pages/admin_dashboard.dart';
 import 'package:cikgoo_math_ai/pages/sync_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:cikgoo_math_ai/pages/first_page.dart';
@@ -38,6 +39,7 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const LoginSignup(),
         '/first_page': (context) => const FirstPage(),
         '/sync_screen': (context) => const SyncScreen(),
+        '/admin_dashboard': (context) => const AdminDashboard()
       },
     );
   }
