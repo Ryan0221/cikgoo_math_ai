@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
+import 'admin_preview_screen.dart';
 
 class AddContentPanel extends StatefulWidget {
   const AddContentPanel({Key? key}) : super(key: key);
@@ -870,19 +871,90 @@ class _AddContentPanelState extends State<AddContentPanel> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // 1. LEFT SIDE: Complete Button
-              // Wrap with Padding to act as a margin
+              // 1. LEFT SIDE: Demonstrate Button
               Padding(
-                padding: const EdgeInsets.only(top: 16.0), // Your margin here!
-                child: SizedBox(
-                  width: 200,
-                  height: 55,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xff3dcf00),
+                padding: const EdgeInsets.only(top: 16.0),
+                child: Tooltip(
+                  message: "Demonstrate the question before upload",
+                  textStyle: const TextStyle(color: Colors.white, fontSize: 14),
+                  decoration: BoxDecoration(
+                    color: Colors.black87,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: SizedBox(
+                    width: 200,
+                    height: 55,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blueAccent, // Changed to Blue for "Preview" vibe
+                      ),
+                      onPressed: () {
+                        // 1. Create a temporary list to hold the formatted preview questions
+                        List<Map<String, dynamic>> previewQuestions = [];
+
+                        // 2. Loop through your drafted questions and format them like your JSON!
+                        for (int i = 0; i < _questions.length; i++) {
+                          var q = _questions[i];
+
+                          // Determine the correct answer ID ('Option A' -> 'A', 'True' -> 'True')
+                          String correctAnsId = 'A'; // Fallback
+                          if (q.answer != null) {
+                            if (q.answer!.startsWith('Option ')) {
+                              correctAnsId = q.answer!.split(' ')[1];
+                            } else {
+                              correctAnsId = q.answer!;
+                            }
+                          }
+
+                          // Build the options list based on question type
+                          List<Map<String, dynamic>> optionsList = [];
+                          if (q.questionType == 'True/False Question') {
+                            optionsList = [
+                              {"id": "True", "text": q.optACtrl.text.isNotEmpty ? q.optACtrl.text : "True", "option_pic": null},
+                              {"id": "False", "text": q.optBCtrl.text.isNotEmpty ? q.optBCtrl.text : "False", "option_pic": null},
+                            ];
+                          } else {
+                            optionsList = [
+                              {"id": "A", "text": q.optACtrl.text.isNotEmpty ? q.optACtrl.text : "Empty Option A", "option_pic": null},
+                              {"id": "B", "text": q.optBCtrl.text.isNotEmpty ? q.optBCtrl.text : "Empty Option B", "option_pic": null},
+                              {"id": "C", "text": q.optCCtrl.text.isNotEmpty ? q.optCCtrl.text : "Empty Option C", "option_pic": null},
+                              {"id": "D", "text": q.optDCtrl.text.isNotEmpty ? q.optDCtrl.text : "Empty Option D", "option_pic": null},
+                            ];
+                          }
+
+                          // Add the compiled question to our preview list
+                          previewQuestions.add({
+                            "q_id": "preview_q_${i + 1}",
+                            "q_order": i + 1,
+                            "type": q.questionType == 'True/False Question' ? "tfq" : "mcq",
+                            "text": q.questionCtrl.text.isNotEmpty ? q.questionCtrl.text : "(Blank Question ${i + 1})",
+                            "question_difficulty": int.tryParse(q.questionDifficulty ?? '1') ?? 1,
+                            "question_pic": null,
+                            "options_has_picture": false,
+                            "options": optionsList,
+                            "ans": correctAnsId,
+                            "hint": q.hintCtrl.text.isNotEmpty ? q.hintCtrl.text : "No hint provided.",
+                            "explanation": q.expCtrl.text.isNotEmpty ? q.expCtrl.text : "No explanation provided."
+                          });
+                        }
+
+                        // 3. Launch the Quiz Screen with the drafted questions!
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => AdminPreviewScreen(questions: previewQuestions),
+                          ),
+                        );
+                      },
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.play_arrow, color: Colors.white),
+                          SizedBox(width: 8),
+                          Text("Demonstrate", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                        ],
+                      ),
                     ),
-                    onPressed: () {},
-                    child: const Text("Complete", style: TextStyle(color: Colors.white)),
                   ),
                 ),
               ),
