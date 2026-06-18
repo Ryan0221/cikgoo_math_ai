@@ -17,14 +17,21 @@ class _AdminPreviewScreenState extends State<AdminPreviewScreen> {
   String? _selectedOptionId;
   bool _hasSubmitted = false;
 
+  // NEW: Global toggle for showing answers
+  bool _isGlobalShowAnswer = false;
+
   void _nextQuestion() {
     if (_currentIndex < widget.questions.length - 1) {
       setState(() {
         _currentIndex++;
         _resetState();
+
+        // If global show answer is ON, immediately show the answer for the new question
+        if (_isGlobalShowAnswer) {
+          String newCorrectAns = widget.questions[_currentIndex]['ans'] ?? '';
+          _showAnswer(newCorrectAns);
+        }
       });
-    } else {
-      _showSnackBar("This is the last question.");
     }
   }
 
@@ -33,6 +40,12 @@ class _AdminPreviewScreenState extends State<AdminPreviewScreen> {
       setState(() {
         _currentIndex--;
         _resetState();
+
+        // If global show answer is ON, immediately show the answer for the new question
+        if (_isGlobalShowAnswer) {
+          String newCorrectAns = widget.questions[_currentIndex]['ans'] ?? '';
+          _showAnswer(newCorrectAns);
+        }
       });
     } else {
       _showSnackBar("This is the first question.");
@@ -51,6 +64,18 @@ class _AdminPreviewScreenState extends State<AdminPreviewScreen> {
     });
   }
 
+  // NEW: The Toggle Function
+  void _toggleGlobalAnswer(String correctAns) {
+    setState(() {
+      _isGlobalShowAnswer = !_isGlobalShowAnswer;
+      if (_isGlobalShowAnswer) {
+        _showAnswer(correctAns);
+      } else {
+        _resetState();
+      }
+    });
+  }
+
   void _submitAnswer() {
     if (_selectedOptionId == null) return;
     setState(() {
@@ -65,6 +90,42 @@ class _AdminPreviewScreenState extends State<AdminPreviewScreen> {
         duration: const Duration(seconds: 2),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+  }
+
+  // NEW: The Completion Dialog
+  void _showCompletionDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text("Preview Complete", style: TextStyle(fontWeight: FontWeight.bold)),
+        content: const Text(
+          "You have successfully reviewed all questions in this subtopic.\n\n"
+              "Would you like to upload this content now?",
+          style: TextStyle(fontSize: 16),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx), // Just closes the dialog
+            child: const Text("Cancel", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 16)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xff3dcf00), // Exact Green
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            ),
+            onPressed: () {
+              Navigator.pop(ctx); // Close dialog
+              // Pop the entire preview screen and return 'upload' to admin_add!
+              Navigator.pop(context, {'action': 'upload'});
+            },
+            child: const Text("Complete & Upload", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+          ),
+        ],
       ),
     );
   }
@@ -104,15 +165,13 @@ class _AdminPreviewScreenState extends State<AdminPreviewScreen> {
   @override
   Widget build(BuildContext context) {
     if (widget.questions.isEmpty) {
-      return Scaffold(
-        appBar: AppBar(title: const Text("Preview Mode")),
-        body: const Center(child: Text("No questions to preview.")),
-      );
+      return Scaffold(appBar: AppBar(title: const Text("Preview Mode")), body: const Center(child: Text("No questions to preview.")));
     }
 
     final currentQ = widget.questions[_currentIndex];
     bool hasPictureOptions = currentQ['options_has_picture'] == true;
     String correctAnswer = currentQ['ans'] ?? '';
+    bool isLastQuestion = _currentIndex == widget.questions.length - 1;
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
@@ -125,7 +184,6 @@ class _AdminPreviewScreenState extends State<AdminPreviewScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // --- 1. QUESTION SECTION ---
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(20.0),
@@ -136,41 +194,24 @@ class _AdminPreviewScreenState extends State<AdminPreviewScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(child: _buildMathText(currentQ['text'] ?? "")),
-                        IconButton(
-                          icon: const Icon(Icons.lightbulb_outline, color: Colors.grey),
-                          onPressed: () => _showSnackBar("Hint: ${currentQ['hint'] ?? 'No hint.'}"),
-                        ),
+                        IconButton(icon: const Icon(Icons.lightbulb_outline, color: Colors.grey), onPressed: () => _showSnackBar("Hint: ${currentQ['hint'] ?? 'No hint.'}")),
                       ],
                     ),
                     const SizedBox(height: 20),
 
                     if (currentQ['question_pic'] != null && currentQ['question_pic'].toString().isNotEmpty) ...[
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.network(currentQ['question_pic']),
-                      ),
+                      ClipRRect(borderRadius: BorderRadius.circular(10), child: Image.network(currentQ['question_pic'])),
                       const SizedBox(height: 20),
                     ],
 
-                    // --- 2. OPTIONS SECTION ---
-                    hasPictureOptions
-                        ? _buildGridLayout(currentQ)
-                        : _buildListLayout(currentQ),
+                    hasPictureOptions ? _buildGridLayout(currentQ) : _buildListLayout(currentQ),
 
-                    // --- 3. EXPLANATION ---
                     if (_hasSubmitted && currentQ['explanation'] != null) ...[
                       const SizedBox(height: 20),
                       Container(
                         padding: const EdgeInsets.all(15),
-                        decoration: BoxDecoration(
-                          color: Colors.blue[50],
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.blue[200]!),
-                        ),
-                        child: Text(
-                          "💡 Explanation: ${currentQ['explanation']}",
-                          style: TextStyle(color: Colors.blue[800], fontSize: 15),
-                        ),
+                        decoration: BoxDecoration(color: Colors.blue[50], borderRadius: BorderRadius.circular(10), border: Border.all(color: Colors.blue[200]!)),
+                        child: Text("💡 Explanation: ${currentQ['explanation']}", style: TextStyle(color: Colors.blue[800], fontSize: 15)),
                       ),
                     ],
                   ],
@@ -178,23 +219,16 @@ class _AdminPreviewScreenState extends State<AdminPreviewScreen> {
               ),
             ),
 
-            // --- 4. ADMIN NAVIGATION PANEL ---
+            // --- ADMIN NAVIGATION PANEL ---
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: .05),
-                    blurRadius: 10,
-                    offset: const Offset(0, -5),
-                  ),
-                ],
+                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: .05), blurRadius: 10, offset: const Offset(0, -5))],
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Original Submit Button (So admins can test answering it)
                   SizedBox(
                     width: double.infinity,
                     height: 50,
@@ -206,17 +240,12 @@ class _AdminPreviewScreenState extends State<AdminPreviewScreen> {
                       onPressed: _selectedOptionId == null || _hasSubmitted ? null : _submitAnswer,
                       child: Text(
                         "Submit Answer",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: _selectedOptionId == null ? Colors.grey[600] : Colors.white,
-                        ),
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: _selectedOptionId == null ? Colors.grey[600] : Colors.white),
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
 
-                  // NEW ROW: < | Show Answer | >
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -226,37 +255,59 @@ class _AdminPreviewScreenState extends State<AdminPreviewScreen> {
                         borderRadius: BorderRadius.circular(50),
                         child: Container(
                           padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            shape: BoxShape.circle,
-                          ),
+                          decoration: BoxDecoration(color: Colors.grey[200], shape: BoxShape.circle),
                           child: const Icon(Icons.chevron_left, size: 30, color: Colors.black87),
                         ),
                       ),
 
-                      // SHOW ANSWER BUTTON
-                      ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blueAccent,
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                        ),
-                        onPressed: _hasSubmitted ? null : () => _showAnswer(correctAnswer),
-                        icon: const Icon(Icons.visibility, color: Colors.white),
-                        label: const Text("Show Answer", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      // EDIT AND SHOW ANSWER BUTTONS
+                      Row(
+                        children: [
+                          // NEW: Edit Button
+                          InkWell(
+                            onTap: () {
+                              // Return to admin_add and tell it exactly which question to jump to
+                              Navigator.pop(context, {'action': 'edit', 'index': _currentIndex});
+                            },
+                            borderRadius: BorderRadius.circular(50),
+                            child: Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(color: Colors.orange[100], shape: BoxShape.circle),
+                              child: Icon(Icons.edit, size: 24, color: Colors.orange[800]),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+
+                          // TOGGLE ANSWER BUTTON
+                          ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _isGlobalShowAnswer ? Colors.grey[600] : Colors.blueAccent,
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                            ),
+                            onPressed: () => _toggleGlobalAnswer(correctAnswer),
+                            icon: Icon(_isGlobalShowAnswer ? Icons.visibility_off : Icons.visibility, color: Colors.white),
+                            label: Text(
+                                _isGlobalShowAnswer ? "Hide Answer" : "Show Answer",
+                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)
+                            ),
+                          ),
+                        ],
                       ),
 
-                      // NEXT BUTTON
+                      // NEXT / COMPLETE BUTTON
                       InkWell(
-                        onTap: _nextQuestion,
+                        onTap: isLastQuestion ? _showCompletionDialog : _nextQuestion,
                         borderRadius: BorderRadius.circular(50),
                         child: Container(
                           padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            shape: BoxShape.circle,
+                          // Turns green on the last question!
+                          decoration: BoxDecoration(color: isLastQuestion ? const Color(0xff3dcf00) : Colors.grey[200], shape: BoxShape.circle),
+                          child: Icon(
+                              isLastQuestion ? Icons.check : Icons.chevron_right,
+                              size: 30,
+                              color: isLastQuestion ? Colors.white : Colors.black87
                           ),
-                          child: const Icon(Icons.chevron_right, size: 30, color: Colors.black87),
                         ),
                       ),
                     ],

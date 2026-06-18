@@ -888,7 +888,7 @@ class _AddContentPanelState extends State<AddContentPanel> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blueAccent, // Changed to Blue for "Preview" vibe
                       ),
-                      onPressed: () {
+                      onPressed: () async {
                         // 1. Create a temporary list to hold the formatted preview questions
                         List<Map<String, dynamic>> previewQuestions = [];
 
@@ -945,6 +945,41 @@ class _AddContentPanelState extends State<AddContentPanel> {
                             builder: (_) => AdminPreviewScreen(questions: previewQuestions),
                           ),
                         );
+                        // Launch the preview screen AND wait for a response back
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => AdminPreviewScreen(questions: previewQuestions),
+                          ),
+                        );
+
+                        // Handle the actions requested by the Preview Screen!
+                        if (result != null && result is Map) {
+                          if (result['action'] == 'edit') {
+                            // The admin clicked the Edit button. Jump to that exact question!
+                            setState(() {
+                              // We add 1 because _currentIndex is 1-based, but lists are 0-based
+                              _currentIndex = (result['index'] as int) + 1;
+                            });
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Jumped to Question $_currentIndex for editing.')),
+                            );
+
+                          } else if (result['action'] == 'upload') {
+                            // The admin clicked "Complete & Upload" on the final checkmark!
+
+                            // TODO: Call your Firebase Upload Function here!
+                            // Example: await FirestoreService().uploadSubtopic(...);
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Uploading to database...'),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
+                          }
+                        }
                       },
                       child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
