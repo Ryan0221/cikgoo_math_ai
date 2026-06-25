@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
@@ -49,8 +50,8 @@ class ContentManager {
   // Helper method to download a specific file
   static Future<void> _downloadSingleFile(String fileName) async {
     try {
-      final storageRef = FirebaseStorage.instance.ref().child(
-          'syllabus_json/$fileName');
+      // 1. UPDATED: Path changed to data_json
+      final storageRef = FirebaseStorage.instance.ref().child('data_json/$fileName');
       Directory appDocDir = await getApplicationDocumentsDirectory();
       File localFile = File('${appDocDir.path}/$fileName');
 
@@ -61,23 +62,23 @@ class ContentManager {
     }
   }
 
-// 3. Read the JSON from the hard drive (Use this instead of rootBundle.loadString)
-  static Future<String> readLocalJson(String fileName) async {
-    Directory appDocDir = await getApplicationDocumentsDirectory();
-    File localFile = File('${appDocDir.path}/$fileName');
+// --- STRICT CLOUD MODE: Reads ONLY from downloaded device storage ---
+  static Future<String> readLocalJson(String fullOrPartialPath) async {
+    // 1. Clean the filename
+    String safeFileName = fullOrPartialPath.split('/').last;
 
+    // 2. Look in the secure app sandbox
+    Directory appDocDir = await getApplicationDocumentsDirectory();
+    File localFile = File('${appDocDir.path}/$safeFileName');
+
+    // 3. Strict Check: Does it exist?
     if (await localFile.exists()) {
-      // 1. Read from the downloaded OTA updates if available
+      debugPrint("SUCCESS: Reading $safeFileName from downloaded device storage.");
       return await localFile.readAsString();
     } else {
-      // 2. FALLBACK: Read the default file bundled with the app!
-      try {
-        return await rootBundle.loadString('assets/json/$fileName');
-      } catch (e) {
-        // If it's completely missing from both places, throw a helpful error
-        throw Exception(
-            'Critical Error: $fileName not found in Storage or Assets.');
-      }
+      // 4. THE WALL: Instead of reading assets, we force a crash/error!
+      debugPrint("ERROR: $safeFileName is missing from local storage.");
+      throw Exception("STRICT MODE: File $safeFileName has not been downloaded from Firebase yet.");
     }
   }
 
@@ -108,5 +109,42 @@ class ContentManager {
 
     // Wait for the entire download to finish before moving on
     await downloadTask;
+  }
+
+  // --- NEW: UPLOAD ENGINE ---
+  static Future<void> uploadFileToCloud(File file, String cloudPath) async {
+    try {
+      // Points to the specific folder and file name in Firebase Storage
+      final storageRef = FirebaseStorage.instance.ref().child(cloudPath);
+
+      // Upload the file!
+      await storageRef.putFile(file);
+
+      debugPrint("SUCCESS: Uploaded to $cloudPath");
+    } catch (e) {
+      debugPrint("Upload error: $e");
+      throw Exception("Failed to upload file to cloud: $e");
+    }
+  }
+}
+
+class ContentDownloadService {
+  /// Downloads a specific JSON file from Firebase and saves it to local app storage
+  static Future<File> downloadFileFromCloud(String fileName) async {
+    try {
+      Directory appDocDir = await getApplicationDocumentsDirectory();
+      File localFile = File('${appDocDir.path}/$fileName');
+
+      // 2. UPDATED: Path changed to data_json
+      Reference storageRef = FirebaseStorage.instance.ref().child('data_json/$fileName');
+
+      await storageRef.writeToFile(localFile);
+
+      print("SUCCESS: Downloaded $fileName from Firebase on-demand.");
+      return localFile;
+    } catch (e) {
+      print("CRITICAL: Failed to download $fileName from Firebase: $e");
+      throw Exception("Cloud connection failed. Cannot fetch mandatory file: $fileName");
+    }
   }
 }

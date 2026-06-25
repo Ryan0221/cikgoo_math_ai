@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
+
+import '../services/content_manager.dart';
 
 class ViewContentPanel extends StatefulWidget {
   const ViewContentPanel({Key? key}) : super(key: key);
@@ -30,10 +31,12 @@ class _ViewContentPanelState extends State<ViewContentPanel> {
       File localFile = File('${appDocDir.path}/subjects-chapters-subtopics.json');
 
       String jsonString;
+
+      // STRICT CLOUD MODE
       if (await localFile.exists()) {
         jsonString = await localFile.readAsString();
       } else {
-        jsonString = await rootBundle.loadString('assets/json/subjects-chapters-subtopics.json');
+        throw Exception("Master syllabus file not found. Please sync with Firebase.");
       }
 
       Map<String, dynamic> data = json.decode(jsonString);
@@ -86,13 +89,13 @@ class _ViewContentPanelState extends State<ViewContentPanel> {
       Directory appDocDir = await getApplicationDocumentsDirectory();
       File localFile = File('${appDocDir.path}/$safeFileName');
 
-      String jsonString;
-      if (await localFile.exists()) {
-        jsonString = await localFile.readAsString();
-      } else {
-        jsonString = await rootBundle.loadString('assets/json/$safeFileName');
+      // On-demand fetch if a specific chapter file is missing
+      if (!await localFile.exists()) {
+        print("$safeFileName missing. Downloading chapter data...");
+        localFile = await ContentDownloadService.downloadFileFromCloud(safeFileName);
       }
 
+      String jsonString = await localFile.readAsString();
       Map<String, dynamic> chapterData = json.decode(jsonString);
 
       // Find the specific subtopic inside the loaded chapter file

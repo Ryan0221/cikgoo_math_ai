@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/services.dart'; // REQUIRED for rootBundle
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
+import '../services/content_manager.dart';
 import 'admin_preview_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // <-- NEW: Required for updating OTA timestamps
 
 class AddContentPanel extends StatefulWidget {
   const AddContentPanel({Key? key}) : super(key: key);
@@ -17,6 +19,7 @@ class AddContentPanel extends StatefulWidget {
 class _AddContentPanelState extends State<AddContentPanel> {
   // Navigation State
   int _currentIndex = 1;
+  bool _isLaunchingPreview = false;
 
   // Dropdown States
   String? _selectedSubject;
@@ -29,6 +32,7 @@ class _AddContentPanelState extends State<AddContentPanel> {
 
   // File Attachment State
   String? _attachedFileName;
+  String? _attachedFilePath; // <-- NEW: Used to actually upload the PDF!
 
   // Sample Options for Dropdowns
   final List<String> _subtopicTypes = ['Quiz', 'Revision'];
@@ -50,10 +54,6 @@ class _AddContentPanelState extends State<AddContentPanel> {
 
   final TextEditingController _subtopicNameController = TextEditingController();
   List<QuestionItem> _questions = [QuestionItem()];
-  //final TextEditingController _optionAController = TextEditingController();
-  //final TextEditingController _optionBController = TextEditingController();
-  //final TextEditingController _optionCController = TextEditingController();
-  //final TextEditingController _optionDController = TextEditingController();
 
   int get _totalQuestions => _questions.length;
 
@@ -71,57 +71,81 @@ class _AddContentPanelState extends State<AddContentPanel> {
     for (var q in _questions) {
       q.dispose();
     }
-    //_optionAController.dispose();
-    //_optionBController.dispose();
-    //_optionCController.dispose();
-    //_optionDController.dispose();
     super.dispose();
   }
 
-  // Reads the local file and populates the initial Subject list
   Future<void> _loadMasterSyllabus() async {
     try {
+      setState(() => _isLoadingMap = true);
+
+      String fileName = 'subjects-chapters-subtopics.json';
       Directory appDocDir = await getApplicationDocumentsDirectory();
-      File localFile = File('${appDocDir.path}/subjects-chapters-subtopics.json');
+      File localFile = File('${appDocDir.path}/$fileName');
 
-      String jsonString;
+      // 1. Check if the file exists locally
+      if (!await localFile.exists()) {
+        print("File missing locally. Attempting to fetch from Firebase...");
 
-      // 1. Check if we downloaded an update from the cloud
-      if (await localFile.exists()) {
-        jsonString = await localFile.readAsString();
-      } else {
-        // 2. FALLBACK: Read the default file bundled with the app!
-        jsonString = await rootBundle.loadString('assets/json/subjects-chapters-subtopics.json');
+        // 2. TRIGGER ON-DEMAND DOWNLOAD
+        // This pauses execution until the cloud returns the latest JSON file
+        localFile = await ContentDownloadService.downloadFileFromCloud(fileName);
       }
 
-      // 3. Parse the data
+      // 3. Read the file (either existing local copy or newly downloaded copy)
+      String jsonString = await localFile.readAsString();
       Map<String, dynamic> data = json.decode(jsonString);
 
       setState(() {
         _masterSyllabusMap = data;
-
-        // Extract just the subject names for the first dropdown
         _subjects = (data['subjects'] as List)
             .map((s) => s['subject_name'].toString())
             .toList();
-
-        _isLoadingMap = false; // Stop the spinner!
+        _isLoadingMap = false;
       });
 
     } catch (e) {
       print("Error loading syllabus: $e");
+      setState(() => _isLoadingMap = false);
 
-      // 4. FAILSAFE: Stop the spinner even if the JSON is broken
-      setState(() {
-        _isLoadingMap = false;
-      });
-
-      // Optional: Show an error message to the admin
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load syllabus data: $e')),
+          SnackBar(
+            content: Text('Could not load data. Check your internet connection.'),
+            backgroundColor: Colors.redAccent,
+          ),
         );
       }
+    }
+  }
+
+  // --- NEW: Saves the Master Syllabus JSON locally ---
+  Future<void> _saveMasterSyllabus() async {
+    try {
+      Directory appDocDir = await getApplicationDocumentsDirectory();
+      File localFile = File('${appDocDir.path}/subjects-chapters-subtopics.json');
+      await localFile.writeAsString(json.encode(_masterSyllabusMap));
+      print("Master syllabus saved locally.");
+    } catch (e) {
+      print("Error saving master syllabus: $e");
+    }
+  }
+
+  // --- NEW: Creates the individual Chapter JSON file ---
+  Future<void> _createChapterFile(String chId, String chName, int chapterNum) async {
+    try {
+      Directory appDocDir = await getApplicationDocumentsDirectory();
+      File localFile = File('${appDocDir.path}/$chId.json');
+      Map<String, dynamic> newChapterJson = {
+        "ch_id": chId,
+        "ch_name": chName,
+        "chapter_num": chapterNum,
+        "total_sub": 0,
+        "subtopics": []
+      };
+      await localFile.writeAsString(json.encode(newChapterJson));
+      print("Created new chapter file: $chId.json");
+    } catch (e) {
+      print("Error creating chapter file: $e");
     }
   }
 
@@ -176,22 +200,24 @@ class _AddContentPanelState extends State<AddContentPanel> {
     }
   }
 
+// --- UPDATED: Modified signature to take onAddTap ---
   Widget _buildCustomDropdown({
     required String label,
     required Color fillColor,
     required List<String> items,
     required String? selectedValue,
     required ValueChanged<String?> onChanged,
-    bool allowAdd = false, // Set to true to show the "+ Add New" option
-    Function(String id, String name)? onAddNew, // Callback when new item is saved
+    bool allowAdd = false,
+    VoidCallback? onAddTap,
   }) {
-    // Create a local copy of items so we can safely inject the Add button
     List<String> dropdownItems = List.from(items);
     const String addOptionLabel = "+ Add New";
 
     if (allowAdd && !dropdownItems.contains(addOptionLabel)) {
       dropdownItems.add(addOptionLabel);
     }
+
+    String? safeValue = (selectedValue != null && dropdownItems.contains(selectedValue)) ? selectedValue : null;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16.0, left: 16.0, right: 16.0),
@@ -201,9 +227,8 @@ class _AddContentPanelState extends State<AddContentPanel> {
           Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           DropdownButtonFormField<String>(
-              isExpanded: true,
-            // Ensure the value exists in the list to prevent Flutter assertion errors
-            initialValue: (selectedValue != null && dropdownItems.contains(selectedValue)) ? selectedValue : null,
+            isExpanded: true,
+            value: safeValue,
             decoration: InputDecoration(
               filled: true,
               fillColor: fillColor,
@@ -215,7 +240,7 @@ class _AddContentPanelState extends State<AddContentPanel> {
             items: dropdownItems.map((String value) {
               return DropdownMenuItem<String>(
                 value: value,
-                child: SingleChildScrollView( // 2. Adds horizontal scrolling for long text!
+                child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Text(
                     value,
@@ -229,8 +254,8 @@ class _AddContentPanelState extends State<AddContentPanel> {
             }).toList(),
             onChanged: (val) {
               if (allowAdd && val == addOptionLabel) {
-                // Open Pop-up and DO NOT update the dropdown value to "+ Add New"
-                _showAddDialog(label, onAddNew);
+                // Trigger the passed-in dialog instead of updating the value
+                if (onAddTap != null) onAddTap();
               } else {
                 onChanged(val);
               }
@@ -241,8 +266,8 @@ class _AddContentPanelState extends State<AddContentPanel> {
     );
   }
 
-  // Pop-up Dialog for the "Add New" Dropdown functionality
-  void _showAddDialog(String categoryLabel, Function(String, String)? onSave) {
+// --- NEW: Add Subject Dialog ---
+  void _showAddSubjectDialog() {
     TextEditingController idController = TextEditingController();
     TextEditingController nameController = TextEditingController();
 
@@ -250,18 +275,18 @@ class _AddContentPanelState extends State<AddContentPanel> {
         context: context,
         builder: (ctx) {
           return AlertDialog(
-            title: Text("Add New $categoryLabel"),
+            title: const Text("Add New Subject Level"),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
                     controller: idController,
-                    decoration: const InputDecoration(labelText: "Unique ID")
+                    decoration: const InputDecoration(labelText: "Subject ID (e.g., spmMathF6)")
                 ),
                 const SizedBox(height: 8),
                 TextField(
                     controller: nameController,
-                    decoration: const InputDecoration(labelText: "Name")
+                    decoration: const InputDecoration(labelText: "Subject Name")
                 ),
               ],
             ),
@@ -272,10 +297,117 @@ class _AddContentPanelState extends State<AddContentPanel> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  if (onSave != null && idController.text.isNotEmpty && nameController.text.isNotEmpty) {
-                    onSave(idController.text, nameController.text);
+                  String newId = idController.text.trim();
+                  String newName = nameController.text.trim();
+                  if (newId.isNotEmpty && newName.isNotEmpty) {
+                    setState(() {
+                      // 1. Add to the JSON structure
+                      _masterSyllabusMap!['subjects'].add({
+                        "subject_id": newId,
+                        "subject_name": newName,
+                        "chapters": []
+                      });
+                      _subjects.add(newName);
+                      _selectedSubject = newName;
+                      _chapters.clear();
+                      _selectedChapter = null;
+                    });
+
+                    // 3. Save to Local File
+                    _saveMasterSyllabus();
+                    Navigator.pop(ctx);
                   }
-                  Navigator.pop(ctx);
+                },
+                child: const Text("Save"),
+              ),
+            ],
+          );
+        }
+    );
+  }
+
+  // --- NEW: Add Chapter Dialog ---
+  void _showAddChapterDialog() {
+    if (_selectedSubject == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please select a Subject Level first.")));
+      return;
+    }
+
+    TextEditingController numController = TextEditingController();
+    TextEditingController nameController = TextEditingController();
+
+    showDialog(
+        context: context,
+        builder: (ctx) {
+          return AlertDialog(
+            title: const Text("Add New Chapter"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                    controller: numController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: "Chapter Number (e.g., 5)")
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                    controller: nameController,
+                    decoration: const InputDecoration(labelText: "Chapter Name")
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text("Cancel")
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  int? chNum = int.tryParse(numController.text.trim());
+                  String chName = nameController.text.trim();
+
+                  if (chNum != null && chName.isNotEmpty) {
+                    // 1. Find subject and generate IDs
+                    var subjectData = (_masterSyllabusMap!['subjects'] as List).firstWhere((s) => s['subject_name'] == _selectedSubject);
+                    String subjId = subjectData['subject_id'];
+
+                    String newChId = "${subjId}_c$chNum";
+
+                    // NEW: Stop hardcoding 'assets/json/' for new chapters!
+                    // Just save the pure filename so it relies purely on the cloud.
+                    String newChFileLoc = "$newChId.json";
+
+                    setState(() {
+                      // Support both 'chapters' or 'sequences' depending on existing JSON schema
+                      if (subjectData['chapters'] == null && subjectData['sequences'] == null) {
+                        subjectData['chapters'] = [];
+                      }
+                      var chaptersList = subjectData['chapters'] ?? subjectData['sequences'];
+
+                      // 2. Add to the Master JSON structure
+                      chaptersList.add({
+                        "chapter_num": chNum,
+                        "ch_id": newChId,
+                        "ch_name": chName,
+                        "ch_file_location": newChFileLoc,
+                        "subtopics": []
+                      });
+
+                      // 3. Update UI Dropdowns
+                      _chapters.add(chName);
+                      _selectedChapter = chName;
+                      _subtopicOrderList = [];
+                      _prefilledOrderNumber = 1;
+                    });
+
+                    // 4. Save Master File AND generate the new subtopic JSON file!
+                    _saveMasterSyllabus();
+                    _createChapterFile(newChId, chName, chNum);
+
+                    Navigator.pop(ctx);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please enter a valid Chapter Number and Name.")));
+                  }
                 },
                 child: const Text("Save"),
               ),
@@ -539,6 +671,7 @@ class _AddContentPanelState extends State<AddContentPanel> {
                 setState(() {
                   // Save the name of the picked file
                   _attachedFileName = result.files.single.name;
+                  _attachedFilePath = result.files.single.path;
                 });
               }
             },
@@ -663,15 +796,7 @@ class _AddContentPanelState extends State<AddContentPanel> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "- Add a new set of quiz/revision here",
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black54),
-          ),
-          const Text(
-            "- Proceed to edit panel to edit/delete the existing question",
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black54),
-          ),
-          const SizedBox(height: 24),
+
 
           // SINGLE COLUMN LAYOUT
           Expanded(
@@ -679,40 +804,41 @@ class _AddContentPanelState extends State<AddContentPanel> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // STANDARD DROPDOWN: Only extracts the list
+                  const Text(
+                    "- Add a new set of quiz/revision here",
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black54),
+                  ),
+                  const Text(
+                    "- Proceed to edit panel to edit/delete the existing question",
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black54),
+                  ),
+                  const SizedBox(height: 24),
+                  // --- TRIGGER UPDATED TO USE onAddTap ---
                   _buildCustomDropdown(
                     label: "Subject Level",
                     fillColor: Colors.grey[350]!,
                     items: _subjects,
                     selectedValue: _selectedSubject,
+                    allowAdd: true,
+                    onAddTap: _showAddSubjectDialog, // Fires our specific new dialog
                     onChanged: (val) {
                       setState(() => _selectedSubject = val);
-                      _updateChaptersList(val!); // TRIGGER CASCADE TO CHAPTERS
+                      _updateChaptersList(val!);
                     },
-                    allowAdd: true,
                   ),
 
-                  // ADD-ENABLED DROPDOWN: Shows "+ Add New"
+                  // --- TRIGGER UPDATED TO USE onAddTap ---
                   _buildCustomDropdown(
-                      label: "Chapter Name",
-                      fillColor: Colors.grey[350]!,
-                      items: _chapters,
-                      selectedValue: _selectedChapter,
-                      allowAdd: true, // Turns on the pop-up feature
-                      onChanged: (val) {
-                        setState(() => _selectedChapter = val);
-                        _updateSubtopicOrder(val!); // TRIGGER CASCADE TO SUBTOPIC ORDER
-                      },
-                      onAddNew: (id, name) {
-                        setState(() {
-                          _chapters.add(name);
-                          _selectedChapter = name;
-
-                          // If it's a brand new chapter, the first subtopic order is 1
-                          _subtopicOrderList = [];
-                          _prefilledOrderNumber = 1;
-                        });
-                      }
+                    label: "Chapter Name",
+                    fillColor: Colors.grey[350]!,
+                    items: _chapters,
+                    selectedValue: _selectedChapter,
+                    allowAdd: true,
+                    onAddTap: _showAddChapterDialog, // Fires our specific new dialog
+                    onChanged: (val) {
+                      setState(() => _selectedChapter = val);
+                      _updateSubtopicOrder(val!);
+                    },
                   ),
 
                   _buildStandardTextField("Subtopic Name", Colors.grey[350]!, controller: _subtopicNameController),
@@ -867,37 +993,34 @@ class _AddContentPanelState extends State<AddContentPanel> {
             ),
           ),
 
-          // BOTTOM ROW: Navigation & Action Buttons
+          // BOTTOM ROW
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // 1. LEFT SIDE: Demonstrate Button
               Padding(
                 padding: const EdgeInsets.only(top: 16.0),
                 child: Tooltip(
                   message: "Demonstrate the question before upload",
                   textStyle: const TextStyle(color: Colors.white, fontSize: 14),
-                  decoration: BoxDecoration(
-                    color: Colors.black87,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                  decoration: BoxDecoration(color: Colors.black87, borderRadius: BorderRadius.circular(8)),
                   child: SizedBox(
-                    width: 200,
-                    height: 55,
+                    width: 200, height: 55,
                     child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blueAccent, // Changed to Blue for "Preview" vibe
-                      ),
-                      onPressed: () async {
-                        // 1. Create a temporary list to hold the formatted preview questions
-                        List<Map<String, dynamic>> previewQuestions = [];
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.blueAccent),
+                      onPressed: _isLaunchingPreview ? null : () async {
 
-                        // 2. Loop through your drafted questions and format them like your JSON!
+                        // Safety Checks
+                        if (_selectedSubject == null || _selectedChapter == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a Subject and Chapter first.')));
+                          return;
+                        }
+
+                        setState(() => _isLaunchingPreview = true);
+
+                        List<Map<String, dynamic>> previewQuestions = [];
                         for (int i = 0; i < _questions.length; i++) {
                           var q = _questions[i];
-
-                          // Determine the correct answer ID ('Option A' -> 'A', 'True' -> 'True')
-                          String correctAnsId = 'A'; // Fallback
+                          String correctAnsId = 'A';
                           if (q.answer != null) {
                             if (q.answer!.startsWith('Option ')) {
                               correctAnsId = q.answer!.split(' ')[1];
@@ -906,7 +1029,6 @@ class _AddContentPanelState extends State<AddContentPanel> {
                             }
                           }
 
-                          // Build the options list based on question type
                           List<Map<String, dynamic>> optionsList = [];
                           if (q.questionType == 'True/False Question') {
                             optionsList = [
@@ -922,7 +1044,6 @@ class _AddContentPanelState extends State<AddContentPanel> {
                             ];
                           }
 
-                          // Add the compiled question to our preview list
                           previewQuestions.add({
                             "q_id": "preview_q_${i + 1}",
                             "q_order": i + 1,
@@ -938,46 +1059,131 @@ class _AddContentPanelState extends State<AddContentPanel> {
                           });
                         }
 
-                        // 3. Launch the Quiz Screen with the drafted questions!
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => AdminPreviewScreen(questions: previewQuestions),
-                          ),
-                        );
-                        // Launch the preview screen AND wait for a response back
                         final result = await Navigator.push(
                           context,
-                          MaterialPageRoute(
-                            builder: (_) => AdminPreviewScreen(questions: previewQuestions),
-                          ),
+                          MaterialPageRoute(builder: (_) => AdminPreviewScreen(questions: previewQuestions)),
                         );
 
-                        // Handle the actions requested by the Preview Screen!
+                        if (!mounted) return;
+                        setState(() => _isLaunchingPreview = false);
+
                         if (result != null && result is Map) {
                           if (result['action'] == 'edit') {
-                            // The admin clicked the Edit button. Jump to that exact question!
-                            setState(() {
-                              // We add 1 because _currentIndex is 1-based, but lists are 0-based
-                              _currentIndex = (result['index'] as int) + 1;
-                            });
-
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Jumped to Question $_currentIndex for editing.')),
-                            );
-
+                            setState(() => _currentIndex = (result['index'] as int) + 1);
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Jumped to Question $_currentIndex for editing.')));
                           } else if (result['action'] == 'upload') {
-                            // The admin clicked "Complete & Upload" on the final checkmark!
 
-                            // TODO: Call your Firebase Upload Function here!
-                            // Example: await FirestoreService().uploadSubtopic(...);
-
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Uploading to database...'),
-                                backgroundColor: Colors.green,
-                              ),
+                            // =========================================================
+                            // THE MASTER UPLOAD SEQUENCE
+                            // =========================================================
+                            showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (_) => const Center(child: CircularProgressIndicator()),
                             );
+
+                            try {
+                              // 1. Get IDs
+                              var subjectData = (_masterSyllabusMap!['subjects'] as List).firstWhere((s) => s['subject_name'] == _selectedSubject);
+                              var chaptersList = subjectData['chapters'] ?? subjectData['sequences'];
+                              var chapterData = (chaptersList as List).firstWhere((c) => c['ch_name'] == _selectedChapter);
+
+                              String chId = chapterData['ch_id'];
+                              String subId = "$chId.$_prefilledOrderNumber";
+
+                              // 2. Add to Master Syllabus (NO TIMESTAMP)
+                              Map<String, dynamic> masterSubtopicEntry = {
+                                "sub_id": subId,
+                                "sub_name": _subtopicNameController.text.trim().isEmpty ? "New Subtopic" : _subtopicNameController.text.trim(),
+                                "type": _selectedSubtopicType?.toLowerCase() ?? 'quiz',
+                                "order": _prefilledOrderNumber
+                              };
+
+                              List<dynamic> masterSubList = chapterData['subtopics'] ?? [];
+                              masterSubList.removeWhere((s) => s['sub_id'] == subId);
+                              masterSubList.add(masterSubtopicEntry);
+                              masterSubList.sort((a, b) => (a['order'] as int).compareTo(b['order'] as int));
+                              chapterData['subtopics'] = masterSubList;
+
+                              await _saveMasterSyllabus(); // Save to local sandbox
+
+                              // 3. Read specific Chapter JSON
+                              Directory appDocDir = await getApplicationDocumentsDirectory();
+                              File chapterFile = File('${appDocDir.path}/$chId.json');
+                              Map<String, dynamic> chapterJson;
+
+                              if (await chapterFile.exists()) {
+                                chapterJson = json.decode(await chapterFile.readAsString());
+                              } else {
+                                chapterJson = {
+                                  "ch_id": chId,
+                                  "ch_name": _selectedChapter,
+                                  "chapter_num": chapterData['chapter_num'],
+                                  "total_sub": 0,
+                                  "subtopics": []
+                                };
+                              }
+
+                              // 4. Inject Full Data into Chapter JSON (NO TIMESTAMP)
+                              Map<String, dynamic> fullSubtopicEntry = {
+                                "sub_id": subId,
+                                "sub_name": masterSubtopicEntry['sub_name'],
+                                "type": masterSubtopicEntry['type'],
+                                "order": masterSubtopicEntry['order'],
+                                "notes_location": _attachedFileName != null ? "data_pdf/$_attachedFileName" : null,
+                                "author_id": FirebaseAuth.instance.currentUser?.uid ?? "admin",
+                                "is_published": true,
+                                "created_at": DateTime.now().toIso8601String(), // Optional: Keeps track of original creation
+                                "total_q": previewQuestions.length,
+                                "q": previewQuestions
+                              };
+
+                              List<dynamic> chapterSubList = chapterJson['subtopics'] ?? [];
+                              chapterSubList.removeWhere((s) => s['sub_id'] == subId);
+                              chapterSubList.add(fullSubtopicEntry);
+                              chapterSubList.sort((a, b) => (a['order'] as int).compareTo(b['order'] as int));
+
+                              chapterJson['subtopics'] = chapterSubList;
+                              chapterJson['total_sub'] = chapterSubList.length;
+
+                              await chapterFile.writeAsString(json.encode(chapterJson)); // Save locally
+
+                              // 5. FIREBASE STORAGE UPLOADS (Automatically replaces existing files)
+                              File masterFile = File('${appDocDir.path}/subjects-chapters-subtopics.json');
+                              // UPDATED PATHS: data_json and data_pdf
+                              await ContentManager.uploadFileToCloud(masterFile, 'data_json/subjects-chapters-subtopics.json');
+                              await ContentManager.uploadFileToCloud(chapterFile, 'data_json/$chId.json');
+
+                              if (_attachedFilePath != null && _attachedFileName != null) {
+                                File pdfFile = File(_attachedFilePath!);
+                                await ContentManager.uploadFileToCloud(pdfFile, 'data_pdf/$_attachedFileName');
+                              }
+
+                              // 6. NEW: UPDATE FIRESTORE OTA TIMESTAMPS
+                              // By using millisecondsSinceEpoch, it acts as an incrementing version number!
+                              int updateTimestamp = DateTime.now().millisecondsSinceEpoch;
+
+                              await FirebaseFirestore.instance.collection('app_config').doc('content_updates').set({
+                                'subjects-chapters-subtopics.json': updateTimestamp,
+                                '$chId.json': updateTimestamp,
+                              }, SetOptions(merge: true)); // merge: true ensures we don't delete other file trackers
+
+                              if (mounted) Navigator.pop(context); // Close spinner
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Upload Complete! All users will receive this update.'),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
+
+                            } catch (e) {
+                              if (mounted) Navigator.pop(context);
+                              print("Upload sequence error: $e");
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Upload failed: $e'), backgroundColor: Colors.red),
+                              );
+                            }
                           }
                         }
                       },
