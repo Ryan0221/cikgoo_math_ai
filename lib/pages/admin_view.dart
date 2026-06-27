@@ -297,8 +297,8 @@ class _ViewContentPanelState extends State<ViewContentPanel> {
                 ? const Center(child: Text("No chapters found."))
                 : ListView.builder(
               itemCount: _displayedChapters.length,
-              itemBuilder: (context, index) {
-                final chapter = _displayedChapters[index];
+              itemBuilder: (context, chapterIndex) {
+                final chapter = _displayedChapters[chapterIndex];
                 final subtopicsList = chapter['subtopics'] as List? ?? [];
 
                 // 1. OUTER GREY CONTAINER (THE CHAPTER)
@@ -313,7 +313,7 @@ class _ViewContentPanelState extends State<ViewContentPanel> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        chapter['ch_name'] ?? 'Unknown Chapter',
+                        "Chapter ${chapter['chapter_num'] ?? (chapterIndex + 1)}: ${chapter['ch_name'] ?? 'Unknown Chapter'}",
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 18,

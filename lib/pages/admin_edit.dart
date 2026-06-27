@@ -421,7 +421,8 @@ class _EditQuestionsSubpageState extends State<EditQuestionsSubpage> {
       // 5. Update OTA Timestamp
       int updateTimestamp = DateTime.now().millisecondsSinceEpoch;
       await FirebaseFirestore.instance.collection('app_config').doc('content_updates').set({
-        fileName: updateTimestamp,
+        // This tells Firebase to stamp it with the exact server time
+        'fileName': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
       if (mounted) {
