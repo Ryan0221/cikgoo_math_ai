@@ -22,10 +22,8 @@ class _EditContentPanelState extends State<EditContentPanel> {
   List<String> _subjects = [];
   String? _selectedSubject;
 
-  List<dynamic> _chapters = [];
-  Map<String, dynamic>? _selectedChapter;
-
-  List<dynamic> _subtopics = [];
+  // Holds all chapters for the selected subject, and their nested subtopics
+  List<Map<String, dynamic>> _chapters = [];
 
   @override
   void initState() {
@@ -80,24 +78,18 @@ class _EditContentPanelState extends State<EditContentPanel> {
 
     if (subjectData != null) {
       setState(() {
-        _chapters = subjectData['sequences'] ?? subjectData['chapters'] ?? [];
-        if (_chapters.isNotEmpty) {
-          _selectedChapter = _chapters.first;
-          _updateSubtopicsList(_selectedChapter!);
-        } else {
-          _selectedChapter = null;
-          _subtopics = [];
-        }
+        var sourceChapters = subjectData['sequences'] ?? subjectData['chapters'] ?? [];
+
+        // Create a deep copy of the chapters so we can edit/reorder them locally before saving
+        _chapters = List.generate(sourceChapters.length, (index) {
+          var ch = Map<String, dynamic>.from(sourceChapters[index]);
+          ch['subtopics'] = List<Map<String, dynamic>>.from(ch['subtopics'] ?? []);
+          // Sort subtopics by their order field
+          (ch['subtopics'] as List).sort((a, b) => (a['order'] as int).compareTo(b['order'] as int));
+          return ch;
+        });
       });
     }
-  }
-
-  void _updateSubtopicsList(Map<String, dynamic> chapter) {
-    setState(() {
-      _subtopics = List.from(chapter['subtopics'] ?? []);
-      // Sort by order just to be safe
-      _subtopics.sort((a, b) => (a['order'] as int).compareTo(b['order'] as int));
-    });
   }
 
   // Saves Subtopic order/deletions back to the Master file and Firebase
@@ -109,17 +101,23 @@ class _EditContentPanelState extends State<EditContentPanel> {
     );
 
     try {
-      // 1. Reassign 'order' numbers based on the new list positions
-      for (int i = 0; i < _subtopics.length; i++) {
-        _subtopics[i]['order'] = i + 1;
+      // 1. Reassign 'order' numbers based on the new list positions for ALL chapters
+      for (var chapter in _chapters) {
+        var subtopics = chapter['subtopics'] as List;
+        for (int i = 0; i < subtopics.length; i++) {
+          subtopics[i]['order'] = i + 1;
+        }
       }
 
       // 2. Update the master map
       var subjectData = (_masterSyllabusMap!['subjects'] as List).firstWhere((s) => s['subject_name'] == _selectedSubject);
-      var chaptersList = subjectData['sequences'] ?? subjectData['chapters'];
-      var chapterData = (chaptersList as List).firstWhere((c) => c['ch_id'] == _selectedChapter!['ch_id']);
 
-      chapterData['subtopics'] = _subtopics;
+      // Update the specific subject's chapters list with our modified one
+      if (subjectData.containsKey('sequences')) {
+        subjectData['sequences'] = _chapters;
+      } else {
+        subjectData['chapters'] = _chapters;
+      }
 
       // 3. Save Locally
       String fileName = 'subjects-chapters-subtopics.json';
@@ -139,7 +137,7 @@ class _EditContentPanelState extends State<EditContentPanel> {
       if (mounted) Navigator.pop(context); // Close spinner
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Subtopic structure saved successfully!'), backgroundColor: Colors.green),
+        const SnackBar(content: Text('Syllabus layout saved successfully!'), backgroundColor: Colors.green),
       );
     } catch (e) {
       if (mounted) Navigator.pop(context);
@@ -156,12 +154,12 @@ class _EditContentPanelState extends State<EditContentPanel> {
     }
 
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.fromLTRB(16.0,0,16,16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // INSTRUCTIONS
-          const Text("• Press & Drag the menu button to reorder the subtopics\n• Slide to delete the subtopic\n• Click the subtopic to edit its questions",
+          const Text("• Press & Drag the menu button to reorder the subtopics\n• Slide to delete the subtopic",
               style: TextStyle(color: Colors.black54, fontWeight: FontWeight.w500, fontSize: 13, height: 1.5)
           ),
           const SizedBox(height: 16),
@@ -191,114 +189,119 @@ class _EditContentPanelState extends State<EditContentPanel> {
           ),
           const SizedBox(height: 12),
 
-          if (_chapters.isNotEmpty)
-            Row(
-              children: [
-                const Text("Chapter:  ", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(12)),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<Map<String, dynamic>>(
-                        isExpanded: true,
-                        value: _selectedChapter,
-                        items: _chapters.map((c) => DropdownMenuItem<Map<String, dynamic>>(
-                            value: c,
-                            child: Text(c['ch_name'], maxLines: 1, overflow: TextOverflow.ellipsis)
-                        )).toList(),
-                        onChanged: (val) {
-                          setState(() => _selectedChapter = val);
-                          _updateSubtopicsList(val!);
-                        },
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          const SizedBox(height: 16),
-
-          // REORDERABLE SUBTOPICS LIST
+          // SCROLLABLE CHAPTERS LIST
           Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(20),
-              ),
-              padding: const EdgeInsets.all(12),
-              child: _subtopics.isEmpty
-                  ? const Center(child: Text("No subtopics found."))
-                  : ReorderableListView.builder(
-                onReorder: (oldIndex, newIndex) {
-                  setState(() {
-                    if (newIndex > oldIndex) newIndex -= 1;
-                    final item = _subtopics.removeAt(oldIndex);
-                    _subtopics.insert(newIndex, item);
-                  });
-                },
-                itemCount: _subtopics.length,
-                itemBuilder: (context, index) {
-                  final sub = _subtopics[index];
-                  final uniqueId = sub['sub_id'] ?? 'sub_$index';
+            child: _chapters.isEmpty
+                ? const Center(child: Text("No chapters found."))
+                : ListView.builder(
+              itemCount: _chapters.length,
+              itemBuilder: (context, chapterIndex) {
+                final chapter = _chapters[chapterIndex];
+                final subtopics = chapter['subtopics'] as List<dynamic>;
 
-                  return Dismissible(
-                    key: ValueKey(uniqueId),
-                    direction: DismissDirection.endToStart,
-                    background: Container(
-                      alignment: Alignment.centerRight,
-                      padding: const EdgeInsets.only(right: 20),
-                      decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(16)),
-                      child: const Icon(Icons.delete, color: Colors.white, size: 30),
-                    ),
-                    onDismissed: (direction) {
-                      setState(() {
-                        _subtopics.removeAt(index);
-                      });
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
-                      child: InkWell(
-                        onTap: () {
-                          // OPEN THE SUBPAGE
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) => EditQuestionsSubpage(
-                                      chapterData: _selectedChapter!,
-                                      subtopicData: sub
-                                  )
-                              )
-                          );
-                        },
-                        child: Row(
-                          children: [
-                            const Icon(Icons.menu, color: Colors.black87, size: 30), // Drag handle
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                      sub['sub_name'] ?? 'Unknown Subtopic',
-                                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text("• Type: ${sub['type'] ?? 'N/A'}", style: TextStyle(color: Colors.grey[700])),
-                                  const SizedBox(height: 2),
-                                  const Text("• Click to edit questions", style: TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.bold)),
-                                ],
-                              ),
-                            ),
-                          ],
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 24),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // CHAPTER HEADER
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                        child: Text(
+                          "Chapter ${chapter['chapter_num'] ?? (chapterIndex + 1)}: ${chapter['ch_name'] ?? 'Unknown'}",
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
                         ),
                       ),
-                    ),
-                  );
-                },
-              ),
+
+                      // SUBTOPICS REORDERABLE LIST
+                      subtopics.isEmpty
+                          ? const Padding(
+                        padding: EdgeInsets.all(20.0),
+                        child: Text("No subtopics in this chapter.", style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey)),
+                      )
+                          : ReorderableListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(), // Important! Lets the outer ListView handle scrolling
+                        onReorder: (oldIndex, newIndex) {
+                          setState(() {
+                            if (newIndex > oldIndex) newIndex -= 1;
+                            final item = subtopics.removeAt(oldIndex);
+                            subtopics.insert(newIndex, item);
+                          });
+                        },
+                        itemCount: subtopics.length,
+                        itemBuilder: (context, subIndex) {
+                          final sub = subtopics[subIndex];
+                          final uniqueId = sub['sub_id'] ?? '${chapter['ch_id']}_sub_$subIndex';
+
+                          return Dismissible(
+                            key: ValueKey(uniqueId),
+                            direction: DismissDirection.endToStart,
+                            background: Container(
+                              alignment: Alignment.centerRight,
+                              padding: const EdgeInsets.only(right: 20),
+                              margin: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                              decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(16)),
+                              child: const Icon(Icons.delete, color: Colors.white, size: 30),
+                            ),
+                            onDismissed: (direction) {
+                              setState(() {
+                                subtopics.removeAt(subIndex);
+                              });
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+                              child: InkWell(
+                                onTap: () {
+                                  // OPEN THE SUBPAGE TO EDIT QUESTIONS
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (_) => EditQuestionsSubpage(
+                                              chapterData: chapter,
+                                              subtopicData: sub
+                                          )
+                                      )
+                                  );
+                                },
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.menu, color: Colors.black87, size: 30), // Drag handle
+                                    const SizedBox(width: 16),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                              sub['sub_name'] ?? 'Unknown Subtopic',
+                                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Text("• Type: ${sub['type'] ?? 'N/A'}", style: TextStyle(color: Colors.grey[700], fontSize: 13)),
+                                          const SizedBox(height: 2),
+                                          Text("• Total No. of Question: ${sub['total_q'] ?? 'N/A'}", style: TextStyle(color: Colors.grey[700], fontSize: 13)),
+                                          const SizedBox(height: 2),
+                                          const Text("• Click to expand this subtopic", style: TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.bold, fontSize: 13)),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
           ),
 
@@ -458,7 +461,7 @@ class _EditQuestionsSubpageState extends State<EditQuestionsSubpage> {
               children: [
                 Text(widget.subtopicData['sub_name'] ?? 'Questions', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
-                const Text("• Press & Drag the number to reorder of the question\n• Slide to delete the question\n• Click edit button to edit the question",
+                const Text("• Press & Drag the number to reorder of the question\n• Slide to delete the question",
                     style: TextStyle(color: Colors.black54, fontWeight: FontWeight.w500, fontSize: 13, height: 1.5)
                 ),
               ],

@@ -6,6 +6,7 @@ import 'package:cikgoo_math_ai/pages/notes.dart';
 import 'package:cikgoo_math_ai/pages/profile.dart';
 import 'package:cikgoo_math_ai/pages/bookmark.dart';
 
+import '../services/theme_manager.dart';
 import 'home.dart';
 
 class FirstPage extends StatefulWidget {
@@ -33,8 +34,14 @@ class _FirstPageState extends State<FirstPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
+    // Listen to theme changes to rebuild the scaffold and nav bar
+    return ValueListenableBuilder<String>(
+        valueListenable: appThemeNotifier,
+        builder: (context, themeStr, child) {
+          bool isLight = themeStr == 'light';
+
+          return Scaffold(
+            backgroundColor: Colors.transparent,
       // extendBody allows the background to flow under the nav bar to show the blur effect
       extendBody: true,
 
@@ -62,8 +69,8 @@ class _FirstPageState extends State<FirstPage> {
 
           return false; // Return false so the scroll events continue to function normally
         },
-        // Wrap the active page in the StarryBackground
-        child: StarryBackground(
+        // Wrap the active page in the Dynamic Background
+        child: DynamicBackground(
           child: _pages[_selectedIndex],
         ),
       ),
@@ -92,10 +99,10 @@ class _FirstPageState extends State<FirstPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _buildNavItem(Icons.home_outlined, 'Home', 0),
-                    _buildNavItem(Icons.bookmark_border, 'Bookmark', 1),
-                    _buildNavItem(Icons.menu_book_rounded, 'Notes', 2),
-                    _buildNavItem(Icons.person_outline, 'Profile', 3),
+                    _buildNavItem(Icons.home_outlined, 'Home', 0, isLight),
+                    _buildNavItem(Icons.bookmark_border, 'Bookmark', 1, isLight),
+                    _buildNavItem(Icons.menu_book_rounded, 'Notes', 2, isLight),
+                    _buildNavItem(Icons.person_outline, 'Profile', 3, isLight),
                   ],
                 ),
               ),
@@ -103,12 +110,20 @@ class _FirstPageState extends State<FirstPage> {
           ),
         ),
       ),
+          );
+        }
     );
   }
 
   // Custom widget to match the Apple "dark pill" style from the generated image
-  Widget _buildNavItem(IconData icon, String label, int index) {
+  Widget _buildNavItem(IconData icon, String label, int index, bool isLight) {
     bool isSelected = _selectedIndex == index;
+
+    // Theme-based colors for the pill
+    Color activeBgColor = isLight ? Colors.blueAccent.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.6);
+    Color inactiveBgColor = isLight ? Colors.transparent : Colors.black.withValues(alpha: 0.3);
+    Color activeIconColor = isLight ? Colors.blue[800]! : Colors.white;
+    Color inactiveIconColor = isLight ? Colors.grey[600]! : Colors.white.withValues(alpha: 0.5);
 
     return GestureDetector(
       onTap: () => _navigateBottomBar(index),
@@ -170,41 +185,32 @@ class _FirstPageState extends State<FirstPage> {
   }
 }
 
-// --- MOVED STARRY BACKGROUND FEATURE CLASSES ---
-
+// --- DYNAMIC BACKGROUND CLASSES ---
 class Star {
-  double x;
-  double y;
-  double maxOpacity;
-  double currentOpacity = 0.0;
-  int state = 0; // 0: completely dark, 1: brightening up, 2: dimming down
-
+  double x, y, maxOpacity, currentOpacity = 0.0;
+  int state = 0;
   Star({required this.x, required this.y, required this.maxOpacity});
 }
 
-class StarryBackground extends StatefulWidget {
+class DynamicBackground extends StatefulWidget {
   final Widget child;
-
-  const StarryBackground({super.key, required this.child});
+  const DynamicBackground({super.key, required this.child});
 
   @override
-  State<StarryBackground> createState() => _StarryBackgroundState();
+  State<DynamicBackground> createState() => _DynamicBackgroundState();
 }
 
-class _StarryBackgroundState extends State<StarryBackground> with SingleTickerProviderStateMixin {
+class _DynamicBackgroundState extends State<DynamicBackground> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   final List<Star> _stars = [];
-  final int _starCount = 100; // Number of stars
+  final int _starCount = 100;
   final Random _random = Random();
 
   @override
   void initState() {
     super.initState();
-    // Constantly ticking animation controller to update the star brightness
     _controller = AnimationController(vsync: this, duration: const Duration(seconds: 1))
-      ..addListener(() {
-        _updateStars();
-      })
+      ..addListener(() => _updateStars())
       ..repeat();
   }
 
@@ -213,47 +219,35 @@ class _StarryBackgroundState extends State<StarryBackground> with SingleTickerPr
     super.didChangeDependencies();
     if (_stars.isEmpty) {
       final size = MediaQuery.of(context).size;
-      // Initialize stars spread randomly across the screen
       for (int i = 0; i < _starCount; i++) {
         _stars.add(Star(
           x: _random.nextDouble() * size.width,
           y: _random.nextDouble() * size.height,
-          maxOpacity: 0.3 + _random.nextDouble() * 0.7, // Random maximum brightness
+          maxOpacity: 0.3 + _random.nextDouble() * 0.7,
         ));
       }
     }
   }
 
   void _updateStars() {
+    // Only update logic if starry theme is active
+    if (appThemeNotifier.value != 'dark_starry') return;
+
     bool needsRepaint = false;
     for (var star in _stars) {
       if (star.state == 0) {
-        // Star is dark: Very low probability it decides to start shining on this frame
-        if (_random.nextDouble() < 0.01) {
-          star.state = 1;
-          needsRepaint = true;
-        }
+        if (_random.nextDouble() < 0.01) { star.state = 1; needsRepaint = true; }
       } else if (star.state == 1) {
-        // Brightening up
         star.currentOpacity += 0.015;
-        if (star.currentOpacity >= star.maxOpacity) {
-          star.state = 2; // Reached peak, start dimming
-        }
+        if (star.currentOpacity >= star.maxOpacity) star.state = 2;
         needsRepaint = true;
       } else if (star.state == 2) {
-        // Dimming down
         star.currentOpacity -= 0.010;
-        if (star.currentOpacity <= 0) {
-          star.currentOpacity = 0;
-          star.state = 0; // Back to dark
-        }
+        if (star.currentOpacity <= 0) { star.currentOpacity = 0; star.state = 0; }
         needsRepaint = true;
       }
     }
-    // Only rebuild if a star is actively shining
-    if (needsRepaint) {
-      setState(() {});
-    }
+    if (needsRepaint) setState(() {});
   }
 
   @override
@@ -264,29 +258,36 @@ class _StarryBackgroundState extends State<StarryBackground> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        // Base dark background (Using your beautiful gradient)
-        Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Color(0xFF0F172A),
-                Color(0xFF000000),
-              ], // Soft pastel gradient
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-        ),
-        // Draws the animated stars
-        CustomPaint(
-          size: Size.infinite,
-          painter: StarPainter(_stars),
-        ),
-        // Your main interactive UI overlaid on top
-        widget.child,
-      ],
+    return ValueListenableBuilder<String>(
+        valueListenable: appThemeNotifier,
+        builder: (context, themeStr, child) {
+          bool isLight = themeStr == 'light';
+          bool isStarry = themeStr == 'dark_starry';
+
+          return Stack(
+            children: [
+              // 1. Base Background
+              Container(
+                decoration: BoxDecoration(
+                  color: isLight ? const Color(0xFFF0F4F8) : null,
+                  gradient: isLight ? null : const LinearGradient(
+                    colors: [Color(0xFF0F172A), Color(0xFF000000)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+              ),
+              // 2. Stars (Only if dark_starry)
+              if (isStarry)
+                CustomPaint(
+                  size: Size.infinite,
+                  painter: StarPainter(_stars),
+                ),
+              // 3. Page Content
+              widget.child,
+            ],
+          );
+        }
     );
   }
 }
@@ -301,7 +302,6 @@ class StarPainter extends CustomPainter {
     for (var star in stars) {
       if (star.currentOpacity > 0) {
         paint.color = Colors.white.withValues(alpha: star.currentOpacity);
-        // Drawing a small star.
         canvas.drawCircle(Offset(star.x, star.y), 1.5, paint);
       }
     }

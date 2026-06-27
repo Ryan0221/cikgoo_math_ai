@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../services/theme_manager.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -152,28 +153,60 @@ class _ProfileState extends State<Profile> {
     );
   }
 
+  // --- NEW: Theme Selection Dialog ---
+  void _showThemeDialog(BuildContext context, bool isDark) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            backgroundColor: isDark ? const Color(0xFF1A2A49) : Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            title: Text("Select Theme", style: TextStyle(color: isDark ? Colors.white : Colors.black87)),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildThemeTile("Light Mode", Icons.light_mode, 'light', isDark),
+                _buildThemeTile("Dark Mode (Pure)", Icons.dark_mode, 'dark_none', isDark),
+                _buildThemeTile("Dark Mode (Starry)", Icons.auto_awesome, 'dark_starry', isDark),
+              ],
+            ),
+          );
+        }
+    );
+  }
+
+  Widget _buildThemeTile(String title, IconData icon, String themeValue, bool isDark) {
+    Color textColor = isDark ? Colors.white : Colors.black87;
+    bool isSelected = appThemeNotifier.value == themeValue;
+
+    return ListTile(
+      leading: Icon(icon, color: isSelected ? Colors.blueAccent : textColor),
+      title: Text(title, style: TextStyle(color: isSelected ? Colors.blueAccent : textColor, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
+      trailing: isSelected ? const Icon(Icons.check, color: Colors.blueAccent) : null,
+      onTap: () {
+        appThemeNotifier.value = themeValue;
+        Navigator.pop(context);
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final User? user = FirebaseAuth.instance.currentUser;
 
-    return Scaffold(
-      body: Stack(
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Color(0xFF223257),
-                  Color(0xFF1A2A49),
-                  Color(0xFF0E1A2E),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-          ),
+    // Listen to theme to adjust text colors
+    return ValueListenableBuilder<String>(
+        valueListenable: appThemeNotifier,
+        builder: (context, themeStr, child) {
+          bool isDark = themeStr.startsWith('dark');
+          Color textColor = isDark ? Colors.white : Colors.black87;
+          Color subTextColor = isDark ? Colors.white.withValues(alpha: 0.6) : Colors.black54;
 
-          SafeArea(
+          return Scaffold(
+            // 1. MAKE SCAFFOLD TRANSPARENT SO THE GLOBAL BACKGROUND SHOWS THROUGH!
+            backgroundColor: Colors.transparent,
+
+          body: SafeArea(
             child: Column(
               children: [
                 Align(
@@ -231,8 +264,19 @@ class _ProfileState extends State<Profile> {
                               _signOut(context);
                             }
                           },
+
                           itemBuilder: (BuildContext context) {
                             return [
+                              PopupMenuItem<String>(
+                                value: 'Change Theme',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.palette, color: isDark ? Colors.white70 : Colors.black54, size: 22),
+                                    const SizedBox(width: 22),
+                                    Text('Change Theme', style: TextStyle(color: textColor, fontWeight: FontWeight.w500)),
+                                  ],
+                                ),
+                              ),
                               const PopupMenuItem<String>(
                                 value: 'Switch Language',
                                 child: Row(
@@ -388,8 +432,8 @@ class _ProfileState extends State<Profile> {
               ],
             ),
           ),
-        ],
-      ),
+          );
+        }
     );
   }
 }
