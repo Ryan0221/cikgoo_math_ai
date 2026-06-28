@@ -10,40 +10,55 @@ import 'package:flutter/services.dart';
 class ContentManager {
 
   static Future<void> checkForUpdates() async {
-    final prefs = await SharedPreferences.getInstance();
+    try { // <-- NEW: The ultimate safety net
+      final prefs = await SharedPreferences.getInstance();
 
-    // 1. Get the local versions map from the phone (saved as a JSON string)
-    String localVersionsString = prefs.getString('local_file_versions') ?? '{}';
-    Map<String, dynamic> localVersions = json.decode(localVersionsString);
+      // 1. Get the local versions map from the phone
+      String localVersionsString = prefs.getString('local_file_versions') ?? '{}';
+      Map<String, dynamic> localVersions = json.decode(localVersionsString);
 
-    // 2. Get the cloud versions map from Firestore
-    DocumentSnapshot config = await FirebaseFirestore.instance
-        .collection('app_config')
-        .doc('content_updates')
-        .get();
+      // 2. Get the cloud versions map from Firestore
+      DocumentSnapshot config = await FirebaseFirestore.instance
+          .collection('app_config')
+          .doc('content_updates')
+          .get();
 
-    Map<String, dynamic> cloudVersions = config.data() as Map<String, dynamic>;
-    bool changesMade = false;
-
-    // 3. Compare them file by file
-    for (String fileName in cloudVersions.keys) {
-      int cloudVer = cloudVersions[fileName];
-      int localVer = localVersions[fileName] ??
-          0; // 0 means we don't have it yet
-
-      // If the cloud has a higher number, download JUST this file!
-      if (cloudVer > localVer) {
-        await _downloadSingleFile(fileName);
-
-        // Update our local tracking map
-        localVersions[fileName] = cloudVer;
-        changesMade = true;
+      // NEW: Safely exit if the document doesn't exist yet!
+      if (!config.exists || config.data() == null) {
+        debugPrint("No OTA updates found in Firebase.");
+        return;
       }
-    }
 
-    // 4. If we downloaded anything, save the new map back to SharedPreferences
-    if (changesMade) {
-      await prefs.setString('local_file_versions', json.encode(localVersions));
+      Map<String, dynamic> cloudVersions = config.data() as Map<String, dynamic>;
+      bool changesMade = false;
+
+      // 3. Compare them file by file
+      for (String fileName in cloudVersions.keys) {
+
+        // NEW: Safely parse the numbers so it never crashes on weird data types
+        int cloudVer = cloudVersions[fileName] is int
+            ? cloudVersions[fileName]
+            : int.tryParse(cloudVersions[fileName].toString()) ?? 0;
+
+        int localVer = localVersions[fileName] ?? 0;
+
+        // If the cloud has a higher number, download JUST this file!
+        if (cloudVer > localVer) {
+          await _downloadSingleFile(fileName);
+          localVersions[fileName] = cloudVer;
+          changesMade = true;
+        }
+      }
+
+      // 4. Save the new map back to SharedPreferences
+      if (changesMade) {
+        await prefs.setString('local_file_versions', json.encode(localVersions));
+      }
+
+    } catch (e) {
+      // NEW: If anything fails (no internet, firebase error), it catches it here
+      // and allows the app to continue booting up offline!
+      debugPrint("OTA Update Check Bypassed (Offline or Error): $e");
     }
   }
 

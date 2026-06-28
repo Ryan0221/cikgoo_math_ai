@@ -3,6 +3,7 @@ import 'package:cikgoo_math_ai/services/firestore_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../services/content_manager.dart';
 import 'admin_add.dart';
 import 'admin_edit.dart';
 import 'admin_user_feedback.dart';
@@ -27,6 +28,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
   ];
 
   bool _isSuperAdmin = false;
+
+  // NEW: A unique key to force the tabs to rebuild when we hit Reload!
+  Key _refreshKey = UniqueKey();
 
   @override
   void initState() {
@@ -131,12 +135,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    // Dynamic pages based on your tabs
+    // NEW: We pass the _refreshKey to the pages so they rebuild when updated
     final List<Widget> pages = [
-      const ViewContentPanel(),
-      const EditContentPanel(),
-      const AddContentPanel(),
-      const UserFeedbackPanel(),
+      ViewContentPanel(key: _refreshKey),
+      EditContentPanel(key: _refreshKey),
+      AddContentPanel(key: _refreshKey),
+      UserFeedbackPanel(key: _refreshKey),
     ];
 
     return Scaffold(
@@ -153,6 +157,40 @@ class _AdminDashboardState extends State<AdminDashboard> {
           ),
         ),
         actions: [
+          // 1. NEW: The Reload / Sync Button
+          IconButton(
+            icon: const Icon(Icons.refresh, color: Colors.black, size: 28),
+            tooltip: 'Sync with Database',
+            onPressed: () async {
+              // Show loading spinner
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (_) => const Center(child: CircularProgressIndicator()),
+              );
+
+              try {
+                // Check Firebase for newer timestamps and download if needed
+                await ContentManager.checkForUpdates();
+
+                if (mounted) {
+                  // Generate a new key to force the active tab to reload its JSON!
+                  setState(() { _refreshKey = UniqueKey(); });
+                  Navigator.pop(context); // Close spinner
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Data is up to date!"), backgroundColor: Colors.green),
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                  Navigator.pop(context); // Close spinner
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Failed to check for updates."), backgroundColor: Colors.red),
+                  );
+                }
+              }
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.person_outline, color: Colors.black, size: 28),
             tooltip: 'View as User',

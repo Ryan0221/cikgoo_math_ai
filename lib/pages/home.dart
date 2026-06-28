@@ -111,34 +111,45 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    ContentManager.checkForUpdates();
-    _loadSubjectData();
+    _initialLoad();
   }
 
-  // Reads the JSON file and prepares the initial state
-  Future<void> _loadSubjectData() async {
+  Future<void> _initialLoad() async {
     try {
-      // Ensure you have "assets/json/subjects-chapters-subtopics.json" declared in pubspec.yaml
-      String jsonString = await ContentManager.readLocalJson(
-        'subjects-chapters-subtopics.json',
-      );
-      final Map<String, dynamic> jsonData = json.decode(jsonString);
+      // 1. Try to fetch cloud updates first
+      await ContentManager.checkForUpdates();
+    } catch (e) {
+      debugPrint("Initial update check failed: $e");
+    } finally {
+      // 2. FINALLY: No matter what happened above (success or crash),
+      // ALWAYS run the local load so the user isn't stuck on a spinner!
+      await _loadSubjectData();
+    }
+  }
 
+  // NEW: Added a parameter to optionally keep the current selection after a reload
+  Future<void> _loadSubjectData({bool keepCurrentSelection = false}) async {
+    try {
+      String jsonString = await ContentManager.readLocalJson('subjects-chapters-subtopics.json');
+      final Map<String, dynamic> jsonData = json.decode(jsonString);
       var subjectsData = jsonData['subjects'] ?? [];
 
-      List<SubjectModel> loadedSubjects = (subjectsData as List)
-          .map((sub) => SubjectModel.fromJson(sub))
-          .toList();
+      List<SubjectModel> loadedSubjects = (subjectsData as List).map((sub) => SubjectModel.fromJson(sub)).toList();
 
       if (loadedSubjects.isNotEmpty) {
         setState(() {
           _allSubjects = loadedSubjects;
           _isLoading = false;
         });
-        // Select the first subject by default
-        _selectSubject(loadedSubjects.first);
+
+        // REFRESH LOGIC: Try to find the currently selected subject in the newly downloaded data
+        if (keepCurrentSelection && _selectedSubject != null) {
+          var matchingSubject = loadedSubjects.where((s) => s.subjectName == _selectedSubject!.subjectName).firstOrNull;
+          _selectSubject(matchingSubject ?? loadedSubjects.first);
+        } else {
+          _selectSubject(loadedSubjects.first);
+        }
       } else {
-        // If the JSON is valid but completely empty
         setState(() => _isLoading = false);
       }
     } catch (e) {
@@ -334,30 +345,30 @@ class _HomeState extends State<Home> {
         child: Stack(
           children: [
             Positioned.fill(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.only(top: 50, bottom: 50),
-                child: SizedBox(
-                  height: currentY + 150,
-                  child: Stack(
-                    children: [
-                      Positioned.fill(
-                        child: CustomPaint(
-                          painter: PathPainter(points: nodePositions),
-                        ),
-                      ),
-                      ...positionedWidgets,
-                    ],
+              // NEW: The built in Flutter Pull-To-Refresh Widget!
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  // Compare Firebase timestamps, download any updates, and redraw the CURRENT subject
+                  await ContentManager.checkForUpdates();
+                  await _loadSubjectData(keepCurrentSelection: true);
+                },
+                child: SingleChildScrollView(
+                  // AlwaysScrollable is required so the RefreshIndicator works even if the list is short
+                  physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                  padding: const EdgeInsets.only(top: 50, bottom: 50),
+                  child: SizedBox(
+                    height: currentY + 150,
+                    child: Stack(
+                      children: [
+                        Positioned.fill(child: CustomPaint(painter: PathPainter(points: nodePositions))),
+                        ...positionedWidgets,
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: _buildStickyHeader(),
-            ),
+            Positioned(top: 0, left: 0, right: 0, child: _buildStickyHeader()),
           ],
         ),
       ),

@@ -232,84 +232,19 @@ class _ProfileState extends State<Profile> {
                           const SizedBox(width: 8),
                         ],
 
-                        // Existing Settings Menu
-                        PopupMenuButton<String>(
+                        // --- NEW: Settings Dialog Button ---
+                        IconButton(
                           icon: const Icon(
                             Icons.settings,
                             color: Colors.white,
                             size: 28,
                           ),
-                          color: const Color(0xFF1A2A49),
-                          elevation: 10,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
-                            side: BorderSide(
-                              color: Colors.white.withValues(alpha: 0.1),
-                            ),
-                          ),
-                          onSelected: (String choice) {
-                            if (choice == 'Switch Language') {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: const Text("Language settings coming soon!"),
-                                  backgroundColor: Colors.blueAccent.withValues(alpha: 0.8),
-                                ),
-                              );
-                            } else if (choice == 'Change Password') {
-                              if (user != null) {
-                                bool hasPassword = user.providerData.any((userInfo) => userInfo.providerId == 'password');
-                                _showPasswordDialog(context, user, hasPassword);
-                              }
-                            } else if (choice == 'Logout') {
-                              _signOut(context);
-                            }
-                          },
-
-                          itemBuilder: (BuildContext context) {
-                            return [
-                              PopupMenuItem<String>(
-                                value: 'Change Theme',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.palette, color: isDark ? Colors.white70 : Colors.black54, size: 22),
-                                    const SizedBox(width: 22),
-                                    Text('Change Theme', style: TextStyle(color: textColor, fontWeight: FontWeight.w500)),
-                                  ],
-                                ),
-                              ),
-                              const PopupMenuItem<String>(
-                                value: 'Switch Language',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.language, color: Colors.white70, size: 22),
-                                    SizedBox(width: 22),
-                                    Text('Switch Language', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
-                                  ],
-                                ),
-                              ),
-                              const PopupMenuDivider(height: 1),
-                              const PopupMenuItem<String>(
-                                value: 'Change Password',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.password, color: Colors.white70, size: 22),
-                                    SizedBox(width: 22),
-                                    Text('Change Password', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
-                                  ],
-                                ),
-                              ),
-                              const PopupMenuDivider(height: 1.5),
-                              const PopupMenuItem<String>(
-                                value: 'Logout',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.logout, color: Colors.redAccent, size: 22),
-                                    SizedBox(width: 22),
-                                    Text('Log Out', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.w500)),
-                                  ],
-                                ),
-                              ),
-                            ];
+                          tooltip: 'Settings',
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => const SettingsDialog(),
+                            );
                           },
                         ),
                       ],
@@ -434,6 +369,327 @@ class _ProfileState extends State<Profile> {
           ),
           );
         }
+    );
+  }
+}
+
+// ============================================================================
+// NEW: SETTINGS DIALOG (POPUP)
+// ============================================================================
+
+class SettingsDialog extends StatefulWidget {
+  const SettingsDialog({super.key});
+
+  @override
+  State<SettingsDialog> createState() => _SettingsDialogState();
+}
+
+class _SettingsDialogState extends State<SettingsDialog> {
+
+  Future<void> _signOut(BuildContext context) async {
+    await GoogleSignIn().signOut();
+    await FirebaseAuth.instance.signOut();
+
+    if (context.mounted) {
+      Navigator.of(context).pop();
+      Navigator.pushReplacementNamed(context, '/login');
+    }
+  }
+
+  // Updated to match the frosted glass theme
+  void _showPasswordDialog(BuildContext context, User user, bool hasPassword, bool isDark) {
+    final TextEditingController passwordController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1A2A49).withValues(alpha: 0.8) : Colors.white.withValues(alpha: 0.9),
+                borderRadius: BorderRadius.circular(30),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1.5),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    hasPassword ? "Change Password" : "Set Account Password",
+                    style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: passwordController,
+                    obscureText: true,
+                    style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+                    decoration: InputDecoration(
+                      hintText: "Enter new password (Min. 6 chars)",
+                      hintStyle: TextStyle(color: isDark ? Colors.white54 : Colors.black54),
+                      filled: true,
+                      fillColor: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text("Cancel", style: TextStyle(color: isDark ? Colors.white54 : Colors.black54)),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.greenAccent,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                        onPressed: () async {
+                          if (passwordController.text.length < 6) return;
+                          try {
+                            await user.updatePassword(passwordController.text);
+                            if (context.mounted) Navigator.pop(context);
+                          } catch (e) {
+                            if (context.mounted) Navigator.pop(context);
+                          }
+                        },
+                        child: const Text("Save", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // Updated Theme Dialog with 2 Rows for Dark Mode
+  void _showThemeDialog(BuildContext context, bool isDark) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return Dialog(
+            backgroundColor: Colors.transparent,
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF1A2A49).withValues(alpha: 0.8) : Colors.white.withValues(alpha: 0.9),
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1.5),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text("Select Theme", style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontSize: 20, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 20),
+
+                    // OPTION 1: Light Mode
+                    _buildThemeTile("Light Mode", Icons.light_mode, 'light', isDark),
+
+                    const Divider(height: 30, color: Colors.grey),
+
+                    // OPTION 2: Dark Mode Container
+                    _buildDarkThemeSection(isDark),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+    );
+  }
+
+  Widget _buildThemeTile(String title, IconData icon, String themeValue, bool isDark) {
+    Color textColor = isDark ? Colors.white : Colors.black87;
+    bool isSelected = appThemeNotifier.value == themeValue;
+
+    return ListTile(
+      leading: Icon(icon, color: isSelected ? Colors.blueAccent : textColor),
+      title: Text(title, style: TextStyle(color: isSelected ? Colors.blueAccent : textColor, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
+      trailing: isSelected ? const Icon(Icons.check, color: Colors.blueAccent) : null,
+      onTap: () {
+        appThemeNotifier.value = themeValue;
+        Navigator.pop(context);
+      },
+    );
+  }
+
+  Widget _buildDarkThemeSection(bool isDark) {
+    bool isDarkActive = appThemeNotifier.value.startsWith('dark');
+    Color textColor = isDark ? Colors.white : Colors.black87;
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: isDarkActive ? Colors.blueAccent.withValues(alpha: 0.1) : Colors.transparent,
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: isDarkActive ? Colors.blueAccent.withValues(alpha: 0.3) : Colors.transparent),
+      ),
+      child: Column(
+        children: [
+          // Row 1: Base Dark Mode
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: Icon(Icons.dark_mode, color: isDarkActive ? Colors.blueAccent : textColor),
+            title: Text("Dark Mode", style: TextStyle(color: isDarkActive ? Colors.blueAccent : textColor, fontWeight: isDarkActive ? FontWeight.bold : FontWeight.normal)),
+            onTap: () {
+              appThemeNotifier.value = 'dark_none';
+              Navigator.pop(context);
+            },
+          ),
+          const SizedBox(height: 10),
+          // Row 2: The 4 Effects
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildEffectButton('dark_starry', Icons.auto_awesome, "Stars"),
+              _buildEffectButton('dark_rain', Icons.water_drop, "Rain"),
+              _buildEffectButton('dark_snow', Icons.ac_unit, "Snow"),
+              _buildEffectButton('dark_leaves', Icons.eco, "Leaves"),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEffectButton(String themeValue, IconData icon, String label) {
+    bool isSelected = appThemeNotifier.value == themeValue;
+    return InkWell(
+      onTap: () {
+        appThemeNotifier.value = themeValue;
+        Navigator.pop(context);
+      },
+      child: Column(
+        children: [
+          Icon(icon, color: isSelected ? Colors.blueAccent : Colors.grey, size: 28),
+          const SizedBox(height: 4),
+          Text(label, style: TextStyle(color: isSelected ? Colors.blueAccent : Colors.grey, fontSize: 12)),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final User? user = FirebaseAuth.instance.currentUser;
+
+    return ValueListenableBuilder<String>(
+      valueListenable: appThemeNotifier,
+      builder: (context, themeStr, child) {
+        bool isDark = themeStr.startsWith('dark');
+        Color textColor = isDark ? Colors.white : Colors.black87;
+
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1A2A49).withValues(alpha: 0.8) : Colors.white.withValues(alpha: 0.9),
+                borderRadius: BorderRadius.circular(30),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  width: 1.5,
+                ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min, // Hugs content tightly
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const SizedBox(width: 40), // Spacer for centering
+                      Text('Settings', style: TextStyle(color: textColor, fontWeight: FontWeight.bold, fontSize: 20)),
+                      IconButton(
+                        icon: Icon(Icons.close, color: textColor),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  _buildSettingsTile(
+                    icon: Icons.palette,
+                    title: 'Change Theme',
+                    textColor: textColor,
+                    isDark: isDark,
+                    onTap: () => _showThemeDialog(context, isDark),
+                  ),
+                  _buildSettingsTile(
+                    icon: Icons.language,
+                    title: 'Switch Language',
+                    textColor: textColor,
+                    isDark: isDark,
+                    onTap: () {},
+                  ),
+                  const Divider(height: 30, color: Colors.grey),
+                  _buildSettingsTile(
+                    icon: Icons.password,
+                    title: 'Change Password',
+                    textColor: textColor,
+                    isDark: isDark,
+                    onTap: () {
+                      if (user != null) {
+                        bool hasPassword = user.providerData.any((userInfo) => userInfo.providerId == 'password');
+                        _showPasswordDialog(context, user, hasPassword, isDark);
+                      }
+                    },
+                  ),
+                  const Divider(height: 30, color: Colors.grey),
+                  _buildSettingsTile(
+                    icon: Icons.logout,
+                    title: 'Log Out',
+                    textColor: Colors.redAccent,
+                    iconColor: Colors.redAccent,
+                    isDark: isDark,
+                    onTap: () => _signOut(context),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSettingsTile({
+    required IconData icon,
+    required String title,
+    required Color textColor,
+    Color? iconColor,
+    required bool isDark,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 10),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      leading: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: (iconColor ?? textColor).withValues(alpha: 0.1),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, color: iconColor ?? textColor, size: 24),
+      ),
+      title: Text(title, style: TextStyle(color: textColor, fontWeight: FontWeight.w500, fontSize: 16)),
+      trailing: Icon(Icons.chevron_right, color: textColor.withValues(alpha: 0.5)),
+      onTap: onTap,
     );
   }
 }
