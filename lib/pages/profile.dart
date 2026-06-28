@@ -601,7 +601,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
               width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1A2A49).withValues(alpha: 0.8) : Colors.white.withValues(alpha: 0.9),
+                color: isDark ? const Color(0xFF1A2A49).withValues(alpha: 0.2) : Colors.white.withValues(alpha: 0.9),
                 borderRadius: BorderRadius.circular(30),
                 border: Border.all(
                   color: Colors.white.withValues(alpha: 0.2),
@@ -637,7 +637,6 @@ class _SettingsDialogState extends State<SettingsDialog> {
                     isDark: isDark,
                     onTap: () {},
                   ),
-                  const Divider(height: 30, color: Colors.grey),
                   _buildSettingsTile(
                     icon: Icons.password,
                     title: 'Change Password',
@@ -650,7 +649,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                       }
                     },
                   ),
-                  const Divider(height: 30, color: Colors.grey),
+                  const Divider(height: 30, color: Colors.white),
                   _buildSettingsTile(
                     icon: Icons.logout,
                     title: 'Log Out',
