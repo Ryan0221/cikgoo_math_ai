@@ -1,9 +1,16 @@
+import 'dart:async';
+import 'dart:io';
+import 'dart:math';
+import 'dart:convert';
+import 'package:path_provider/path_provider.dart';
+import 'package:cikgoo_math_ai/pages/verification_code.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../services/theme_manager.dart';
+import 'login_signup.dart'; // To access sendVerificationEmail
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -15,10 +22,40 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile> {
   bool _isAdminOrSuperAdmin = false;
 
+  // --- NEW: Internet checking variables ---
+  bool _isOnline = true;
+  Timer? _internetTimer;
+
   @override
   void initState() {
     super.initState();
     _checkAdminRole();
+    _startInternetCheck(); // Start checking on load
+  }
+
+  // --- NEW: Internet Detection Logic ---
+  void _startInternetCheck() {
+    _checkInternet(); // Check immediately
+    _internetTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      _checkInternet();
+    });
+  }
+
+  Future<void> _checkInternet() async {
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        if (!_isOnline && mounted) setState(() => _isOnline = true);
+      }
+    } catch (_) {
+      if (_isOnline && mounted) setState(() => _isOnline = false);
+    }
+  }
+
+  @override
+  void dispose() {
+    _internetTimer?.cancel(); // Prevent memory leaks
+    super.dispose();
   }
 
   // --- NEW: Check if the user is an admin or super admin ---
@@ -190,6 +227,162 @@ class _ProfileState extends State<Profile> {
     );
   }
 
+  // --- NEW: Edit Profile Logic ---
+  void _showEditProfileDialog(BuildContext context, User user, bool isDark) {
+    final TextEditingController nameCtrl = TextEditingController(text: user.displayName);
+    final TextEditingController emailCtrl = TextEditingController(text: user.email);
+    final TextEditingController photoCtrl = TextEditingController(text: user.photoURL);
+
+    bool isLoading = false;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return StatefulBuilder(builder: (context, setStateDialog) {
+          return Dialog(
+            backgroundColor: Colors.transparent,
+            insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF1A2A49).withValues(alpha: 0.8) : Colors.white.withValues(alpha: 0.9),
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1.5),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text("Edit Profile", style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontSize: 20, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 20),
+
+                    // Username Field
+                    _buildEditField("Username", Icons.person, nameCtrl, isDark),
+                    const SizedBox(height: 15),
+
+                    // Email Field
+                    _buildEditField("Email Address", Icons.email, emailCtrl, isDark),
+                    const SizedBox(height: 15),
+
+                    // Photo URL Field
+                    _buildEditField("Photo URL (Optional)", Icons.image, photoCtrl, isDark),
+                    const SizedBox(height: 25),
+
+                    isLoading
+                        ? const CircularProgressIndicator(color: Colors.blueAccent)
+                        : Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: Text("Cancel", style: TextStyle(color: isDark ? Colors.white54 : Colors.black54)),
+                        ),
+                        const SizedBox(width: 10),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blueAccent,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          onPressed: () async {
+                            setStateDialog(() => isLoading = true);
+
+                            String newName = nameCtrl.text.trim();
+                            String newEmail = emailCtrl.text.trim();
+                            String newPhoto = photoCtrl.text.trim();
+
+                            try {
+                              // 1. Check if Email Changed (Requires Verification)
+                              if (newEmail.isNotEmpty && newEmail != user.email) {
+                                String verificationCode = (Random().nextInt(900000) + 100000).toString();
+
+                                bool emailSent = await sendVerificationEmail(newEmail, verificationCode);
+                                if (!emailSent) throw Exception("Failed to send verification email.");
+
+                                if (context.mounted) {
+                                  bool? isVerified = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => VerificationCode(email: newEmail, expectedCode: verificationCode),
+                                    ),
+                                  );
+
+                                  if (isVerified != true) {
+                                    setStateDialog(() => isLoading = false);
+                                    return; // User aborted or failed verification
+                                  }
+
+                                  // Verified! Update Auth Email
+                                  await user.verifyBeforeUpdateEmail(newEmail); // Preferred modern Firebase method
+                                }
+                              }
+
+                              // 2. Update Auth Profile (Name & Photo)
+                              await user.updateDisplayName(newName);
+                              await user.updatePhotoURL(newPhoto);
+
+                              // 3. Update Firestore Document
+                              await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
+                                'name': newName,
+                                if (newEmail != user.email) 'email': newEmail,
+                                'photoURL': newPhoto,
+                              });
+
+                              // Refresh UI
+                              await user.reload();
+                              if (mounted) setState(() {});
+
+                              if (context.mounted) {
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Profile Updated!"), backgroundColor: Colors.green));
+                              }
+                            } catch (e) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: ${e.toString()}"), backgroundColor: Colors.redAccent));
+                              }
+                            } finally {
+                              if (context.mounted) setStateDialog(() => isLoading = false);
+                            }
+                          },
+                          child: const Text("Confirm", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
+      },
+    );
+  }
+
+  // Helper widget for the text fields
+  Widget _buildEditField(String hint, IconData icon, TextEditingController controller, bool isDark) {
+    return TextField(
+      controller: controller,
+      style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: TextStyle(color: isDark ? Colors.white54 : Colors.black54),
+        prefixIcon: Icon(icon, color: isDark ? Colors.white54 : Colors.black54),
+        filled: true,
+        fillColor: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05),
+        contentPadding: const EdgeInsets.symmetric(vertical: 15),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide(color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.1)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: const BorderSide(color: Colors.blueAccent),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final User? user = FirebaseAuth.instance.currentUser;
@@ -278,12 +471,14 @@ class _ProfileState extends State<Profile> {
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                  color: Colors.greenAccent,
+                                  // --- NEW: Dynamic Color ---
+                                  color: _isOnline ? Colors.greenAccent : Colors.redAccent,
                                   width: 2,
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.greenAccent.withValues(alpha: 0.3),
+                                    // --- NEW: Dynamic Glow ---
+                                    color: (_isOnline ? Colors.greenAccent : Colors.redAccent).withValues(alpha: 0.3),
                                     blurRadius: 10,
                                     spreadRadius: 1,
                                   ),
@@ -292,10 +487,10 @@ class _ProfileState extends State<Profile> {
                               child: CircleAvatar(
                                 radius: 32,
                                 backgroundColor: Colors.white.withValues(alpha: 0.1),
-                                backgroundImage: user?.photoURL != null
-                                    ? NetworkImage(user!.photoURL!)
+                                backgroundImage: user?.photoURL != null && user!.photoURL!.isNotEmpty
+                                    ? NetworkImage(user.photoURL!)
                                     : null,
-                                child: user?.photoURL == null
+                                child: user?.photoURL == null || user!.photoURL!.isEmpty
                                     ? const Icon(Icons.person, size: 32, color: Colors.white54)
                                     : null,
                               ),
@@ -338,7 +533,9 @@ class _ProfileState extends State<Profile> {
                               color: Colors.transparent,
                               child: InkWell(
                                 onTap: () {
-                                  // TODO: Add edit profile logic
+                                  if (user != null) {
+                                    _showEditProfileDialog(context, user, isDark);
+                                  }
                                 },
                                 borderRadius: BorderRadius.circular(50),
                                 child: Container(
@@ -511,6 +708,331 @@ class _SettingsDialogState extends State<SettingsDialog> {
     );
   }
 
+  // --- NEW: Feedback Dialog Logic ---
+  void _showFeedbackDialog(BuildContext context, User user, bool isDark) {
+    final TextEditingController titleCtrl = TextEditingController();
+    final TextEditingController descCtrl = TextEditingController();
+
+    // --- NEW: Dropdown State Variables ---
+    String? selectedSubject;
+    String? selectedChapter;
+    String? selectedSubtopic;
+    String? selectedQuestion;
+
+    // Default lists starting with 'Others'
+    List<String> subjects = ['Others'];
+    List<String> chapters = ['Others'];
+    List<String> subtopics = ['Others'];
+    List<String> questions = ['Others'];
+
+    // Variables to hold the raw JSON data in memory while the dialog is open
+    List<dynamic> rawSubjectsData = [];
+    List<dynamic> rawChapterList = []; // Holds the chapters for the selected subject
+    List<dynamic> rawSubtopicsData = []; // Holds the subtopics for the selected chapter
+
+    bool isLoading = false;
+    bool isJsonLoaded = false; // Flag to prevent infinite loading in StatefulBuilder
+
+    // Helper to read JSON from the secure OTA Sandbox
+    Future<Map<String, dynamic>?> _readSandboxJson(String fileName) async {
+      try {
+        final directory = await getApplicationDocumentsDirectory();
+        final file = File('${directory.path}/$fileName');
+        if (await file.exists()) {
+          final String contents = await file.readAsString();
+          return json.decode(contents);
+        }
+      } catch (e) {
+        debugPrint("Error reading $fileName from sandbox: $e");
+      }
+      return null;
+    }
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return StatefulBuilder(builder: (context, setStateDialog) {
+
+          // --- LOAD MASTER JSON ON DIALOG OPEN ---
+          if (!isJsonLoaded) {
+            isJsonLoaded = true;
+            _readSandboxJson('subjects-chapters-subtopics.json').then((data) {
+              if (data != null && data['subjects'] != null) {
+                setStateDialog(() {
+                  rawSubjectsData = data['subjects'];
+                  subjects = ['Others', ...rawSubjectsData.map((s) => s['subject_name'].toString())];
+                });
+              }
+            });
+          }
+
+          return Dialog(
+            backgroundColor: Colors.transparent,
+            insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF1A2A49).withValues(alpha: 0.8) : Colors.white.withValues(alpha: 0.9),
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1.5),
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text("Submit Feedback", style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontSize: 20, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 20),
+
+                      _buildFeedbackField("Title (Required)", Icons.title, titleCtrl, isDark),
+                      const SizedBox(height: 10),
+
+                      // --- SUBJECT DROPDOWN ---
+                      _buildFeedbackDropdown("Subject (Optional)", Icons.menu_book, subjects, selectedSubject, isDark, (val) {
+                        setStateDialog(() {
+                          selectedSubject = val;
+                          selectedChapter = null;
+                          selectedSubtopic = null;
+                          selectedQuestion = null;
+
+                          chapters = ['Others'];
+                          subtopics = ['Others'];
+                          questions = ['Others'];
+
+                          if (val != 'Others' && val != null) {
+                            final subj = rawSubjectsData.firstWhere((s) => s['subject_name'] == val, orElse: () => null);
+                            if (subj != null && subj['chapters'] != null) {
+                              rawChapterList = subj['chapters'];
+                              chapters = ['Others', ...rawChapterList.map((c) => c['ch_name'].toString())];
+                            }
+                          }
+                        });
+                      }),
+                      const SizedBox(height: 10),
+
+                      // --- CHAPTER DROPDOWN ---
+                      _buildFeedbackDropdown("Chapter (Optional)", Icons.book, chapters, selectedChapter, isDark, (val) async {
+                        setStateDialog(() {
+                          selectedChapter = val;
+                          selectedSubtopic = null;
+                          selectedQuestion = null;
+                          subtopics = ['Others'];
+                          questions = ['Others'];
+                          isLoading = true;
+                        });
+
+                        if (val != 'Others' && val != null) {
+                          // UPDATED KEY: 'ch_name'
+                          final chap = rawChapterList.firstWhere((c) => c['ch_name'] == val, orElse: () => null);
+                          // UPDATED KEY: 'ch_file_location'
+                          if (chap != null && chap['ch_file_location'] != null) {
+                            // Extract just the filename from "assets/json/spmMathF4_c1.json"
+                            String filePath = chap['ch_file_location'];
+                            String fileName = filePath.split('/').last;
+
+                            final chapterData = await _readSandboxJson(fileName);
+
+                            if (chapterData != null && chapterData['subtopics'] != null) {
+                              setStateDialog(() {
+                                rawSubtopicsData = chapterData['subtopics'];
+                                // UPDATED KEY: 'sub_name'
+                                subtopics = ['Others', ...rawSubtopicsData.map((s) => s['sub_name'].toString())];
+                              });
+                            }
+                          }
+                        }
+                        setStateDialog(() => isLoading = false);
+                      }),
+                      const SizedBox(height: 10),
+
+                      // --- SUBTOPIC DROPDOWN ---
+                      _buildFeedbackDropdown("Subtopic (Optional)", Icons.bookmark, subtopics, selectedSubtopic, isDark, (val) {
+                        setStateDialog(() {
+                          selectedSubtopic = val;
+                          selectedQuestion = null;
+                          questions = ['Others'];
+
+                          if (val != 'Others' && val != null) {
+                            // UPDATED KEY: 'sub_name'
+                            final sub = rawSubtopicsData.firstWhere((s) => s['sub_name'] == val, orElse: () => null);
+                            // UPDATED KEY: 'q'
+                            if (sub != null && sub['q'] != null) {
+                              final List<dynamic> qList = sub['q'];
+                              // UPDATED KEY: 'q_id'
+                              questions = ['Others', ...qList.map((q) => q['text'].toString())];
+                            }
+                          }
+                        });
+                      }),
+                      const SizedBox(height: 10),
+
+                      // --- QUESTION DROPDOWN ---
+                      _buildFeedbackDropdown("Question (Optional)", Icons.question_mark, questions, selectedQuestion, isDark, (val) {
+                        setStateDialog(() => selectedQuestion = val);
+                      }),
+                      const SizedBox(height: 10),
+
+                      TextField(
+                        controller: descCtrl,
+                        maxLines: 4,
+                        style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+                        decoration: InputDecoration(
+                          hintText: "Describe your issue or feedback...",
+                          hintStyle: TextStyle(color: isDark ? Colors.white54 : Colors.black54),
+                          filled: true,
+                          fillColor: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05),
+                          contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(15),
+                            borderSide: BorderSide(color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.1)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(15),
+                            borderSide: const BorderSide(color: Colors.amber),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      isLoading
+                          ? const CircularProgressIndicator(color: Colors.amber)
+                          : Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: Text("Cancel", style: TextStyle(color: isDark ? Colors.white54 : Colors.black54)),
+                          ),
+                          const SizedBox(width: 10),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.amber,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            ),
+                            onPressed: () async {
+                              if (titleCtrl.text.trim().isEmpty || descCtrl.text.trim().isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Title and Description are required."), backgroundColor: Colors.redAccent));
+                                return;
+                              }
+
+                              setStateDialog(() => isLoading = true);
+
+                              try {
+                                final feedbackRef = FirebaseFirestore.instance.collection('feedbacks').doc();
+
+                                await feedbackRef.set({
+                                  'uid': user.uid,
+                                  'name': user.displayName ?? 'Unknown User',
+                                  'title': titleCtrl.text.trim(),
+                                  'status': 'open',
+                                  'timestamp': FieldValue.serverTimestamp(),
+                                  // Save the dropdown values (if null, save as empty string or 'Others')
+                                  'subject_id': selectedSubject ?? 'Others',
+                                  'chapter_id': selectedChapter ?? 'Others',
+                                  'subtopic_id': selectedSubtopic ?? 'Others',
+                                  'question_id': selectedQuestion ?? 'Others',
+                                });
+
+                                await feedbackRef.collection('messages').add({
+                                  'sender_id': user.uid,
+                                  'sender_role': 'user',
+                                  'text': descCtrl.text.trim(),
+                                  'timestamp': FieldValue.serverTimestamp(),
+                                });
+
+                                if (context.mounted) {
+                                  Navigator.pop(context);
+                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Feedback submitted successfully!"), backgroundColor: Colors.green));
+                                }
+                              } catch (e) {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: ${e.toString()}"), backgroundColor: Colors.redAccent));
+                                }
+                              } finally {
+                                if (context.mounted) setStateDialog(() => isLoading = false);
+                              }
+                            },
+                            child: const Text("Submit", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        });
+      },
+    );
+  }
+
+  // Helper widget specifically for feedback fields to match Amber theme
+  Widget _buildFeedbackField(String hint, IconData icon, TextEditingController controller, bool isDark) {
+    return TextField(
+      controller: controller,
+      style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: TextStyle(color: isDark ? Colors.white54 : Colors.black54),
+        prefixIcon: Icon(icon, color: isDark ? Colors.white54 : Colors.black54),
+        filled: true,
+        fillColor: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05),
+        contentPadding: const EdgeInsets.symmetric(vertical: 10),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide(color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.1)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: const BorderSide(color: Colors.amber),
+        ),
+      ),
+    );
+  }
+
+  // --- NEW: Helper widget for Dropdowns ---
+  Widget _buildFeedbackDropdown(String hint, IconData icon, List<String> items, String? selectedValue, bool isDark, ValueChanged<String?> onChanged) {
+    return DropdownButtonFormField<String>(
+      value: selectedValue,
+      icon: Icon(Icons.arrow_drop_down, color: isDark ? Colors.white54 : Colors.black54),
+      dropdownColor: isDark ? Colors.black54 : Colors.white,
+      style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: TextStyle(color: isDark ? Colors.white54 : Colors.black54),
+        prefixIcon: Icon(icon, color: isDark ? Colors.white54 : Colors.black54),
+        filled: true,
+        fillColor: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05),
+        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide(color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.1)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: const BorderSide(color: Colors.amber),
+        ),
+      ),
+      items: items.map((String val) {
+        return DropdownMenuItem<String>(
+          value: val,
+          child: Text(
+            val,
+            style: TextStyle(
+                color: isDark ? Colors.white : Colors.black87,
+                // Make "Others" stand out slightly
+                fontStyle: val == 'Others' ? FontStyle.italic : FontStyle.normal
+            ),
+          ),
+        );
+      }).toList(),
+      onChanged: onChanged,
+    );
+  }
+
   Widget _buildThemeTile(String title, IconData icon, String themeValue, bool isDark) {
     Color textColor = isDark ? Colors.white : Colors.black87;
     bool isSelected = appThemeNotifier.value == themeValue;
@@ -650,6 +1172,18 @@ class _SettingsDialogState extends State<SettingsDialog> {
                     },
                   ),
                   const Divider(height: 30, color: Colors.white),
+                  _buildSettingsTile(
+                    icon: Icons.phone,
+                    title: 'Contact Us',
+                    textColor: Colors.amber,
+                    iconColor: Colors.amber,
+                    isDark: isDark,
+                    onTap: () {
+                      if (user != null) {
+                        _showFeedbackDialog(context, user, isDark);
+                      }
+                    },
+                  ),
                   _buildSettingsTile(
                     icon: Icons.logout,
                     title: 'Log Out',
